@@ -30,12 +30,13 @@ class MainClass
   int x_prev;
   int y_next;
   int y_prev;
-  
+
   double alpha;
   double beta; 
   double gamma;
   double tol;
   double tau;
+  double FU;
 
   double u_squared;
 

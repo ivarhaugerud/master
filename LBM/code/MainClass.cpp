@@ -28,6 +28,8 @@ MainClass::MainClass(int NX, int NY, double TAU, double FX, double FY, double to
   beta  = 1/tau;
   gamma = 3*(1 - 1/(2*tau));
   tol   = tolerence;
+  F(0) = FX;
+  F(1) = FY;
 }
 
 //the metropolis algorithm
@@ -64,8 +66,8 @@ void MainClass::run()
       for (int y = 0; y < Ny; y++){
 
       rho(x, y)  = f(x, y, 0) + f(x, y, 1) + f(x, y, 2) + f(x, y, 3) + f(x, y, 4) + f(x, y, 5) + f(x, y, 6) + f(x, y, 7) + f(x, y, 8); 
-      u(x, y, 0) = f(x, y, 1) - f(x, y, 3) + f(x, y, 5) - f(x, y, 6) - f(x, y, 7) + f(x, y, 8);
-      u(x, y, 1) = f(x, y, 2) - f(x, y, 4) + f(x, y, 5) + f(x, y, 6) - f(x, y, 7) - f(x, y, 8);
+      u(x, y, 0) = f(x, y, 1) - f(x, y, 3) + f(x, y, 5) - f(x, y, 6) - f(x, y, 7) + f(x, y, 8) + F(0)/(2*rho(x,y));
+      u(x, y, 1) = f(x, y, 2) - f(x, y, 4) + f(x, y, 5) + f(x, y, 6) - f(x, y, 7) - f(x, y, 8) + F(1)/(2*rho(x,y));
       sum += rho(x,y);
       u_squared = u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1);
 
@@ -79,15 +81,26 @@ void MainClass::run()
       f_eq(x, y, 7) = rho(x, y)*(1 - 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + 3*u_squared)/36;
       f_eq(x, y, 8) = rho(x, y)*(1 + 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + 3*u_squared)/36;
 
-      f(x, y, 0) = f(x, y, 0)*alpha + f_eq(x, y, 0)*beta;
-      f(x, y, 1) = f(x, y, 1)*alpha + f_eq(x, y, 1)*beta;
-      f(x, y, 2) = f(x, y, 2)*alpha + f_eq(x, y, 2)*beta;
-      f(x, y, 3) = f(x, y, 3)*alpha + f_eq(x, y, 3)*beta;
-      f(x, y, 4) = f(x, y, 4)*alpha + f_eq(x, y, 4)*beta;
-      f(x, y, 5) = f(x, y, 5)*alpha + f_eq(x, y, 5)*beta;
-      f(x, y, 6) = f(x, y, 6)*alpha + f_eq(x, y, 6)*beta;
-      f(x, y, 7) = f(x, y, 7)*alpha + f_eq(x, y, 7)*beta;
-      f(x, y, 8) = f(x, y, 8)*alpha + f_eq(x, y, 8)*beta;
+      FU = 3*(F(0)*u(x,y,0) + F(1)*u(x,y,1));
+      S(x, y, 0) = -FU;
+      S(x, y, 1) =  3*F(0) + 9*F(0)*u(x,y,0) - FU;
+      S(x, y, 2) =  3*F(1) + 9*F(1)*u(x,y,1) - FU;
+      S(x, y, 3) = -3*F(1) - 9*F(0)*u(x,y,0) - FU;
+      S(x, y, 4) = -3*F(1) + 9*F(1)*u(x,y,1) - FU;
+      S(x, y, 5) =  3*(F(0) + F(1)) + 9*(F(0) + F(1))*(u(x,y,0)+u(x,y,1)) - FU;
+      S(x, y, 6) = 3*(-F(0) + F(1)) + 9*(-F(0) + F(1))*(-u(x,y,0)+u(x,y,1)) - FU;
+      S(x, y, 7) = -3*(F(0) + F(1)) + 9*(F(0) + F(1))*(u(x,y,0)+u(x,y,1)) - FU;
+      S(x, y, 8) =  3*(F(0) - F(1)) + 9*(F(0) - F(1))*(F(0) - F(1)) - FU;
+
+      f(x, y, 0) = f(x, y, 0)*alpha + f_eq(x, y, 0)*beta + alpha*S(x,y,0)*4/9;
+      f(x, y, 1) = f(x, y, 1)*alpha + f_eq(x, y, 1)*beta + alpha*S(x,y,1)*1/9;
+      f(x, y, 2) = f(x, y, 2)*alpha + f_eq(x, y, 2)*beta + alpha*S(x,y,2)*1/9;
+      f(x, y, 3) = f(x, y, 3)*alpha + f_eq(x, y, 3)*beta + alpha*S(x,y,3)*1/9;
+      f(x, y, 4) = f(x, y, 4)*alpha + f_eq(x, y, 4)*beta + alpha*S(x,y,4)*1/9;
+      f(x, y, 5) = f(x, y, 5)*alpha + f_eq(x, y, 5)*beta + alpha*S(x,y,5)*1/36;
+      f(x, y, 6) = f(x, y, 6)*alpha + f_eq(x, y, 6)*beta + alpha*S(x,y,6)*1/36;
+      f(x, y, 7) = f(x, y, 7)*alpha + f_eq(x, y, 7)*beta + alpha*S(x,y,7)*1/36;
+      f(x, y, 8) = f(x, y, 8)*alpha + f_eq(x, y, 8)*beta + alpha*S(x,y,8)*1/36;
 
       x_next = x+1;
       x_prev = x-1;
