@@ -111,13 +111,8 @@ class LBM():
     	self.S[:,:, 8] = self.gamma*self.omega[8]*( np.dot(F, c[:, :])[8]*(1+3*np.tensordot(c, u, axes=[0,2])[8,:,:]) - np.dot(u, F))
 
     def algorithm(self):
-        equil = False
-        current_max_velocity = 1
-        previous_max_velocity = 2
-
-        while equil == False:
             #calculate
-            self.rho_and_u()
+
             self.source_term()
             self.f_eq()
 

@@ -16,8 +16,8 @@ using namespace arma;
 
 class MainClass
 {
-//the public variables
-public:
+  //the public variables
+  public:
 
   //writing to file
   string filename;
@@ -25,29 +25,35 @@ public:
 
   int Nx;
   int Ny; 
+
+  int x_next;
+  int x_prev;
+  int y_next;
+  int y_prev;
+  
   double alpha;
   double beta; 
   double gamma;
   double tol;
   double tau;
 
- Cube<double> f;
- Cube<double> f_prev;
- Cube<double> f_equil;
- Cube<double> S;
+  double u_squared;
+
+  Cube<double> f;
+  Cube<double> f_star;
+  Cube<double> f_eq;
+  Cube<double> S;
+  Cube<double> u;
+
+  Mat<double> rho;
 
   Col<double> F;
-  Col<double> omega;
 
-  Mat<double> c;
-  Mat<double> velocity;
-  Mat<double> density;
 
   MainClass();
   MainClass(int NX, int NY, double TAU, double FX, double FY, double tolerence, string filename, int amount_of_data);
-
-  //running and equilibrating
   void initialize(double rho);
+  void run();
 };
 
 #endif

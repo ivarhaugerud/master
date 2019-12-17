@@ -5,55 +5,29 @@ MainClass::MainClass()
 
 //all variabels we neeed for the class, in addition to the two functions for the energy and wave function
 MainClass::MainClass(int NX, int NY, double TAU, double FX, double FY, double tolerence, string filename, int amount_of_data)
-
 {
   //the file name for saving data, and number of lines when saving data
   filename   = filename;
   data_lines = amount_of_data;
 
-  Nx = NX;
-  Ny = NY;
+  Nx  = NX;
+  Ny  = NY;
   tau = TAU;
 
   f       = Cube<double>(Nx, Ny, 9);
-  f_prev  = Cube<double>(Nx, Ny, 9);
-  f_equil = Cube<double>(Nx, Ny, 9);
+  f_star  = Cube<double>(Nx, Ny, 9);
+  f_eq    = Cube<double>(Nx, Ny, 9);
   S       = Cube<double>(Nx, Ny, 9);
+  u       = Cube<double>(Nx, Ny, 2);
 
-  velocity = Mat<double>(Nx, Ny);
-  density  = Mat<double>(Nx, Ny);
-  c        = Mat<double>(2, 9);
-
+  rho      = Mat<double>(Nx, Ny);
   F        = Col<double>(2);
-  omega    = Col<double>(9);
 
+  //use delta_t = 1
   alpha = 1 - 1/tau;
   beta  = 1/tau;
   gamma = 3*(1 - 1/(2*tau));
-  tol = tolerence;
-
-  omega(0) = 4/9;
-  omega(1) = 1/9;
-  omega(2) = 1/9;
-  omega(3) = 1/9;
-  omega(4) = 1/9;
-  omega(5) = 1/36;
-  omega(6) = 1/36;
-  omega(7) = 1/36;
-  omega(8) = 1/36;
-
-  c(1, 1) =  1;
-  c(0, 2) =  1;
-  c(1, 3) = -1;
-  c(0, 4) = -1;
-  c(0, 5) =  1;
-  c(1, 5) =  1;
-  c(1, 6) = -1;
-  c(0, 6) =  1;
-  c(0, 7) = -1;
-  c(1, 7) = -1;
-  c(1, 8) =  1;
-  c(0, 8) = -1;
+  tol   = tolerence;
 }
 
 //the metropolis algorithm
@@ -61,7 +35,7 @@ void MainClass::initialize(double rho)
 {
   for (int i = 0; i < Nx; i ++)
   {
-    for (int j = 0; i < Ny; j ++)
+    for (int j = 0; j < Ny; j ++)
     {
       f(i, j, 0) = 4*rho/9;
       f(i, j, 1) = rho/9;
@@ -73,6 +47,78 @@ void MainClass::initialize(double rho)
       f(i, j, 7) = rho/36;
       f(i, j, 8) = rho/36;
     }
+  }
+}
+
+void MainClass::run()
+{
+  bool equil = false;
+  double current_max_velocity = 1;
+  double previous_max_velocity = 2;
+  int counter = 0;
+  double sum = 0;
+  while (not equil)
+    {
+      sum = 0;
+      for (int x = 0; x < Nx; x++){
+      for (int y = 0; y < Ny; y++){
+
+      rho(x, y)  = f(x, y, 0) + f(x, y, 1) + f(x, y, 2) + f(x, y, 3) + f(x, y, 4) + f(x, y, 5) + f(x, y, 6) + f(x, y, 7) + f(x, y, 8); 
+      u(x, y, 0) = f(x, y, 1) - f(x, y, 3) + f(x, y, 5) - f(x, y, 6) - f(x, y, 7) + f(x, y, 8);
+      u(x, y, 1) = f(x, y, 2) - f(x, y, 4) + f(x, y, 5) + f(x, y, 6) - f(x, y, 7) - f(x, y, 8);
+      sum += rho(x,y);
+      u_squared = u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1);
+
+      f_eq(x, y, 0) = rho(x, y)*(2-3*u_squared)*2/9;
+      f_eq(x, y, 1) = rho(x, y)*(2 + 6*u(x, y, 0) + 9*u(x,y,0)*u(x,y,0) - 3*u_squared)/18;
+      f_eq(x, y, 2) = rho(x, y)*(2 + 6*u(x, y, 1) + 9*u(x,y,1)*u(x,y,1) - 3*u_squared)/18;
+      f_eq(x, y, 3) = rho(x, y)*(2 - 6*u(x, y, 0) + 9*u(x,y,0)*u(x,y,0) - 3*u_squared)/18;
+      f_eq(x, y, 4) = rho(x, y)*(2 - 6*u(x, y, 1) + 9*u(x,y,1)*u(x,y,1) - 3*u_squared)/18;
+      f_eq(x, y, 5) = rho(x, y)*(1 + 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + 3*u_squared)/36;
+      f_eq(x, y, 6) = rho(x, y)*(1 - 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + 3*u_squared)/36;
+      f_eq(x, y, 7) = rho(x, y)*(1 - 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + 3*u_squared)/36;
+      f_eq(x, y, 8) = rho(x, y)*(1 + 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + 3*u_squared)/36;
+
+      f(x, y, 0) = f(x, y, 0)*alpha + f_eq(x, y, 0)*beta;
+      f(x, y, 1) = f(x, y, 1)*alpha + f_eq(x, y, 1)*beta;
+      f(x, y, 2) = f(x, y, 2)*alpha + f_eq(x, y, 2)*beta;
+      f(x, y, 3) = f(x, y, 3)*alpha + f_eq(x, y, 3)*beta;
+      f(x, y, 4) = f(x, y, 4)*alpha + f_eq(x, y, 4)*beta;
+      f(x, y, 5) = f(x, y, 5)*alpha + f_eq(x, y, 5)*beta;
+      f(x, y, 6) = f(x, y, 6)*alpha + f_eq(x, y, 6)*beta;
+      f(x, y, 7) = f(x, y, 7)*alpha + f_eq(x, y, 7)*beta;
+      f(x, y, 8) = f(x, y, 8)*alpha + f_eq(x, y, 8)*beta;
+
+      x_next = x+1;
+      x_prev = x-1;
+      y_next = y+1;
+      y_prev = y-1;
+
+      if (x == 0)
+        x_prev = Nx-1;
+      if (x == Nx-1)
+        x_next = 0;
+      if (y == 0)
+        y_prev = Ny-1;
+      if (y == Ny-1)
+        y_next = 0;
+
+      f_star(x, y, 0)      = f(x, y, 0);
+      f_star(x_next, y, 1) = f(x, y, 1);
+      f_star(x, y_next, 2) = f(x, y, 2);
+      f_star(x_prev, y, 3) = f(x, y, 3);
+      f_star(x, y_prev, 4) = f(x, y, 4);
+
+      f_star(x_next, y_next, 5) = f(x, y, 5);
+      f_star(x_prev, y_next, 6) = f(x, y, 6);
+      f_star(x_prev, y_prev, 7) = f(x, y, 7);
+      f_star(x_next, y_prev, 8) = f(x, y, 8);
+    }}
+  previous_max_velocity = current_max_velocity;
+  f = f_star;
+  counter += 1;
+  cout << sum << endl;
+
   }
 }
 
