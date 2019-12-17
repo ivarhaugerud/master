@@ -15,6 +15,7 @@ MainClass::MainClass(int NX, int NY, double TAU, double FX, double FY, double to
   tau = TAU;
 
   f       = Cube<double>(Nx, Ny, 9);
+  f_prev  = Cube<double>(Nx, Ny, 9);
   f_star  = Cube<double>(Nx, Ny, 9);
   f_eq    = Cube<double>(Nx, Ny, 9);
   S       = Cube<double>(Nx, Ny, 9);
@@ -30,6 +31,7 @@ MainClass::MainClass(int NX, int NY, double TAU, double FX, double FY, double to
   tol   = tolerence;
   F(0) = FX;
   F(1) = FY;
+  counter = 0;
 }
 
 //the metropolis algorithm
@@ -50,13 +52,22 @@ void MainClass::initialize(double rho)
       f(i, j, 8) = rho/36;
     }
   }
+  cout << f << endl;
+}
+
+
+void MainClass::set_boundary()
+{
+  for (int i = 0; i < Nx; i ++)
+  {
+    boundary.emplace_back(i, 0);
+    boundary.emplace_back(i, Ny-1);
+  }
 }
 
 void MainClass::run()
 {
   bool equil = false;
-  double current_max_velocity = 1;
-  double previous_max_velocity = 2;
   int counter = 0;
   double sum = 0;
   while (not equil)
@@ -68,10 +79,10 @@ void MainClass::run()
       rho(x, y)  = f(x, y, 0) + f(x, y, 1) + f(x, y, 2) + f(x, y, 3) + f(x, y, 4) + f(x, y, 5) + f(x, y, 6) + f(x, y, 7) + f(x, y, 8); 
       u(x, y, 0) = f(x, y, 1) - f(x, y, 3) + f(x, y, 5) - f(x, y, 6) - f(x, y, 7) + f(x, y, 8) + F(0)/(2*rho(x,y));
       u(x, y, 1) = f(x, y, 2) - f(x, y, 4) + f(x, y, 5) + f(x, y, 6) - f(x, y, 7) - f(x, y, 8) + F(1)/(2*rho(x,y));
-      sum += rho(x,y);
+
       u_squared = u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1);
 
-      f_eq(x, y, 0) = rho(x, y)*(2-3*u_squared)*2/9;
+      f_eq(x, y, 0) = rho(x, y)*(2 - 3*u_squared)*2/9;
       f_eq(x, y, 1) = rho(x, y)*(2 + 6*u(x, y, 0) + 9*u(x,y,0)*u(x,y,0) - 3*u_squared)/18;
       f_eq(x, y, 2) = rho(x, y)*(2 + 6*u(x, y, 1) + 9*u(x,y,1)*u(x,y,1) - 3*u_squared)/18;
       f_eq(x, y, 3) = rho(x, y)*(2 - 6*u(x, y, 0) + 9*u(x,y,0)*u(x,y,0) - 3*u_squared)/18;
@@ -126,12 +137,78 @@ void MainClass::run()
       f_star(x_prev, y_next, 6) = f(x, y, 6);
       f_star(x_prev, y_prev, 7) = f(x, y, 7);
       f_star(x_next, y_prev, 8) = f(x, y, 8);
+
     }}
-  previous_max_velocity = current_max_velocity;
+
+    f_prev = f;
+    for (int i = 0; i < boundary.size(); i ++)
+      {
+        x = get<0>(boundary[i]);
+        y = get<1>(boundary[i]);
+        f(x,y,1) = f_prev(x,y,3);
+        f(x,y,2) = f_prev(x,y,4);
+        f(x,y,3) = f_prev(x,y,1);
+        f(x,y,4) = f_prev(x,y,2);
+        f(x,y,5) = f_prev(x,y,7);
+        f(x,y,6) = f_prev(x,y,8);
+        f(x,y,7) = f_prev(x,y,5);
+        f(x,y,8) = f_prev(x,y,6);
+
+        x_next = x+1;
+        x_prev = x-1;
+        y_next = y+1;
+        y_prev = y-1;
+
+        if (x == 0)
+          x_prev = Nx-1;
+        if (x == Nx-1)
+          x_next = 0;
+        if (y == 0)
+          y_prev = Ny-1;
+        if (y == Ny-1)
+          y_next = 0;
+
+        f_star(x, y, 0)      = f(x, y, 0);
+        f_star(x_next, y, 1) = f(x, y, 1);
+        f_star(x, y_next, 2) = f(x, y, 2);
+        f_star(x_prev, y, 3) = f(x, y, 3);
+        f_star(x, y_prev, 4) = f(x, y, 4);
+
+        f_star(x_next, y_next, 5) = f(x, y, 5);
+        f_star(x_prev, y_next, 6) = f(x, y, 6);
+        f_star(x_prev, y_prev, 7) = f(x, y, 7);
+        f_star(x_next, y_prev, 8) = f(x, y, 8);
+      }
+    current_max_u = u.max();
+    if (abs(current_max_u - prev_max_u) <  tol*current_max_u)
+      {equil = true;
+        cout << abs(current_max_u - prev_max_u) << endl;}
+
+  prev_max_u = current_max_u;
   f = f_star;
   counter += 1;
-  cout << sum << endl;
-
   }
 }
+
+
+  void MainClass::write_u()
+  {
+    ofstream outfile("../data/final_vel.txt");
+    if (!outfile.is_open())
+     cout<<"Could not open file" << endl;
+    for (int i = 0; i < Nx; i++)
+      {
+        for (int j = 0; j < Ny; j++)
+        {
+          outfile << u(i, j, 0) << " "; 
+        }
+      }
+    for (int i = 0; i < Nx; i++)
+    {
+      for (int j = 0; j < Ny; j++)
+      {
+        outfile << u(i, j, 1) << " "; 
+      }
+    }
+  }
 

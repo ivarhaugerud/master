@@ -9,6 +9,8 @@
 #include <string>
 #include <iomanip>
 #include <fstream>
+#include <tuple>
+#include <vector>
 
 //make it easier
 using namespace std;
@@ -25,6 +27,7 @@ class MainClass
 
   int Nx;
   int Ny; 
+  int counter;
 
   int x_next;
   int x_prev;
@@ -39,22 +42,29 @@ class MainClass
   double FU;
 
   double u_squared;
-
+  double current_max_u;
+  double prev_max_u;
+  
   Cube<double> f;
+  Cube<double> f_prev;
   Cube<double> f_star;
   Cube<double> f_eq;
   Cube<double> S;
   Cube<double> u;
 
   Mat<double> rho;
-
   Col<double> F;
 
+  int x;
+  int y;
+  vector<tuple<int, int>> boundary;
 
   MainClass();
   MainClass(int NX, int NY, double TAU, double FX, double FY, double tolerence, string filename, int amount_of_data);
   void initialize(double rho);
   void run();
+  void write_u();
+  void set_boundary();
 };
 
 #endif

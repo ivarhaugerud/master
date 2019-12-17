@@ -15,10 +15,15 @@ using namespace arma;
 //simple run function for general input
 int main(int argc, char const *argv[])
   {
-    MainClass instance(10, 10, 2, 0, 0, 0.000001, "filename", 5);
+  	int Nx = atoi(argv[1]);
+  	int Ny = atoi(argv[2]);
+
+    MainClass instance(Nx, Ny, 2, 5*pow(10, -8), 0, pow(10, -9), "filename", 5);
     //           (file name, matrix_size)
 
     instance.initialize(1);
+    instance.set_boundary();
     instance.run();
+    instance.write_u();
     return 0;
   }
