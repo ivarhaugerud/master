@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
   	int Nx = atoi(argv[1]);
   	int Ny = atoi(argv[2]);
 
-    MainClass instance(Nx, Ny, 2, 5*pow(10, -8), 0, pow(10, -6), "filename", 5);
+    MainClass instance(Nx, Ny, 2, 0, 0, pow(10, -6), "filename", 5);
     //           (file name, matrix_size)
 
     instance.initialize(1);
