@@ -34,12 +34,8 @@ MainClass::MainClass(int NX, int NY, double TAU, double FX, double FY, double to
 
   F(0) = FX;
   F(1) = FY;
-  counter = 0;
-
-  cout<< alpha << "  " << beta << endl;
 }
 
-//the metropolis algorithm
 void MainClass::initialize(double rho)
 {
   for (int i = 0; i < Nx; i ++)
@@ -56,6 +52,20 @@ void MainClass::initialize(double rho)
       f(i, j, 7) = rho/36;
       f(i, j, 8) = rho/36;
     }
+  }
+for (int i = 0; i < boundary.size(); i ++)
+  {
+    x = get<0>(boundary[i]);
+    y = get<1>(boundary[i]);
+    f(x,y,0) = 0;
+    f(x,y,1) = 0;
+    f(x,y,2) = 0;
+    f(x,y,3) = 0;
+    f(x,y,4) = 0;
+    f(x,y,5) = 0;
+    f(x,y,6) = 0;
+    f(x,y,7) = 0;
+    f(x,y,8) = 0;
   }
 }
 
@@ -75,12 +85,17 @@ void MainClass::set_boundary()
 
 void MainClass::boundary_disc(int x, int y, double R)
 {
-  for (int i = 0; i < Nx; i ++)
-  {
-    boundary.emplace_back(i, 0);
-    boundary.emplace_back(i, Ny-1);
-  }
+  double topi = 6.28318530718;
+  int X;
+  int Y;
+  int number = 35;
+  for (int i = 1; i < number; i ++)
+    {X = x + int(R*cos(i*topi/number));
+     Y = y + int(R*sin(i*topi/number));
+     cout << X << " " << Y << endl;
+     boundary.emplace_back(X, Y);}
 }
+
 void MainClass::run()
 {
   bool equil = false;

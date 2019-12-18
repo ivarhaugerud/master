@@ -17,12 +17,12 @@ u = np.loadtxt("../data/final_vel.txt")
 u_x = u[0, :]
 u_y = u[1, :]
 
-Nx = 10
+Nx = 40
 Ny = 100
 
 f = 5*1e-8
 mu = (2-0.5)/3
-a = int(Ny/2)
+a = int(Ny/2)-1
 U = a*a*f/(3*mu)
 
 x_axis = np.linspace(0, Nx-1, Nx)
@@ -34,12 +34,11 @@ u_y = np.reshape(u_y, (Nx, Ny))
 measured = np.mean(u_x, axis=0)
 mean_U = np.mean(measured)
 
-print(U, mean_U)
 analytic = 3*U*(1 - (y_axis/a)**2)/2
 measured = measured
 
-plt.plot(y_axis, measured, "--")
-plt.plot(y_axis, analytic)
+plt.plot(y_axis, measured)
+plt.plot(y_axis, analytic, "--")
 plt.show()
 
 plt.plot((measured-analytic))
