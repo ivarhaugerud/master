@@ -52,6 +52,7 @@ class MainClass
   Cube<double> f_eq;
   Cube<double> S;
   Cube<double> u;
+  Cube<double> prev_u;
 
   Mat<double> rho;
   Col<double> F;
@@ -68,6 +69,7 @@ class MainClass
   void set_boundary();
   void test_mass_cons();
   void initialize_other(int x, int y, int i, double rho);
+  void boundary_disc(int x, int y, double R)
 };
 
 #endif

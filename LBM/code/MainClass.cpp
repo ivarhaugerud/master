@@ -20,6 +20,7 @@ MainClass::MainClass(int NX, int NY, double TAU, double FX, double FY, double to
   f_eq    = Cube<double>(Nx, Ny, 9);
   S       = Cube<double>(Nx, Ny, 9);
   u       = Cube<double>(Nx, Ny, 2);
+  prev_u  = Cube<double>(Nx, Ny, 2);
 
   rho      = Mat<double>(Nx, Ny);
   F        = Col<double>(2);
@@ -30,6 +31,7 @@ MainClass::MainClass(int NX, int NY, double TAU, double FX, double FY, double to
   gamma = 3*(1 - 1/(2*tau));
   delta = (1 - 1/(2*tau));
   tol   = tolerence;
+
   F(0) = FX;
   F(1) = FY;
   counter = 0;
@@ -71,10 +73,21 @@ void MainClass::set_boundary()
   }
 }
 
+void MainClass::boundary_disc(int x, int y, double R)
+{
+  for (int i = 0; i < Nx; i ++)
+  {
+    boundary.emplace_back(i, 0);
+    boundary.emplace_back(i, Ny-1);
+  }
+}
 void MainClass::run()
 {
   bool equil = false;
-  for (int t = 0; t < 6*pow(10, 5); t ++)
+  int counter = 0;
+  double current_max_u;
+
+  while (not equil)
     {
       for (int x = 0; x < Nx; x++){
       for (int y = 0; y < Ny; y++){
@@ -181,17 +194,14 @@ void MainClass::run()
         f_star(x_prev, y_prev, 7) = f(x, y, 7);
         f_star(x_next, y_prev, 8) = f(x, y, 8);
       }
-    //current_max_u = u.max();
-  //if (abs(current_max_u - prev_max_u) <  tol*current_max_u)
-  // {equil = true;
-  //    cout << abs(current_max_u - prev_max_u) << " " << current_max_u << endl;}
+  current_max_u = u.max();
+  if (abs(u - prev_u).max() <  tol*current_max_u)
+      {equil = true;
+      cout << abs(current_max_u - prev_max_u) << " " << current_max_u << endl << " " << counter;}
 
-  //prev_max_u = current_max_u;
-  //cout << rho << endl;
-  //cout << f_star << endl;
+  prev_u = u;
   f = f_star;
-  //cout << (f-f_star).max() << endl;
-  //cout << u << endl;
+  counter += 1;
   }
 }
 
