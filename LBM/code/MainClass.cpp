@@ -52,7 +52,6 @@ void MainClass::initialize(double rho)
       f(i, j, 8) = rho/36;
     }
   }
-  cout << f << endl;
 }
 
 
@@ -145,6 +144,7 @@ void MainClass::run()
       {
         x = get<0>(boundary[i]);
         y = get<1>(boundary[i]);
+
         f(x,y,1) = f_prev(x,y,3);
         f(x,y,2) = f_prev(x,y,4);
         f(x,y,3) = f_prev(x,y,1);
@@ -179,10 +179,10 @@ void MainClass::run()
         f_star(x_prev, y_prev, 7) = f(x, y, 7);
         f_star(x_next, y_prev, 8) = f(x, y, 8);
       }
-    current_max_u = u.max();
-    if (abs(current_max_u - prev_max_u) <  tol*current_max_u)
-      {equil = true;
-        cout << abs(current_max_u - prev_max_u) << endl;}
+  current_max_u = u.max();
+  if (abs(current_max_u - prev_max_u) <  tol*current_max_u)
+    {equil = true;
+      cout << abs(current_max_u - prev_max_u) << " " << current_max_u << endl;}
 
   prev_max_u = current_max_u;
   f = f_star;
@@ -203,6 +203,7 @@ void MainClass::run()
           outfile << u(i, j, 0) << " "; 
         }
       }
+    outfile << "\n"; 
     for (int i = 0; i < Nx; i++)
     {
       for (int j = 0; j < Ny; j++)
