@@ -37,6 +37,7 @@ class MainClass
   double alpha;
   double beta; 
   double gamma;
+  double delta;
   double tol;
   double tau;
   double FU;
@@ -66,6 +67,7 @@ class MainClass
   void write_u();
   void set_boundary();
   void test_mass_cons();
+  void initialize_other(int x, int y, int i, double rho);
 };
 
 #endif

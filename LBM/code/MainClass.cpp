@@ -28,10 +28,13 @@ MainClass::MainClass(int NX, int NY, double TAU, double FX, double FY, double to
   alpha = 1 - 1/tau;
   beta  = 1/tau;
   gamma = 3*(1 - 1/(2*tau));
+  delta = (1 - 1/(2*tau));
   tol   = tolerence;
   F(0) = FX;
   F(1) = FY;
   counter = 0;
+
+  cout<< alpha << "  " << beta << endl;
 }
 
 //the metropolis algorithm
@@ -54,6 +57,10 @@ void MainClass::initialize(double rho)
   }
 }
 
+void MainClass::initialize_other(int x, int y, int i, double rho)
+{
+  f(x, y, i) = rho;
+}
 
 void MainClass::set_boundary()
 {
@@ -67,23 +74,21 @@ void MainClass::set_boundary()
 void MainClass::run()
 {
   bool equil = false;
-  int counter = 0;
-  for (int t = 0; t < pow(10, 5); t ++)
+  for (int t = 0; t < 6*pow(10, 5); t ++)
     {
       for (int x = 0; x < Nx; x++){
       for (int y = 0; y < Ny; y++){
 
       rho(x, y)  = f(x, y, 0) + f(x, y, 1) + f(x, y, 2) + f(x, y, 3) + f(x, y, 4) + f(x, y, 5) + f(x, y, 6) + f(x, y, 7) + f(x, y, 8); 
-      u(x, y, 0) = f(x, y, 1) - f(x, y, 3) + f(x, y, 5) - f(x, y, 6) - f(x, y, 7) + f(x, y, 8) + F(0)/(2*rho(x,y));
-      u(x, y, 1) = f(x, y, 2) - f(x, y, 4) + f(x, y, 5) + f(x, y, 6) - f(x, y, 7) - f(x, y, 8) + F(1)/(2*rho(x,y));
-
+      u(x, y, 0) = (f(x, y, 1) - f(x, y, 3) + f(x, y, 5) - f(x, y, 6) - f(x, y, 7) + f(x, y, 8))/rho(x,y) + F(0)/(2*rho(x,y));
+      u(x, y, 1) = (f(x, y, 2) - f(x, y, 4) + f(x, y, 5) + f(x, y, 6) - f(x, y, 7) - f(x, y, 8))/rho(x,y) + F(1)/(2*rho(x,y));
       u_squared = u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1);
 
       f_eq(x, y, 0) = rho(x, y)*(2 - 3*u_squared)*2/9;
-      f_eq(x, y, 1) = rho(x, y)*(2 + 6*u(x, y, 0) + 9*u(x,y,0)*u(x,y,0) - 3*u_squared)/18;
-      f_eq(x, y, 2) = rho(x, y)*(2 + 6*u(x, y, 1) + 9*u(x,y,1)*u(x,y,1) - 3*u_squared)/18;
-      f_eq(x, y, 3) = rho(x, y)*(2 - 6*u(x, y, 0) + 9*u(x,y,0)*u(x,y,0) - 3*u_squared)/18;
-      f_eq(x, y, 4) = rho(x, y)*(2 - 6*u(x, y, 1) + 9*u(x,y,1)*u(x,y,1) - 3*u_squared)/18;
+      f_eq(x, y, 1) = rho(x, y)*(2 + 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - 3*u_squared)/18;
+      f_eq(x, y, 2) = rho(x, y)*(2 + 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - 3*u_squared)/18;
+      f_eq(x, y, 3) = rho(x, y)*(2 - 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - 3*u_squared)/18;
+      f_eq(x, y, 4) = rho(x, y)*(2 - 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - 3*u_squared)/18;
       f_eq(x, y, 5) = rho(x, y)*(1 + 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + 3*u_squared)/36;
       f_eq(x, y, 6) = rho(x, y)*(1 - 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + 3*u_squared)/36;
       f_eq(x, y, 7) = rho(x, y)*(1 - 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + 3*u_squared)/36;
@@ -93,22 +98,22 @@ void MainClass::run()
       S(x, y, 0) = -FU;
       S(x, y, 1) =  3*F(0) + 9*F(0)*u(x,y,0) - FU;
       S(x, y, 2) =  3*F(1) + 9*F(1)*u(x,y,1) - FU;
-      S(x, y, 3) = -3*F(1) - 9*F(0)*u(x,y,0) - FU;
+      S(x, y, 3) = -3*F(0) + 9*F(0)*u(x,y,0) - FU;
       S(x, y, 4) = -3*F(1) + 9*F(1)*u(x,y,1) - FU;
-      S(x, y, 5) =  3*(F(0) + F(1)) + 9*(F(0) + F(1))*(u(x,y,0)+u(x,y,1)) - FU;
-      S(x, y, 6) = 3*(-F(0) + F(1)) + 9*(-F(0) + F(1))*(-u(x,y,0)+u(x,y,1)) - FU;
-      S(x, y, 7) = -3*(F(0) + F(1)) + 9*(F(0) + F(1))*(u(x,y,0)+u(x,y,1)) - FU;
-      S(x, y, 8) =  3*(F(0) - F(1)) + 9*(F(0) - F(1))*(F(0) - F(1)) - FU;
+      S(x, y, 5) =  3*( F(0) + F(1)) + 9*(F(0)  + F(1))*( u(x,y,0)+u(x,y,1)) - FU;
+      S(x, y, 6) =  3*(-F(0) + F(1)) + 9*(-F(0) + F(1))*(-u(x,y,0)+u(x,y,1)) - FU;
+      S(x, y, 7) = -3*( F(0) + F(1)) + 9*(F(0)  + F(1))*( u(x,y,0)+u(x,y,1)) - FU;
+      S(x, y, 8) =  3*( F(0) - F(1)) + 9*(F(0)  - F(1))*( u(x,y,0)-u(x,y,1)) - FU;
 
-      f(x, y, 0) = f(x, y, 0)*alpha + f_eq(x, y, 0)*beta + alpha*S(x,y,0)*4/9;
-      f(x, y, 1) = f(x, y, 1)*alpha + f_eq(x, y, 1)*beta + alpha*S(x,y,1)*1/9;
-      f(x, y, 2) = f(x, y, 2)*alpha + f_eq(x, y, 2)*beta + alpha*S(x,y,2)*1/9;
-      f(x, y, 3) = f(x, y, 3)*alpha + f_eq(x, y, 3)*beta + alpha*S(x,y,3)*1/9;
-      f(x, y, 4) = f(x, y, 4)*alpha + f_eq(x, y, 4)*beta + alpha*S(x,y,4)*1/9;
-      f(x, y, 5) = f(x, y, 5)*alpha + f_eq(x, y, 5)*beta + alpha*S(x,y,5)*1/36;
-      f(x, y, 6) = f(x, y, 6)*alpha + f_eq(x, y, 6)*beta + alpha*S(x,y,6)*1/36;
-      f(x, y, 7) = f(x, y, 7)*alpha + f_eq(x, y, 7)*beta + alpha*S(x,y,7)*1/36;
-      f(x, y, 8) = f(x, y, 8)*alpha + f_eq(x, y, 8)*beta + alpha*S(x,y,8)*1/36;
+      f(x, y, 0) = f(x, y, 0)*alpha + f_eq(x, y, 0)*beta + delta*S(x,y,0)*4/9;
+      f(x, y, 1) = f(x, y, 1)*alpha + f_eq(x, y, 1)*beta + delta*S(x,y,1)*1/9;
+      f(x, y, 2) = f(x, y, 2)*alpha + f_eq(x, y, 2)*beta + delta*S(x,y,2)*1/9;
+      f(x, y, 3) = f(x, y, 3)*alpha + f_eq(x, y, 3)*beta + delta*S(x,y,3)*1/9;
+      f(x, y, 4) = f(x, y, 4)*alpha + f_eq(x, y, 4)*beta + delta*S(x,y,4)*1/9;
+      f(x, y, 5) = f(x, y, 5)*alpha + f_eq(x, y, 5)*beta + delta*S(x,y,5)*1/36;
+      f(x, y, 6) = f(x, y, 6)*alpha + f_eq(x, y, 6)*beta + delta*S(x,y,6)*1/36;
+      f(x, y, 7) = f(x, y, 7)*alpha + f_eq(x, y, 7)*beta + delta*S(x,y,7)*1/36;
+      f(x, y, 8) = f(x, y, 8)*alpha + f_eq(x, y, 8)*beta + delta*S(x,y,8)*1/36;
 
       x_next = x+1;
       x_prev = x-1;
@@ -134,10 +139,9 @@ void MainClass::run()
       f_star(x_prev, y_next, 6) = f(x, y, 6);
       f_star(x_prev, y_prev, 7) = f(x, y, 7);
       f_star(x_next, y_prev, 8) = f(x, y, 8);
-
     }}
 
-    f_prev = f;
+    f_prev = f_star;
     for (int i = 0; i < boundary.size(); i ++)
       {
         x = get<0>(boundary[i]);
@@ -177,16 +181,18 @@ void MainClass::run()
         f_star(x_prev, y_prev, 7) = f(x, y, 7);
         f_star(x_next, y_prev, 8) = f(x, y, 8);
       }
-  current_max_u = u.max();
-  if (abs(current_max_u - prev_max_u) <  tol*current_max_u)
-    {equil = true;
-      cout << abs(current_max_u - prev_max_u) << " " << current_max_u << endl;}
+    //current_max_u = u.max();
+  //if (abs(current_max_u - prev_max_u) <  tol*current_max_u)
+  // {equil = true;
+  //    cout << abs(current_max_u - prev_max_u) << " " << current_max_u << endl;}
 
-  prev_max_u = current_max_u;
+  //prev_max_u = current_max_u;
+  //cout << rho << endl;
+  //cout << f_star << endl;
   f = f_star;
-  counter += 1;
+  //cout << (f-f_star).max() << endl;
+  //cout << u << endl;
   }
-  cout << counter << endl;
 }
 
 
@@ -233,7 +239,7 @@ void MainClass::run()
         final_mass +=  rho(x,y); 
       }
     }
-  cout << initial_mass << " " << final_mass << endl;
+  cout << initial_mass << " " << final_mass << " " << initial_mass-final_mass << endl;
   if (abs(initial_mass-final_mass) < 0.0001*initial_mass)
   {cout << "MASS IS CONSERVED";}
   else
