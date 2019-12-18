@@ -68,10 +68,8 @@ void MainClass::run()
 {
   bool equil = false;
   int counter = 0;
-  double sum = 0;
-  while (not equil)
+  for (int t = 0; t < pow(10, 5); t ++)
     {
-      sum = 0;
       for (int x = 0; x < Nx; x++){
       for (int y = 0; y < Ny; y++){
 
@@ -188,6 +186,7 @@ void MainClass::run()
   f = f_star;
   counter += 1;
   }
+  cout << counter << endl;
 }
 
 
@@ -213,3 +212,30 @@ void MainClass::run()
     }
   }
 
+  void MainClass::test_mass_cons()
+  {
+    double initial_mass = 0;
+    for (int x = 0; x < Nx; x++)
+    {
+      for (int y = 0; y < Ny; y++)
+      {
+        initial_mass +=  f(x, y, 0) + f(x, y, 1) + f(x, y, 2) + f(x, y, 3) + f(x, y, 4) + f(x, y, 5) + f(x, y, 6) + f(x, y, 7) + f(x, y, 8); 
+      }
+  }
+
+    run();
+
+    double final_mass = 0;
+    for (int x = 0; x < Nx; x++)
+    {
+      for (int y = 0; y < Ny; y++)
+      {
+        final_mass +=  rho(x,y); 
+      }
+    }
+  cout << initial_mass << " " << final_mass << endl;
+  if (abs(initial_mass-final_mass) < 0.0001*initial_mass)
+  {cout << "MASS IS CONSERVED";}
+  else
+    {cout << "FUCK! MASS IS NOT CONSERVED!";}
+  }

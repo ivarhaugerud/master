@@ -44,7 +44,7 @@ class MainClass
   double u_squared;
   double current_max_u;
   double prev_max_u;
-  
+
   Cube<double> f;
   Cube<double> f_prev;
   Cube<double> f_star;
@@ -65,6 +65,7 @@ class MainClass
   void run();
   void write_u();
   void set_boundary();
+  void test_mass_cons();
 };
 
 #endif
