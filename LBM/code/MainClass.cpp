@@ -102,9 +102,7 @@ void MainClass::run()
   int counter = 0;
   double current_max_u;
 
-  cout << rest.size() << "  " << boundary.size() << endl;
-  //while (not equil)
-  for (int t = 0; t < 10000; t++)
+  while (not equil)
     {for (int k = 0; k < rest.size(); k ++)
       {x = get<0>(rest[k]);
        y = get<1>(rest[k]);
@@ -218,7 +216,7 @@ void MainClass::run()
   //cout << abs(u - prev_u).max() << " " << current_max_u << endl;
   if (abs(u - prev_u).max() <  tol*current_max_u)
       {equil = true;
-      cout << abs(current_max_u - prev_max_u) << " " << current_max_u << endl << " " << counter;}
+      cout << abs(u - prev_u).max() << " " << current_max_u << endl << " " << counter;}
   prev_u = u;
   f = f_star;
   counter += 1;
