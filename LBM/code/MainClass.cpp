@@ -38,34 +38,19 @@ MainClass::MainClass(int NX, int NY, double TAU, double FX, double FY, double to
 
 void MainClass::initialize(double rho)
 {
-  for (int i = 0; i < Nx; i ++)
-  {
-    for (int j = 0; j < Ny; j ++)
-    {
-      f(i, j, 0) = 4*rho/9;
-      f(i, j, 1) = rho/9;
-      f(i, j, 2) = rho/9;
-      f(i, j, 3) = rho/9;
-      f(i, j, 4) = rho/9;
-      f(i, j, 5) = rho/36;
-      f(i, j, 6) = rho/36;
-      f(i, j, 7) = rho/36;
-      f(i, j, 8) = rho/36;
+  {for (int k = 0; k < rest.size(); k++){
+    x = get<0>(rest[k]);
+    y = get<1>(rest[k]);
+    f(x, y, 0) = 4*rho/9;
+    f(x, y, 1) = rho/9;
+    f(x, y, 2) = rho/9;
+    f(x, y, 3) = rho/9;
+    f(x, y, 4) = rho/9;
+    f(x, y, 5) = rho/36;
+    f(x, y, 6) = rho/36;
+    f(x, y, 7) = rho/36;
+    f(x, y, 8) = rho/36;
     }
-  }
-for (int i = 0; i < boundary.size(); i ++)
-  {
-    x = get<0>(boundary[i]);
-    y = get<1>(boundary[i]);
-    f(x,y,0) = 0;
-    f(x,y,1) = 0;
-    f(x,y,2) = 0;
-    f(x,y,3) = 0;
-    f(x,y,4) = 0;
-    f(x,y,5) = 0;
-    f(x,y,6) = 0;
-    f(x,y,7) = 0;
-    f(x,y,8) = 0;
   }
 }
 
@@ -85,15 +70,30 @@ void MainClass::set_boundary()
 
 void MainClass::boundary_disc(int x, int y, double R)
 {
-  double topi = 6.28318530718;
-  int X;
-  int Y;
-  int number = 35;
-  for (int i = 1; i < number; i ++)
-    {X = x + int(R*cos(i*topi/number));
-     Y = y + int(R*sin(i*topi/number));
-     cout << X << " " << Y << endl;
-     boundary.emplace_back(X, Y);}
+  for (int i = 0; i < Nx; i++)
+    {for (int j = 0; j < Ny; j++)
+      {if (sqrt( (x-i)*(x-i) + (y-j)*(y-j) ) < R)
+      {boundary.emplace_back(i, j);}}}
+}
+
+void MainClass::open()
+{
+  bool in_boundary;
+
+  for (int i = 0; i < Nx; i++){
+  for (int j = 0; j < Ny; j++){
+    in_boundary = false;
+    for (int k = 0; k < boundary.size(); k++){
+       x = get<0>(boundary[k]);
+       y = get<1>(boundary[k]);
+
+       if ((i == x) && (j == y)){
+        in_boundary = true;
+        continue;}}
+
+    if (not in_boundary)
+    {rest.emplace_back(i,j);} 
+}}
 }
 
 void MainClass::run()
@@ -102,10 +102,12 @@ void MainClass::run()
   int counter = 0;
   double current_max_u;
 
-  while (not equil)
-    {
-      for (int x = 0; x < Nx; x++){
-      for (int y = 0; y < Ny; y++){
+  cout << rest.size() << "  " << boundary.size() << endl;
+  //while (not equil)
+  for (int t = 0; t < 10000; t++)
+    {for (int k = 0; k < rest.size(); k ++)
+      {x = get<0>(rest[k]);
+       y = get<1>(rest[k]);
 
       rho(x, y)  = f(x, y, 0) + f(x, y, 1) + f(x, y, 2) + f(x, y, 3) + f(x, y, 4) + f(x, y, 5) + f(x, y, 6) + f(x, y, 7) + f(x, y, 8); 
       u(x, y, 0) = (f(x, y, 1) - f(x, y, 3) + f(x, y, 5) - f(x, y, 6) - f(x, y, 7) + f(x, y, 8))/rho(x,y) + F(0)/(2*rho(x,y));
@@ -167,14 +169,16 @@ void MainClass::run()
       f_star(x_prev, y_next, 6) = f(x, y, 6);
       f_star(x_prev, y_prev, 7) = f(x, y, 7);
       f_star(x_next, y_prev, 8) = f(x, y, 8);
-    }}
+    }
 
     f_prev = f_star;
-    for (int i = 0; i < boundary.size(); i ++)
+    for (int i = 0; i < boundary.size(); i++)
       {
         x = get<0>(boundary[i]);
         y = get<1>(boundary[i]);
 
+        if (f_prev(x,y,0)+f_prev(x,y,1)+f_prev(x,y,2)+f_prev(x,y,3)+f_prev(x,y,4)+f_prev(x,y,5)+f_prev(x,y,6)+f_prev(x,y,7)+f_prev(x,y,8) > 0.000000001)
+        {
         f(x,y,1) = f_prev(x,y,3);
         f(x,y,2) = f_prev(x,y,4);
         f(x,y,3) = f_prev(x,y,1);
@@ -208,16 +212,18 @@ void MainClass::run()
         f_star(x_prev, y_next, 6) = f(x, y, 6);
         f_star(x_prev, y_prev, 7) = f(x, y, 7);
         f_star(x_next, y_prev, 8) = f(x, y, 8);
-      }
+      }}//}
+      
   current_max_u = u.max();
+  //cout << abs(u - prev_u).max() << " " << current_max_u << endl;
   if (abs(u - prev_u).max() <  tol*current_max_u)
       {equil = true;
       cout << abs(current_max_u - prev_max_u) << " " << current_max_u << endl << " " << counter;}
-
   prev_u = u;
   f = f_star;
   counter += 1;
   }
+  cout << counter << endl;
 }
 
 

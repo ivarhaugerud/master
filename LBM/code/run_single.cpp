@@ -19,14 +19,16 @@ int main(int argc, char const *argv[])
   	int Ny = atoi(argv[2]);
 
     MainClass instance(Nx, Ny, 2, 5*pow(10,-8), 0, pow(10, -9), "filename", 5);
+    //MainClass instance(Nx, Ny, 2, 0, 0, pow(10, -9), "filename", 5);
     //           (file name, matrix_size)
 
     instance.set_boundary();
-    //instance.boundary_disc(20, 50, 15);
+    instance.boundary_disc(10, 10, 5);
+    instance.open();
     instance.initialize(1);
     //instance.initialize_other(2, 2, 5, 2);
-    instance.run();
-    //instance.test_mass_cons();
+    //instance.run();
+    instance.test_mass_cons();
     instance.write_u();
     return 0;
   }

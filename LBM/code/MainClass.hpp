@@ -60,6 +60,7 @@ class MainClass
   int x;
   int y;
   vector<tuple<int, int>> boundary;
+  vector<tuple<int, int>> rest;
 
   MainClass();
   MainClass(int NX, int NY, double TAU, double FX, double FY, double tolerence, string filename, int amount_of_data);
@@ -67,6 +68,7 @@ class MainClass
   void run();
   void write_u();
   void set_boundary();
+  void open();  
   void test_mass_cons();
   void initialize_other(int x, int y, int i, double rho);
   void boundary_disc(int x, int y, double R);
