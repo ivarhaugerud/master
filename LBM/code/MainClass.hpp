@@ -38,14 +38,18 @@ class MainClass
   double beta; 
   double gamma;
   double delta;
+  double eta;
+  double zeta;
   double tol;
   double tau;
+  double tau_g;
   double FU;
 
-  double u_squared;
+  double three_u_squared;
   double current_max_u;
   double prev_max_u;
 
+  //advection
   Cube<double> f;
   Cube<double> f_prev;
   Cube<double> f_star;
@@ -54,7 +58,14 @@ class MainClass
   Cube<double> u;
   Cube<double> prev_u;
 
+  //diffusion
+  Cube<double> g;
+  Cube<double> g_eq;
+  Cube<double> g_star;
+  //Cube<double> g_prev;
+
   Mat<double> rho;
+  Mat<double> C;
   Col<double> F;
 
   int x;
@@ -63,14 +74,17 @@ class MainClass
   vector<tuple<int, int>> rest;
 
   MainClass();
-  MainClass(int NX, int NY, double TAU, double FX, double FY, double tolerence, string filename, int amount_of_data);
+  MainClass(int NX, int NY, double TAU, double TAU_G, double FX, double FY, double tolerence, string filename, int amount_of_data);
   void initialize(double rho);
   void run();
+  void ADE(int t);
   void write_u();
+  void write_C();
   void set_boundary();
   void open();  
   void test_mass_cons();
   void initialize_other(int x, int y, int i, double rho);
+  void initialize_C(int x, int y, int i, double rho);
   void boundary_disc(int x, int y, double R);
 };
 
