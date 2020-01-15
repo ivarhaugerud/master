@@ -23,7 +23,8 @@ int main(int argc, char const *argv[])
     //           (file name, matrix_size)
 
     instance.set_boundary();
-    //instance.boundary_disc(20, 20, 10);
+    instance.boundary_disc(60, 60, 15);
+    //instance.boundary_disc(60, 20, 10);
 
     instance.open();
     instance.initialize(1);
@@ -43,7 +44,7 @@ int main(int argc, char const *argv[])
     //instance.ADE(12000);
     //instance.test_mass_cons();
     //instance.write_u();
-    //instance.write_C();
     instance.test_mass_diffusion();
+    instance.write_C();
     return 0;
   }

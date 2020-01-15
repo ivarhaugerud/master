@@ -300,14 +300,10 @@ void MainClass::ADE(int T)
       g_star(x_next, y_prev, 8) = g(x, y, 8);
     }
 
-          //g_prev = g_star;
-    for (int i = 0; i < boundary.size(); i++)
-      {
+    for (int i = 0; i < boundary.size(); i++){
         x = get<0>(boundary[i]);
         y = get<1>(boundary[i]);
-        C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
-        if (C(x,y) > 0.000000001){
-
+        C(x, y)  = g_star(x, y, 0) + g_star(x, y, 1) + g_star(x, y, 2) + g_star(x, y, 3) + g_star(x, y, 4) + g_star(x, y, 5) + g_star(x, y, 6) + g_star(x, y, 7) + g_star(x, y, 8); 
         g_star(x, y, 0) = -g_star(x, y, 0) + C(x,y)*4/9;
         g_star(x, y, 1) = -g_star(x, y, 1) + C(x,y)/9;
         g_star(x, y, 2) = -g_star(x, y, 2) + C(x,y)/9;
@@ -318,7 +314,7 @@ void MainClass::ADE(int T)
         g_star(x, y, 6) = -g_star(x, y, 6) + C(x,y)/36;
         g_star(x, y, 7) = -g_star(x, y, 7) + C(x,y)/36;
         g_star(x, y, 8) = -g_star(x, y, 8) + C(x,y)/36;
-      }}
+      }
   g = g_star;
   }
 }
@@ -398,7 +394,7 @@ void MainClass::test_mass_diffusion()
       }
   }
 
-    ADE(5000);
+    ADE(20000);
 
     double final_mass = 0;
     for (int x = 0; x < Nx; x++)
