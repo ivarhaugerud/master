@@ -17,8 +17,8 @@ u = np.loadtxt("../data/final_vel.txt")
 u_x = u[0, :]
 u_y = u[1, :]
 
-Nx = 200
-Ny = 200
+Nx = 40
+Ny = 40
 
 print(np.max(np.max(u)))
 
