@@ -93,8 +93,7 @@ void MainClass::open()
 
     if (not in_boundary)
     {rest.emplace_back(i,j);} 
-}}
-}
+}}}
 
 void MainClass::run()
 {
@@ -210,10 +209,10 @@ void MainClass::run()
         f_star(x_prev, y_next, 6) = f(x, y, 6);
         f_star(x_prev, y_prev, 7) = f(x, y, 7);
         f_star(x_next, y_prev, 8) = f(x, y, 8);
-      }}//}
+      }}
       
   current_max_u = u.max();
-  //cout << abs(u - prev_u).max() << " " << current_max_u << endl;
+
   if (abs(u - prev_u).max() <  tol*current_max_u)
       {equil = true;
       cout << abs(u - prev_u).max() << " " << current_max_u << endl << " " << counter;}
@@ -270,7 +269,7 @@ void MainClass::run()
     }
   cout << initial_mass << " " << final_mass << " " << initial_mass-final_mass << endl;
   if (abs(initial_mass-final_mass) < 0.0001*initial_mass)
-  {cout << "MASS IS CONSERVED";}
+  {cout << "MASS IS CONSERVED" << endl;}
   else
-    {cout << "FUCK! MASS IS NOT CONSERVED!";}
+    {cout << "FUCK! MASS IS NOT CONSERVED!"; << endl;}
   }
