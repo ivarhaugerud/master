@@ -304,16 +304,16 @@ void MainClass::ADE(int T)
         x = get<0>(boundary[i]);
         y = get<1>(boundary[i]);
         C(x, y)  = g_star(x, y, 0) + g_star(x, y, 1) + g_star(x, y, 2) + g_star(x, y, 3) + g_star(x, y, 4) + g_star(x, y, 5) + g_star(x, y, 6) + g_star(x, y, 7) + g_star(x, y, 8); 
-        g_star(x, y, 0) = -g_star(x, y, 0) + C(x,y)*4/9;
-        g_star(x, y, 1) = -g_star(x, y, 1) + C(x,y)/9;
-        g_star(x, y, 2) = -g_star(x, y, 2) + C(x,y)/9;
-        g_star(x, y, 3) = -g_star(x, y, 3) + C(x,y)/9;
-        g_star(x, y, 4) = -g_star(x, y, 4) + C(x,y)/9;
+        g_star(x, y, 0) = -g_star(x, y, 0) + 8*C(x,y)/9;
+        g_star(x, y, 1) = -g_star(x, y, 1) + 2*C(x,y)/9;
+        g_star(x, y, 2) = -g_star(x, y, 2) + 2*C(x,y)/9;
+        g_star(x, y, 3) = -g_star(x, y, 3) + 2*C(x,y)/9;
+        g_star(x, y, 4) = -g_star(x, y, 4) + 2*C(x,y)/9;
 
-        g_star(x, y, 5) = -g_star(x, y, 5) + C(x,y)/36;
-        g_star(x, y, 6) = -g_star(x, y, 6) + C(x,y)/36;
-        g_star(x, y, 7) = -g_star(x, y, 7) + C(x,y)/36;
-        g_star(x, y, 8) = -g_star(x, y, 8) + C(x,y)/36;
+        g_star(x, y, 5) = -g_star(x, y, 5) + 2*C(x,y)/36;
+        g_star(x, y, 6) = -g_star(x, y, 6) + 2*C(x,y)/36;
+        g_star(x, y, 7) = -g_star(x, y, 7) + 2*C(x,y)/36;
+        g_star(x, y, 8) = -g_star(x, y, 8) + 2*C(x,y)/36;
       }
   g = g_star;
   }
@@ -343,7 +343,6 @@ void MainClass::ADE(int T)
 
 void MainClass::write_C()
 {
-  cout << C << endl;
   ofstream outfile("../data/final_C.txt");
   if (!outfile.is_open())
   cout<<"Could not open file" << endl;
