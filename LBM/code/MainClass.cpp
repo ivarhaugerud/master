@@ -248,8 +248,10 @@ void MainClass::ADE(int T)
        y = get<1>(rest[k]);
 
       C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
+
       u(x, y, 0) = (f(x, y, 1) - f(x, y, 3) + f(x, y, 5) - f(x, y, 6) - f(x, y, 7) + f(x, y, 8))/rho(x,y) + F(0)/(2*rho(x,y));
       u(x, y, 1) = (f(x, y, 2) - f(x, y, 4) + f(x, y, 5) + f(x, y, 6) - f(x, y, 7) - f(x, y, 8))/rho(x,y) + F(1)/(2*rho(x,y));
+
       three_u_squared = 3*(u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1));
 
       g_eq(x, y, 0) = C(x, y)*(2 - three_u_squared)*2/9;
@@ -298,7 +300,7 @@ void MainClass::ADE(int T)
       g_star(x_next, y_prev, 8) = g(x, y, 8);
     }
 
-    //g_prev = g_star;
+          //g_prev = g_star;
     for (int i = 0; i < boundary.size(); i++)
       {
         x = get<0>(boundary[i]);
@@ -306,30 +308,16 @@ void MainClass::ADE(int T)
         C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
         if (C(x,y) > 0.000000001){
 
-        x_next = x+1;
-        x_prev = x-1;
-        y_next = y+1;
-        y_prev = y-1;
+        g_star(x, y, 0) = -g_star(x, y, 0) + C(x,y)*4/9;
+        g_star(x, y, 1) = -g_star(x, y, 1) + C(x,y)/9;
+        g_star(x, y, 2) = -g_star(x, y, 2) + C(x,y)/9;
+        g_star(x, y, 3) = -g_star(x, y, 3) + C(x,y)/9;
+        g_star(x, y, 4) = -g_star(x, y, 4) + C(x,y)/9;
 
-        if (x == 0)
-          x_prev = Nx-1;
-        if (x == Nx-1)
-          x_next = 0;
-        if (y == 0)
-          y_prev = Ny-1;
-        if (y == Ny-1)
-          y_next = 0;
-
-        g_star(x, y, 0)      = -g(x, y, 0) + C(x,y)*4/9;
-        g_star(x_next, y, 1) = -g(x, y, 1) + C(x,y)/9;
-        g_star(x, y_next, 2) = -g(x, y, 2) + C(x,y)/9;
-        g_star(x_prev, y, 3) = -g(x, y, 3) + C(x,y)/9;
-        g_star(x, y_prev, 4) = -g(x, y, 4) + C(x,y)/9;
-
-        g_star(x_next, y_next, 5) = g(x, y, 5) + C(x,y)/36;
-        g_star(x_prev, y_next, 6) = g(x, y, 6) + C(x,y)/36;
-        g_star(x_prev, y_prev, 7) = g(x, y, 7) + C(x,y)/36;
-        g_star(x_next, y_prev, 8) = g(x, y, 8) + C(x,y)/36;
+        g_star(x, y, 5) = -g_star(x, y, 5) + C(x,y)/36;
+        g_star(x, y, 6) = -g_star(x, y, 6) + C(x,y)/36;
+        g_star(x, y, 7) = -g_star(x, y, 7) + C(x,y)/36;
+        g_star(x, y, 8) = -g_star(x, y, 8) + C(x,y)/36;
       }}
   g = g_star;
   }
@@ -371,7 +359,7 @@ void MainClass::write_C()
   }
 }
 
-  void MainClass::test_mass_cons()
+void MainClass::test_mass_cons()
   {
     double initial_mass = 0;
     for (int x = 0; x < Nx; x++)
@@ -397,4 +385,32 @@ void MainClass::write_C()
   {cout << "MASS IS CONSERVED" << endl;}
   else
     {cout << "FUCK! MASS IS NOT CONSERVED!" << endl;}
+  }
+
+void MainClass::test_mass_diffusion()
+  {
+    double initial_mass = 0;
+    for (int x = 0; x < Nx; x++)
+    {
+      for (int y = 0; y < Ny; y++)
+      {
+        initial_mass +=  g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
+      }
+  }
+
+    ADE(5000);
+
+    double final_mass = 0;
+    for (int x = 0; x < Nx; x++)
+    {
+      for (int y = 0; y < Ny; y++)
+      {
+        final_mass +=  C(x,y); 
+      }
+    }
+  cout << initial_mass << " " << final_mass << " " << initial_mass-final_mass << endl;
+  if (abs(initial_mass-final_mass) < 0.0001*initial_mass)
+  {cout << "CONCENTRATION IS CONSERVED" << endl;}
+  else
+    {cout << "FUCK! CONCENTRATION IS NOT CONSERVED!" << endl;}
   }
