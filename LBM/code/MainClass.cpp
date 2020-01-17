@@ -296,7 +296,6 @@ void MainClass::ADE(int T)
       g_star(x_prev, y_prev, 7) = g(x, y, 7);
       g_star(x_next, y_prev, 8) = g(x, y, 8);
     }
-
     g_prev = g_star;
 
     for (int i = 0; i < boundary.size(); i++){
@@ -305,26 +304,30 @@ void MainClass::ADE(int T)
 
       C(x, y)  = g_prev(x, y, 0) + g_prev(x, y, 1) + g_prev(x, y, 2) + g_prev(x, y, 3) + g_prev(x, y, 4) + g_prev(x, y, 5) + g_prev(x, y, 6) + g_prev(x, y, 7) + g_prev(x, y, 8); 
 
-      g_star(x,y,0) = -g_prev(x,y,0) + 8*C(x,y)/9;
-      g_star(x,y,1) = -g_prev(x,y,3) + 2*C(x,y)/9;
-      g_star(x,y,2) = -g_prev(x,y,4) + 2*C(x,y)/9;
-      g_star(x,y,3) = -g_prev(x,y,1) + 2*C(x,y)/9;
-      g_star(x,y,4) = -g_prev(x,y,2) + 2*C(x,y)/9;
-      g_star(x,y,5) = -g_prev(x,y,7) + 2*C(x,y)/36;
-      g_star(x,y,6) = -g_prev(x,y,8) + 2*C(x,y)/36;
-      g_star(x,y,7) = -g_prev(x,y,5) + 2*C(x,y)/36;
-      g_star(x,y,8) = -g_prev(x,y,6) + 2*C(x,y)/36;
+      x_next = x+1;
+      x_prev = x-1;
+      y_next = y+1;
+      y_prev = y-1;
 
-      //g_star(x, y,      0) = -g(x, y, 0) + 8*C(x,y)/9;
-      //g_star(x_next, y, 1) = -g(x, y, 1) + 2*C(x,y)/9;
-      //g_star(x, y_next, 2) = -g(x, y, 2) + 2*C(x,y)/9;
-      //g_star(x_prev, y, 3) = -g(x, y, 3) + 2*C(x,y)/9;
-      //g_star(x, y_prev, 4) = -g(x, y, 4) + 2*C(x,y)/9;
+      if (x == 0)
+        x_prev = Nx-1;
+      if (x == Nx-1)
+        x_next = 0;
+      if (y == 0)
+        y_prev = Ny-1;
+      if (y == Ny-1)
+        y_next = 0;
 
-      //g_star(x_next, y_next, 5) = -g(x, y, 5) + 2*C(x,y)/36;
-      //g_star(x_prev, y_next, 6) = -g(x, y, 6) + 2*C(x,y)/36;
-      //g_star(x_prev, y_prev, 7) = -g(x, y, 7) + 2*C(x,y)/36;
-      //g_star(x_next, y_prev, 8) = -g(x, y, 8) + 2*C(x,y)/36;
+      g_star(x, y, 0)  = -g_prev(x,y,0) + 8*C(x,y)/9;
+      g_star(x_next, y, 1) = -g_prev(x,y,3) + 2*C(x,y)/9;
+      g_star(x, y_next, 2) = -g_prev(x,y,4) + 2*C(x,y)/9;
+      g_star(x_prev, y, 3) = -g_prev(x,y,1) + 2*C(x,y)/9;
+      g_star(x, y_prev, 4) = -g_prev(x,y,2) + 2*C(x,y)/9;
+
+      g_star(x_next, y_next, 5) = -g_prev(x,y,7) + 2*C(x,y)/36;
+      g_star(x_prev, y_next, 6) = -g_prev(x,y,8) + 2*C(x,y)/36;
+      g_star(x_prev, y_prev, 7) = -g_prev(x,y,5) + 2*C(x,y)/36;
+      g_star(x_next, y_prev, 8) = -g_prev(x,y,6) + 2*C(x,y)/36;
   }
   g = g_star;
   }
@@ -404,7 +407,7 @@ void MainClass::test_mass_diffusion()
       }
   }
 
-    ADE(10000);
+    ADE(5000);
 
     double final_mass = 0;
     for (int x = 0; x < Nx; x++)
