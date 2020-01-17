@@ -28,7 +28,7 @@ MainClass::MainClass(int NX, int NY, double TAU, double TAU_G, double FX, double
   g       = Cube<double>(Nx, Ny, 9);
   g_eq    = Cube<double>(Nx, Ny, 9);
   g_star  = Cube<double>(Nx, Ny, 9);
-  //g_prev  = Cube<double>(Nx, Ny, 9);
+  g_prev  = Cube<double>(Nx, Ny, 9);
 
   rho      = Mat<double>(Nx, Ny);
   C        = Mat<double>(Nx, Ny);
@@ -249,9 +249,6 @@ void MainClass::ADE(int T)
 
       C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
 
-      u(x, y, 0) = (f(x, y, 1) - f(x, y, 3) + f(x, y, 5) - f(x, y, 6) - f(x, y, 7) + f(x, y, 8))/rho(x,y) + F(0)/(2*rho(x,y));
-      u(x, y, 1) = (f(x, y, 2) - f(x, y, 4) + f(x, y, 5) + f(x, y, 6) - f(x, y, 7) - f(x, y, 8))/rho(x,y) + F(1)/(2*rho(x,y));
-
       three_u_squared = 3*(u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1));
 
       g_eq(x, y, 0) = C(x, y)*(2 - three_u_squared)*2/9;
@@ -288,7 +285,7 @@ void MainClass::ADE(int T)
       if (y == Ny-1)
         y_next = 0;
 
-      g_star(x, y, 0)      = g(x, y, 0);
+      g_star(x, y,      0) = g(x, y, 0);
       g_star(x_next, y, 1) = g(x, y, 1);
       g_star(x, y_next, 2) = g(x, y, 2);
       g_star(x_prev, y, 3) = g(x, y, 3);
@@ -300,21 +297,35 @@ void MainClass::ADE(int T)
       g_star(x_next, y_prev, 8) = g(x, y, 8);
     }
 
-    for (int i = 0; i < boundary.size(); i++){
-        x = get<0>(boundary[i]);
-        y = get<1>(boundary[i]);
-        C(x, y)  = g_star(x, y, 0) + g_star(x, y, 1) + g_star(x, y, 2) + g_star(x, y, 3) + g_star(x, y, 4) + g_star(x, y, 5) + g_star(x, y, 6) + g_star(x, y, 7) + g_star(x, y, 8); 
-        g_star(x, y, 0) = -g_star(x, y, 0) + 8*C(x,y)/9;
-        g_star(x, y, 1) = -g_star(x, y, 1) + 2*C(x,y)/9;
-        g_star(x, y, 2) = -g_star(x, y, 2) + 2*C(x,y)/9;
-        g_star(x, y, 3) = -g_star(x, y, 3) + 2*C(x,y)/9;
-        g_star(x, y, 4) = -g_star(x, y, 4) + 2*C(x,y)/9;
+    g_prev = g_star;
 
-        g_star(x, y, 5) = -g_star(x, y, 5) + 2*C(x,y)/36;
-        g_star(x, y, 6) = -g_star(x, y, 6) + 2*C(x,y)/36;
-        g_star(x, y, 7) = -g_star(x, y, 7) + 2*C(x,y)/36;
-        g_star(x, y, 8) = -g_star(x, y, 8) + 2*C(x,y)/36;
-      }
+    for (int i = 0; i < boundary.size(); i++){
+      x = get<0>(boundary[i]);
+      y = get<1>(boundary[i]);
+
+      C(x, y)  = g_prev(x, y, 0) + g_prev(x, y, 1) + g_prev(x, y, 2) + g_prev(x, y, 3) + g_prev(x, y, 4) + g_prev(x, y, 5) + g_prev(x, y, 6) + g_prev(x, y, 7) + g_prev(x, y, 8); 
+
+      g_star(x,y,0) = -g_prev(x,y,0) + 8*C(x,y)/9;
+      g_star(x,y,1) = -g_prev(x,y,3) + 2*C(x,y)/9;
+      g_star(x,y,2) = -g_prev(x,y,4) + 2*C(x,y)/9;
+      g_star(x,y,3) = -g_prev(x,y,1) + 2*C(x,y)/9;
+      g_star(x,y,4) = -g_prev(x,y,2) + 2*C(x,y)/9;
+      g_star(x,y,5) = -g_prev(x,y,7) + 2*C(x,y)/36;
+      g_star(x,y,6) = -g_prev(x,y,8) + 2*C(x,y)/36;
+      g_star(x,y,7) = -g_prev(x,y,5) + 2*C(x,y)/36;
+      g_star(x,y,8) = -g_prev(x,y,6) + 2*C(x,y)/36;
+
+      //g_star(x, y,      0) = -g(x, y, 0) + 8*C(x,y)/9;
+      //g_star(x_next, y, 1) = -g(x, y, 1) + 2*C(x,y)/9;
+      //g_star(x, y_next, 2) = -g(x, y, 2) + 2*C(x,y)/9;
+      //g_star(x_prev, y, 3) = -g(x, y, 3) + 2*C(x,y)/9;
+      //g_star(x, y_prev, 4) = -g(x, y, 4) + 2*C(x,y)/9;
+
+      //g_star(x_next, y_next, 5) = -g(x, y, 5) + 2*C(x,y)/36;
+      //g_star(x_prev, y_next, 6) = -g(x, y, 6) + 2*C(x,y)/36;
+      //g_star(x_prev, y_prev, 7) = -g(x, y, 7) + 2*C(x,y)/36;
+      //g_star(x_next, y_prev, 8) = -g(x, y, 8) + 2*C(x,y)/36;
+  }
   g = g_star;
   }
 }
@@ -363,7 +374,7 @@ void MainClass::test_mass_cons()
       {
         initial_mass +=  f(x, y, 0) + f(x, y, 1) + f(x, y, 2) + f(x, y, 3) + f(x, y, 4) + f(x, y, 5) + f(x, y, 6) + f(x, y, 7) + f(x, y, 8); 
       }
-  }
+    }
 
     run();
 
@@ -393,14 +404,14 @@ void MainClass::test_mass_diffusion()
       }
   }
 
-    ADE(20000);
+    ADE(10000);
 
     double final_mass = 0;
     for (int x = 0; x < Nx; x++)
     {
       for (int y = 0; y < Ny; y++)
       {
-        final_mass +=  C(x,y); 
+        final_mass +=  g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
       }
     }
   cout << initial_mass << " " << final_mass << " " << initial_mass-final_mass << endl;
