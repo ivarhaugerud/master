@@ -302,7 +302,15 @@ void MainClass::ADE(int T)
       x = get<0>(boundary[i]);
       y = get<1>(boundary[i]);
 
-      C(x,y) = g_prev(x,y,0) + g_prev(x,y,1) + g_prev(x,y,2) + g_prev(x,y,3) + g_prev(x,y,4) + g_prev(x,y,5) + g_prev(x,y,6) + g_prev(x,y,7) + g_prev(x,y,8);
+      g(x,y,1) = g_prev(x,y,3);
+      g(x,y,2) = g_prev(x,y,4);
+      g(x,y,3) = g_prev(x,y,1);
+      g(x,y,4) = g_prev(x,y,2);
+      g(x,y,5) = g_prev(x,y,7);
+      g(x,y,6) = g_prev(x,y,8);
+      g(x,y,7) = g_prev(x,y,5);
+      g(x,y,8) = g_prev(x,y,6);
+
       x_next = x+1;
       x_prev = x-1;
       y_next = y+1;
@@ -317,29 +325,16 @@ void MainClass::ADE(int T)
       if (y == Ny-1)
         y_next = 0;
 
-      if (g_prev(x,y,1) != 0)
-        {g_star(x_prev,y,3) = -g_prev(x,y,1) + 2*C(x,y)/9;}
+        g_star(x, y, 0)      = g(x, y, 0);
+        g_star(x_next, y, 1) = g(x, y, 1);
+        g_star(x, y_next, 2) = g(x, y, 2);
+        g_star(x_prev, y, 3) = g(x, y, 3);
+        g_star(x, y_prev, 4) = g(x, y, 4);
 
-      if (g_prev(x,y,2) != 0)
-        {g_star(x,y_prev,4) = -g_prev(x,y,2) + 2*C(x,y)/9;}
-
-      if (g_prev(x,y,3) != 0)
-        {g_star(x_next,y,1) = -g_prev(x,y,3) + 2*C(x,y)/9;}
-
-      if (g_prev(x,y,4) != 0)
-        {g_star(x,y_next,2) = -g_prev(x,y,4) + 2*C(x,y)/9;}
-
-       if (g_prev(x,y,5) != 0)
-        {g_star(x_prev,y_prev,7) = -g_prev(x,y,5) + 2*C(x,y)/36;}
-
-      if (g_prev(x,y,6) != 0)
-        {g_star(x_next,y_prev,8) = -g_prev(x,y,6) + 2*C(x,y)/36;}
-
-      if (g_prev(x,y,7) != 0)
-        {g_star(x_next,y_next,5) = -g_prev(x,y,7) + 2*C(x,y)/36;}
-
-      if (g_prev(x,y,8) != 0)
-        {g_star(x_prev,y_next,6) = -g_prev(x,y,8) + 2*C(x,y)/36;}
+        g_star(x_next, y_next, 5) = g(x, y, 5);
+        g_star(x_prev, y_next, 6) = g(x, y, 6);
+        g_star(x_prev, y_prev, 7) = g(x, y, 7);
+        g_star(x_next, y_prev, 8) = g(x, y, 8);
   }
   g = g_star;
   }
@@ -419,7 +414,7 @@ void MainClass::test_mass_diffusion()
       }
   }
 
-    ADE(5);
+    ADE(10000);
 
     double final_mass = 0;
     for (int x = 0; x < Nx; x++)
