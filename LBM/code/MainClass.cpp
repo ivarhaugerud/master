@@ -242,6 +242,7 @@ void MainClass::run()
 
 void MainClass::ADE(int T)
 {
+  cout << rest.size() + boundary.size() << endl;
   for (int t = 0; t < T; t++)
     {for (int k = 0; k < rest.size(); k++)
       {x = get<0>(rest[k]);
@@ -296,36 +297,37 @@ void MainClass::ADE(int T)
       g_star(x_prev, y_prev, 7) = g(x, y, 7);
       g_star(x_next, y_prev, 8) = g(x, y, 8);
     }
+    //cout << "before: " << g_star(2,2,1) << " " << g_star(2,2,3) << endl;
     g_prev = g_star;
+    for (int i = 0; i < boundary.size(); i++)
+      {x = get<0>(boundary[i]);
+       y = get<1>(boundary[i]);
 
-    for (int i = 0; i < boundary.size(); i++){
-      x = get<0>(boundary[i]);
-      y = get<1>(boundary[i]);
+        //if (abs(g_prev(x,y,0)+g_prev(x,y,1)+g_prev(x,y,2)+g_prev(x,y,3)+g_prev(x,y,4)+g_prev(x,y,5)+g_prev(x,y,6)+g_prev(x,y,7)+g_prev(x,y,8)) != 0){
+        cout << g_prev(x,y,1) << " " << g_prev(x,y,3) << endl;
+        g(x,y,1) = g_prev(x,y,3);
+        g(x,y,2) = g_prev(x,y,4);
+        g(x,y,3) = g_prev(x,y,1);
+        g(x,y,4) = g_prev(x,y,2);
+        g(x,y,5) = g_prev(x,y,7);
+        g(x,y,6) = g_prev(x,y,8);
+        g(x,y,7) = g_prev(x,y,5);
+        g(x,y,8) = g_prev(x,y,6);
 
-      g(x,y,1) = g_prev(x,y,3);
-      g(x,y,2) = g_prev(x,y,4);
-      g(x,y,3) = g_prev(x,y,1);
-      g(x,y,4) = g_prev(x,y,2);
-      g(x,y,5) = g_prev(x,y,7);
-      g(x,y,6) = g_prev(x,y,8);
-      g(x,y,7) = g_prev(x,y,5);
-      g(x,y,8) = g_prev(x,y,6);
+        x_next = x+1;
+        x_prev = x-1;
+        y_next = y+1;
+        y_prev = y-1;
 
-      x_next = x+1;
-      x_prev = x-1;
-      y_next = y+1;
-      y_prev = y-1;
+        if (x == 0)
+          x_prev = Nx-1;
+        if (x == Nx-1)
+          x_next = 0;
+        if (y == 0)
+          y_prev = Ny-1;
+        if (y == Ny-1)
+          y_next = 0;
 
-      if (x == 0)
-        x_prev = Nx-1;
-      if (x == Nx-1)
-        x_next = 0;
-      if (y == 0)
-        y_prev = Ny-1;
-      if (y == Ny-1)
-        y_next = 0;
-
-        g_star(x, y, 0)      = g(x, y, 0);
         g_star(x_next, y, 1) = g(x, y, 1);
         g_star(x, y_next, 2) = g(x, y, 2);
         g_star(x_prev, y, 3) = g(x, y, 3);
@@ -335,8 +337,20 @@ void MainClass::ADE(int T)
         g_star(x_prev, y_next, 6) = g(x, y, 6);
         g_star(x_prev, y_prev, 7) = g(x, y, 7);
         g_star(x_next, y_prev, 8) = g(x, y, 8);
-  }
+
+        g_star(x,y,0) = 0;
+        g_star(x,y,1) = 0;
+        g_star(x,y,2) = 0;
+        g_star(x,y,3) = 0;
+        g_star(x,y,4) = 0;
+        g_star(x,y,5) = 0;
+        g_star(x,y,6) = 0;
+        g_star(x,y,7) = 0;
+        g_star(x,y,8) = 0;
+      }
   g = g_star;
+  //cout << "after: " << g_star(2,2,1) << " " << g_star(2,2,3) << endl;
+  cout << g << endl;
   }
 }
   void MainClass::write_u()
@@ -414,7 +428,7 @@ void MainClass::test_mass_diffusion()
       }
   }
 
-    ADE(10000);
+    ADE(5);
 
     double final_mass = 0;
     for (int x = 0; x < Nx; x++)
