@@ -297,14 +297,12 @@ void MainClass::ADE(int T)
       g_star(x_prev, y_prev, 7) = g(x, y, 7);
       g_star(x_next, y_prev, 8) = g(x, y, 8);
     }
-    //cout << "before: " << g_star(2,2,1) << " " << g_star(2,2,3) << endl;
+
     g_prev = g_star;
     for (int i = 0; i < boundary.size(); i++)
       {x = get<0>(boundary[i]);
        y = get<1>(boundary[i]);
 
-        //if (abs(g_prev(x,y,0)+g_prev(x,y,1)+g_prev(x,y,2)+g_prev(x,y,3)+g_prev(x,y,4)+g_prev(x,y,5)+g_prev(x,y,6)+g_prev(x,y,7)+g_prev(x,y,8)) != 0){
-        cout << g_prev(x,y,1) << " " << g_prev(x,y,3) << endl;
         g(x,y,1) = g_prev(x,y,3);
         g(x,y,2) = g_prev(x,y,4);
         g(x,y,3) = g_prev(x,y,1);
@@ -349,8 +347,6 @@ void MainClass::ADE(int T)
         g_star(x,y,8) = 0;
       }
   g = g_star;
-  //cout << "after: " << g_star(2,2,1) << " " << g_star(2,2,3) << endl;
-  cout << g << endl;
   }
 }
   void MainClass::write_u()
@@ -428,7 +424,7 @@ void MainClass::test_mass_diffusion()
       }
   }
 
-    ADE(5);
+    ADE(50000);
 
     double final_mass = 0;
     for (int x = 0; x < Nx; x++)

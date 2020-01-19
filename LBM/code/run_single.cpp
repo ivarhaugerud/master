@@ -20,7 +20,7 @@ int main(int argc, char const *argv[])
 
     MainClass instance(Nx, Ny, 2, 0.50 + 3*pow(10,-3), pow(10,-7), 0, 5*pow(10, -3), "filename", 5);
     //instance.set_boundary();
-    instance.boundary_disc(2, 2, 1);
+    instance.boundary_disc(20, 20, 10);
     //instance.boundary_disc(60, 40, 30);
     //instance.boundary_disc(37, 60, 20);
 
