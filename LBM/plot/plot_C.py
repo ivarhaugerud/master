@@ -15,8 +15,8 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
 C = np.loadtxt("../data/final_C.txt")
 
-Nx = 40
-Ny = 40
+Nx = 512
+Ny = 128
 
 
 x_axis = np.linspace(0, Nx-1, Nx)
@@ -30,11 +30,12 @@ C = np.reshape(C, (Nx, Ny))
 #plt.imshow(y_axis, x_axis, C)
 #plt.show()
 
-x_, y_ = np.meshgrid( x_axis, y_axis)
+x_, y_ = np.meshgrid( y_axis, x_axis)
 fig = plt.figure()
 plt.ylabel(r"$x$", fontsize=14)
 plt.xlabel(r"$y$", fontsize=14)
 
+print("mass: ", np.sum(np.sum(C)))
 ax1 = plt.contourf(y_,x_, C)#, levels=np.linspace(0, np.max(np.max(C)), 30))
 cbar = fig.colorbar(ax1)
 cbar.ax.set_ylabel(r'Concentration $C$', fontsize=14)

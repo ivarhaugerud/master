@@ -28,7 +28,6 @@ MainClass::MainClass(int NX, int NY, double TAU, double TAU_G, double FX, double
   g       = Cube<double>(Nx, Ny, 9);
   g_eq    = Cube<double>(Nx, Ny, 9);
   g_star  = Cube<double>(Nx, Ny, 9);
-  g_prev  = Cube<double>(Nx, Ny, 9);
 
   rho      = Mat<double>(Nx, Ny);
   C        = Mat<double>(Nx, Ny);
@@ -244,7 +243,8 @@ void MainClass::ADE(int T)
 {
   cout << rest.size() + boundary.size() << endl;
   for (int t = 0; t < T; t++)
-    {for (int k = 0; k < rest.size(); k++)
+    {//open
+      for (int k = 0; k < rest.size(); k++)
       {x = get<0>(rest[k]);
        y = get<1>(rest[k]);
 
@@ -298,19 +298,10 @@ void MainClass::ADE(int T)
       g_star(x_next, y_prev, 8) = g(x, y, 8);
     }
 
-    g_prev = g_star;
+    //boundary
     for (int i = 0; i < boundary.size(); i++)
       {x = get<0>(boundary[i]);
        y = get<1>(boundary[i]);
-
-        g(x,y,1) = g_prev(x,y,3);
-        g(x,y,2) = g_prev(x,y,4);
-        g(x,y,3) = g_prev(x,y,1);
-        g(x,y,4) = g_prev(x,y,2);
-        g(x,y,5) = g_prev(x,y,7);
-        g(x,y,6) = g_prev(x,y,8);
-        g(x,y,7) = g_prev(x,y,5);
-        g(x,y,8) = g_prev(x,y,6);
 
         x_next = x+1;
         x_prev = x-1;
@@ -326,15 +317,15 @@ void MainClass::ADE(int T)
         if (y == Ny-1)
           y_next = 0;
 
-        g_star(x_next, y, 1) = g(x, y, 1);
-        g_star(x, y_next, 2) = g(x, y, 2);
-        g_star(x_prev, y, 3) = g(x, y, 3);
-        g_star(x, y_prev, 4) = g(x, y, 4);
+        g_star(x_next, y, 1) = g_star(x,y,3);
+        g_star(x, y_next, 2) = g_star(x,y,4);
+        g_star(x_prev, y, 3) = g_star(x,y,1);
+        g_star(x, y_prev, 4) = g_star(x,y,2);
 
-        g_star(x_next, y_next, 5) = g(x, y, 5);
-        g_star(x_prev, y_next, 6) = g(x, y, 6);
-        g_star(x_prev, y_prev, 7) = g(x, y, 7);
-        g_star(x_next, y_prev, 8) = g(x, y, 8);
+        g_star(x_next, y_next, 5) = g_star(x,y,7);
+        g_star(x_prev, y_next, 6) = g_star(x,y,8);
+        g_star(x_prev, y_prev, 7) = g_star(x,y,5);
+        g_star(x_next, y_prev, 8) = g_star(x,y,6);
 
         g_star(x,y,0) = 0;
         g_star(x,y,1) = 0;

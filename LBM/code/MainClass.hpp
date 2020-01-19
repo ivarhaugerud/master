@@ -62,7 +62,6 @@ class MainClass
   Cube<double> g;
   Cube<double> g_eq;
   Cube<double> g_star;
-  Cube<double> g_prev;
 
   Mat<double> rho;
   Mat<double> C;
