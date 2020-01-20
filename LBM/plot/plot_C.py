@@ -15,7 +15,7 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
 C = np.loadtxt("../data/final_C.txt")
 
-Nx = 512
+Nx = 256
 Ny = 128
 
 

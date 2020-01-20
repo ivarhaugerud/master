@@ -75,7 +75,7 @@ class MainClass
   void run();
   void ADE(int t);
   void write_u();
-  void write_C();
+  void write_C(int T);
   void set_boundary();
   void open();  
   void test_mass_cons();

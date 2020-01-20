@@ -62,9 +62,7 @@ void MainClass::initialize(double rho)
 }
 
 void MainClass::initialize_other(int x, int y, int i, double rho)
-{
-  f(x, y, i) = rho;
-}
+{f(x, y, i) = rho;}
 
 void MainClass::initialize_C(int x, int y, int i, double rho)
 {
@@ -215,7 +213,7 @@ void MainClass::run()
 
   if (abs(u - prev_u).max() <  tol*current_max_u)
       {equil = true;
-      cout << abs(u - prev_u).max() << " " << current_max_u << endl << " " << counter;}
+      cout << abs(u - prev_u).max() << " " << current_max_u << endl;}
   prev_u = u;
   f = f_star;
   counter += 1;
@@ -226,6 +224,8 @@ void MainClass::run()
 
 void MainClass::ADE(int T)
 {
+  int data_divide = T/data_lines;
+  int counter = 0;
   for (int t = 0; t < T; t++)
     {//open
       for (int k = 0; k < rest.size(); k++)
@@ -311,6 +311,10 @@ void MainClass::ADE(int T)
         g_star(x,y,8) = 0;
       }
   g = g_star;
+  if (t%data_divide == 0)
+    {write_C(counter);
+     counter += 1;
+     cout << counter << " " << data_lines << endl;}
   }
 }
   void MainClass::write_u()
@@ -336,9 +340,9 @@ void MainClass::ADE(int T)
   }
 
 
-void MainClass::write_C()
+void MainClass::write_C(int T)
 {
-  ofstream outfile("../data/final_C.txt");
+  ofstream outfile("../data/C_" + to_string(T) + ".txt");
   if (!outfile.is_open())
   cout<<"Could not open file" << endl;
   for (int i = 0; i < Nx; i++)
@@ -381,22 +385,16 @@ void MainClass::test_mass_diffusion()
   {
     double initial_mass = 0;
     for (int x = 0; x < Nx; x++)
-    {
-      for (int y = 0; y < Ny; y++)
-      {
-        initial_mass +=  g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
-      }
-  }
+    {for (int y = 0; y < Ny; y++)
+      {initial_mass +=  g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8);}
+    }
 
     ADE(500);
 
     double final_mass = 0;
     for (int x = 0; x < Nx; x++)
-    {
-      for (int y = 0; y < Ny; y++)
-      {
-        final_mass +=  g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
-      }
+    {for (int y = 0; y < Ny; y++)
+      {final_mass +=  g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8);}
     }
   cout << initial_mass << " " << final_mass << " " << initial_mass-final_mass << endl;
   if (abs(initial_mass-final_mass) < 0.0001*initial_mass)

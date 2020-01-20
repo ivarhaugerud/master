@@ -17,8 +17,8 @@ u = np.loadtxt("../data/final_vel.txt")
 u_x = u[0, :]
 u_y = u[1, :]
 
-Nx = 40
-Ny = 40
+Nx = 256
+Ny = 64
 
 print(np.max(np.max(u)))
 
@@ -42,6 +42,7 @@ measured = measured
 length = np.sqrt(u_y*u_y + u_x*u_x)
 print(np.shape(length))
 plt.quiver(y_axis, x_axis, np.divide(u_y, 1), np.divide(u_x, 1), length)
+plt.axis("equal")
 plt.show()
 """
 
