@@ -224,6 +224,16 @@ void MainClass::run()
         f_star(x_prev, y_next, 6) = f(x, y, 6);
         f_star(x_prev, y_prev, 7) = f(x, y, 7);
         f_star(x_next, y_prev, 8) = f(x, y, 8);
+
+        f_star(x,y,0) = 0;
+        f_star(x,y,1) = 0;
+        f_star(x,y,2) = 0;
+        f_star(x,y,3) = 0;
+        f_star(x,y,4) = 0;
+        f_star(x,y,5) = 0;
+        f_star(x,y,6) = 0;
+        f_star(x,y,7) = 0;
+        f_star(x,y,8) = 0;
       }}
       
   current_max_u = u.max();
