@@ -28,13 +28,12 @@ int main(int argc, char const *argv[])
     instance.initialize(1);
     //instance.initialize_other(2, 2, 5, 2);
     instance.run();
-    cout << "equilibrated" << endl;
     instance.initialize_C(256, 64 , 0, 100);
 
     //instance.ADE(5000);
-    instance.test_mass_cons();
+    //instance.test_mass_cons();
     //instance.write_u();
-    //instance.test_mass_diffusion();
+    instance.test_mass_diffusion();
     //instance.write_C();
     return 0;
   }

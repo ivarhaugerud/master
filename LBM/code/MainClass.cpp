@@ -19,14 +19,11 @@ MainClass::MainClass(int NX, int NY, double TAU, double TAU_G, double FX, double
   f       = Cube<double>(Nx, Ny, 9);
   f_prev  = Cube<double>(Nx, Ny, 9);
   f_star  = Cube<double>(Nx, Ny, 9);
-  f_eq    = Cube<double>(Nx, Ny, 9);
-  S       = Cube<double>(Nx, Ny, 9);
   u       = Cube<double>(Nx, Ny, 2);
   prev_u  = Cube<double>(Nx, Ny, 2);
 
   //diffusion
   g       = Cube<double>(Nx, Ny, 9);
-  g_eq    = Cube<double>(Nx, Ny, 9);
   g_star  = Cube<double>(Nx, Ny, 9);
 
   rho      = Mat<double>(Nx, Ny);
@@ -125,37 +122,17 @@ void MainClass::run()
       u(x, y, 0) = (f(x, y, 1) - f(x, y, 3) + f(x, y, 5) - f(x, y, 6) - f(x, y, 7) + f(x, y, 8))/rho(x,y) + F(0)/(2*rho(x,y));
       u(x, y, 1) = (f(x, y, 2) - f(x, y, 4) + f(x, y, 5) + f(x, y, 6) - f(x, y, 7) - f(x, y, 8))/rho(x,y) + F(1)/(2*rho(x,y));
       three_u_squared = u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1);
-
-      f_eq(x, y, 0) = rho(x, y)*(2 - three_u_squared)*2/9;
-      f_eq(x, y, 1) = rho(x, y)*(2 + 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
-      f_eq(x, y, 2) = rho(x, y)*(2 + 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
-      f_eq(x, y, 3) = rho(x, y)*(2 - 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
-      f_eq(x, y, 4) = rho(x, y)*(2 - 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
-      f_eq(x, y, 5) = rho(x, y)*(1 + 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-      f_eq(x, y, 6) = rho(x, y)*(1 - 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-      f_eq(x, y, 7) = rho(x, y)*(1 - 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-      f_eq(x, y, 8) = rho(x, y)*(1 + 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-
       FU = 3*(F(0)*u(x,y,0) + F(1)*u(x,y,1));
-      S(x, y, 0) = -FU;
-      S(x, y, 1) =  3*F(0) + 9*F(0)*u(x,y,0) - FU;
-      S(x, y, 2) =  3*F(1) + 9*F(1)*u(x,y,1) - FU;
-      S(x, y, 3) = -3*F(0) + 9*F(0)*u(x,y,0) - FU;
-      S(x, y, 4) = -3*F(1) + 9*F(1)*u(x,y,1) - FU;
-      S(x, y, 5) =  3*( F(0) + F(1)) + 9*(F(0)  + F(1))*( u(x,y,0)+u(x,y,1)) - FU;
-      S(x, y, 6) =  3*(-F(0) + F(1)) + 9*(-F(0) + F(1))*(-u(x,y,0)+u(x,y,1)) - FU;
-      S(x, y, 7) = -3*( F(0) + F(1)) + 9*(F(0)  + F(1))*( u(x,y,0)+u(x,y,1)) - FU;
-      S(x, y, 8) =  3*( F(0) - F(1)) + 9*(F(0)  - F(1))*( u(x,y,0)-u(x,y,1)) - FU;
 
-      f(x, y, 0) = f(x, y, 0)*alpha + f_eq(x, y, 0)*beta + delta*S(x,y,0)*4/9;
-      f(x, y, 1) = f(x, y, 1)*alpha + f_eq(x, y, 1)*beta + delta*S(x,y,1)*1/9;
-      f(x, y, 2) = f(x, y, 2)*alpha + f_eq(x, y, 2)*beta + delta*S(x,y,2)*1/9;
-      f(x, y, 3) = f(x, y, 3)*alpha + f_eq(x, y, 3)*beta + delta*S(x,y,3)*1/9;
-      f(x, y, 4) = f(x, y, 4)*alpha + f_eq(x, y, 4)*beta + delta*S(x,y,4)*1/9;
-      f(x, y, 5) = f(x, y, 5)*alpha + f_eq(x, y, 5)*beta + delta*S(x,y,5)*1/36;
-      f(x, y, 6) = f(x, y, 6)*alpha + f_eq(x, y, 6)*beta + delta*S(x,y,6)*1/36;
-      f(x, y, 7) = f(x, y, 7)*alpha + f_eq(x, y, 7)*beta + delta*S(x,y,7)*1/36;
-      f(x, y, 8) = f(x, y, 8)*alpha + f_eq(x, y, 8)*beta + delta*S(x,y,8)*1/36;
+      f(x, y, 0) = f(x, y, 0)*alpha + beta*rho(x, y)*(2 - three_u_squared)*2/9 - delta*FU*4/9;
+      f(x, y, 1) = f(x, y, 1)*alpha + beta*rho(x, y)*(2 + 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18 + delta*(3*F(0) + 9*F(0)*u(x,y,0) - FU)/9;
+      f(x, y, 2) = f(x, y, 2)*alpha + beta*rho(x, y)*(2 + 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18 + delta*(3*F(1) + 9*F(1)*u(x,y,1) - FU)/9;
+      f(x, y, 3) = f(x, y, 3)*alpha + beta*rho(x, y)*(2 - 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18 + delta*(-3*F(0) + 9*F(0)*u(x,y,0) - FU)/9;
+      f(x, y, 4) = f(x, y, 4)*alpha + beta*rho(x, y)*(2 - 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18 + delta*(-3*F(1) + 9*F(1)*u(x,y,1) - FU)/9;
+      f(x, y, 5) = f(x, y, 5)*alpha + beta*rho(x, y)*(1 + 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36 + delta*( 3*( F(0) + F(1)) + 9*(F(0)  + F(1))*( u(x,y,0)+u(x,y,1)) - FU)/36;
+      f(x, y, 6) = f(x, y, 6)*alpha + beta*rho(x, y)*(1 - 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36 + delta*( 3*(-F(0) + F(1)) + 9*(-F(0) + F(1))*(-u(x,y,0)+u(x,y,1)) - FU)/36;
+      f(x, y, 7) = f(x, y, 7)*alpha + beta*rho(x, y)*(1 - 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36 + delta*(-3*( F(0) + F(1)) + 9*(F(0)  + F(1))*( u(x,y,0)+u(x,y,1)) - FU)/36;
+      f(x, y, 8) = f(x, y, 8)*alpha + beta*rho(x, y)*(1 + 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36 + delta*( 3*( F(0) - F(1)) + 9*(F(0)  - F(1))*( u(x,y,0)-u(x,y,1)) - FU)/36;
 
       x_next = x+1;
       x_prev = x-1;
@@ -176,7 +153,6 @@ void MainClass::run()
       f_star(x, y_next, 2) = f(x, y, 2);
       f_star(x_prev, y, 3) = f(x, y, 3);
       f_star(x, y_prev, 4) = f(x, y, 4);
-
       f_star(x_next, y_next, 5) = f(x, y, 5);
       f_star(x_prev, y_next, 6) = f(x, y, 6);
       f_star(x_prev, y_prev, 7) = f(x, y, 7);
@@ -219,7 +195,6 @@ void MainClass::run()
         f_star(x, y_next, 2) = f(x, y, 2);
         f_star(x_prev, y, 3) = f(x, y, 3);
         f_star(x, y_prev, 4) = f(x, y, 4);
-
         f_star(x_next, y_next, 5) = f(x, y, 5);
         f_star(x_prev, y_next, 6) = f(x, y, 6);
         f_star(x_prev, y_prev, 7) = f(x, y, 7);
@@ -245,13 +220,12 @@ void MainClass::run()
   f = f_star;
   counter += 1;
   }
-  cout << counter << endl;
+  cout << "number of steps for equilibration: " << counter << endl;
 }
 
 
 void MainClass::ADE(int T)
 {
-  cout << rest.size() + boundary.size() << endl;
   for (int t = 0; t < T; t++)
     {//open
       for (int k = 0; k < rest.size(); k++)
@@ -259,28 +233,17 @@ void MainClass::ADE(int T)
        y = get<1>(rest[k]);
 
       C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
-
       three_u_squared = 3*(u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1));
 
-      g_eq(x, y, 0) = C(x, y)*(2 - three_u_squared)*2/9;
-      g_eq(x, y, 1) = C(x, y)*(2 + 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
-      g_eq(x, y, 2) = C(x, y)*(2 + 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
-      g_eq(x, y, 3) = C(x, y)*(2 - 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
-      g_eq(x, y, 4) = C(x, y)*(2 - 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
-      g_eq(x, y, 5) = C(x, y)*(1 + 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-      g_eq(x, y, 6) = C(x, y)*(1 - 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-      g_eq(x, y, 7) = C(x, y)*(1 - 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-      g_eq(x, y, 8) = C(x, y)*(1 + 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-
-      g(x, y, 0) = g(x, y, 0)*eta + g_eq(x, y, 0)*zeta;
-      g(x, y, 1) = g(x, y, 1)*eta + g_eq(x, y, 1)*zeta;
-      g(x, y, 2) = g(x, y, 2)*eta + g_eq(x, y, 2)*zeta;
-      g(x, y, 3) = g(x, y, 3)*eta + g_eq(x, y, 3)*zeta;
-      g(x, y, 4) = g(x, y, 4)*eta + g_eq(x, y, 4)*zeta;
-      g(x, y, 5) = g(x, y, 5)*eta + g_eq(x, y, 5)*zeta;
-      g(x, y, 6) = g(x, y, 6)*eta + g_eq(x, y, 6)*zeta;
-      g(x, y, 7) = g(x, y, 7)*eta + g_eq(x, y, 7)*zeta;
-      g(x, y, 8) = g(x, y, 8)*eta + g_eq(x, y, 8)*zeta;
+      g(x, y, 0) = g(x, y, 0)*eta + zeta*C(x, y)*(2 - three_u_squared)*2/9;
+      g(x, y, 1) = g(x, y, 1)*eta + zeta*C(x, y)*(2 + 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
+      g(x, y, 2) = g(x, y, 2)*eta + zeta*C(x, y)*(2 + 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
+      g(x, y, 3) = g(x, y, 3)*eta + zeta*C(x, y)*(2 - 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
+      g(x, y, 4) = g(x, y, 4)*eta + zeta*C(x, y)*(2 - 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
+      g(x, y, 5) = g(x, y, 5)*eta + zeta*C(x, y)*(1 + 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
+      g(x, y, 6) = g(x, y, 6)*eta + zeta*C(x, y)*(1 - 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
+      g(x, y, 7) = g(x, y, 7)*eta + zeta*C(x, y)*(1 - 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
+      g(x, y, 8) = g(x, y, 8)*eta + zeta*C(x, y)*(1 + 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
 
       x_next = x+1;
       x_prev = x-1;
@@ -425,7 +388,7 @@ void MainClass::test_mass_diffusion()
       }
   }
 
-    ADE(50000);
+    ADE(500);
 
     double final_mass = 0;
     for (int x = 0; x < Nx; x++)

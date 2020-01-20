@@ -53,14 +53,11 @@ class MainClass
   Cube<double> f;
   Cube<double> f_prev;
   Cube<double> f_star;
-  Cube<double> f_eq;
-  Cube<double> S;
   Cube<double> u;
   Cube<double> prev_u;
 
   //diffusion
   Cube<double> g;
-  Cube<double> g_eq;
   Cube<double> g_star;
 
   Mat<double> rho;
