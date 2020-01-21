@@ -112,7 +112,7 @@ void MainClass::run()
   double current_max_u;
 
   while (not equil)
-    {for (int k = 0; k < rest.size(); k ++)
+    {for (int k = 0; k < rest.size(); k++)
       {x = get<0>(rest[k]);
        y = get<1>(rest[k]);
 
@@ -224,7 +224,7 @@ void MainClass::run()
 
 void MainClass::ADE(int T)
 {
-  int data_divide = T/data_lines;
+  int data_divide = (T-1)/data_lines;
   int counter = 0;
   for (int t = 0; t < T; t++)
     {//open

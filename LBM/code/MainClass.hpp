@@ -68,6 +68,7 @@ class MainClass
   int y;
   vector<tuple<int, int>> boundary;
   vector<tuple<int, int>> rest;
+  vector<tuple<int, int>> source;
 
   MainClass();
   MainClass(int NX, int NY, double TAU, double TAU_G, double FX, double FY, double tolerence, string filename, int amount_of_data);
