@@ -26,7 +26,7 @@ class MainClass
   int data_lines;
 
   int Nx;
-  int Ny; 
+  int Ny;
   int counter;
 
   int x_next;
@@ -74,11 +74,15 @@ class MainClass
   MainClass(int NX, int NY, double TAU, double TAU_G, double FX, double FY, double tolerence, string filename, int amount_of_data);
   void initialize(double rho);
   void run();
-  void ADE(int t);
+  mat ADE(int t);
+  void ADE_back(int t, mat C_in);
   void write_u();
-  void write_C(int T);
+  void write_C(int T, string filename);
   void set_boundary();
+  void define_sources(int x, int y);
+  void write_source(mat data, int T, string filename);
   void open();  
+  void clear_g();
   void test_mass_cons();
   void test_mass_diffusion();
   void initialize_other(int x, int y, int i, double rho);

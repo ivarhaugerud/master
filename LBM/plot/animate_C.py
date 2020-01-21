@@ -15,31 +15,27 @@ matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
 datafiles = 100
-Nx = 256
+Nx = 140
 Ny = 64
 C = np.zeros((Nx, Ny, datafiles))
 
 x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
-for i in range(datafiles):
-	data = np.loadtxt("../data/C_"+str(i)+".txt")
-	C[:, :, i] = np.log(abs(np.reshape(data, (Nx, Ny))))
-	#print(C)
-	#print(np.max(np.max(data)))
-	#C[np.where(C[:,:,i] < 1e-7)] = 1
 
 max_C = np.max(np.max(np.max(C)))
 
 fig,ax = plt.subplots()
 
 def animate(i):
+	data = np.loadtxt("../data/C_"+str(i)+"_back.txt")
+	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
 	ax.clear()
-	ax.contourf(C[:,:,i])#, levels=np.linspace(0, max_C, 30))
+	ax.contourf(C[:,:,i])#, levels=np.linspace(-100, np.max(np.max(C[:,:,i])), 50))
 	ax.axis("equal")
 
 
-interval = 200 #in seconds     
+interval = 20 #in ms     
 ani = animation.FuncAnimation(fig,animate,datafiles, interval=interval, blit=False, repeat=False)
 
 plt.show()

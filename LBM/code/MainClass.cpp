@@ -78,12 +78,36 @@ void MainClass::set_boundary()
   }
 }
 
+void MainClass::define_sources(int x, int y)
+{
+  source.emplace_back(x, y);
+}
+
 void MainClass::boundary_disc(int x, int y, double R)
 {
   for (int i = 0; i < Nx; i++)
     {for (int j = 0; j < Ny; j++)
       {if (sqrt( (x-i)*(x-i) + (y-j)*(y-j) ) < R)
       {boundary.emplace_back(i, j);}}}
+}
+
+void MainClass::clear_g()
+{
+  for (int x = 0; x < Nx; x++)
+    {for (int y = 0; y < Ny; y++)
+      {g(x,y,0) = 0;
+       g(x,y,1) = 0;
+       g(x,y,2) = 0;
+       g(x,y,3) = 0;
+       g(x,y,4) = 0;
+       g(x,y,5) = 0;
+       g(x,y,6) = 0;
+       g(x,y,7) = 0;
+       g(x,y,8) = 0;
+
+       C(x,y) = 0;
+      }
+  }
 }
 
 void MainClass::open()
@@ -222,10 +246,14 @@ void MainClass::run()
 }
 
 
-void MainClass::ADE(int T)
+mat MainClass::ADE(int T)
 {
-  int data_divide = (T-1)/data_lines;
+  int data_divide = T/data_lines;
   int counter = 0;
+
+  Mat<double> C_in;
+  C_in = Mat<double>(T, source.size());
+
   for (int t = 0; t < T; t++)
     {//open
       for (int k = 0; k < rest.size(); k++)
@@ -310,13 +338,133 @@ void MainClass::ADE(int T)
         g_star(x,y,7) = 0;
         g_star(x,y,8) = 0;
       }
+
+  //drains  
+   for (int j = 0; j < source.size(); j++){
+      x = get<0>(source[j]);
+      y = get<1>(source[j]);
+      C_in(t, j) = C(x,y);}
+
   g = g_star;
   if (t%data_divide == 0)
-    {write_C(counter);
+    {write_C(counter, "front");
+     counter += 1;
+     cout << counter << " " << data_lines << endl;}
+  }
+  //cout << C_in << endl;
+  write_source(C_in, T, "front");
+  return C_in;
+}
+
+
+void MainClass::ADE_back(int T, mat C_in)
+{
+  int data_divide = T/data_lines;
+  int counter = 0;
+  cout << "begin" << endl;
+  Mat<double> C_out;
+  C_out = Mat<double>(T, source.size());
+
+  for (int t = 0; t < T; t++)
+    {//open
+      for (int k = 0; k < rest.size(); k++)
+      {x = get<0>(rest[k]);
+       y = get<1>(rest[k]);
+
+      C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
+      three_u_squared = 3*(u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1));
+
+      g(x, y, 0) = g(x, y, 0)*eta + zeta*C(x, y)*(2 - three_u_squared)*2/9;
+      g(x, y, 1) = g(x, y, 1)*eta + zeta*C(x, y)*(2 - 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
+      g(x, y, 2) = g(x, y, 2)*eta + zeta*C(x, y)*(2 - 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
+      g(x, y, 3) = g(x, y, 3)*eta + zeta*C(x, y)*(2 + 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
+      g(x, y, 4) = g(x, y, 4)*eta + zeta*C(x, y)*(2 + 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
+      g(x, y, 5) = g(x, y, 5)*eta + zeta*C(x, y)*(1 - 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
+      g(x, y, 6) = g(x, y, 6)*eta + zeta*C(x, y)*(1 + 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
+      g(x, y, 7) = g(x, y, 7)*eta + zeta*C(x, y)*(1 + 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
+      g(x, y, 8) = g(x, y, 8)*eta + zeta*C(x, y)*(1 - 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
+
+      x_next = x+1;
+      x_prev = x-1;
+      y_next = y+1;
+      y_prev = y-1;
+
+      if (x == 0)
+        x_prev = Nx-1;
+      if (x == Nx-1)
+        x_next = 0;
+      if (y == 0)
+        y_prev = Ny-1;
+      if (y == Ny-1)
+        y_next = 0;
+
+      g_star(x, y,      0) = g(x, y, 0);
+      g_star(x_next, y, 1) = g(x, y, 1);
+      g_star(x, y_next, 2) = g(x, y, 2);
+      g_star(x_prev, y, 3) = g(x, y, 3);
+      g_star(x, y_prev, 4) = g(x, y, 4);
+
+      g_star(x_next, y_next, 5) = g(x, y, 5);
+      g_star(x_prev, y_next, 6) = g(x, y, 6);
+      g_star(x_prev, y_prev, 7) = g(x, y, 7);
+      g_star(x_next, y_prev, 8) = g(x, y, 8);
+    }
+
+    //boundary
+    for (int i = 0; i < boundary.size(); i++)
+      {x = get<0>(boundary[i]);
+       y = get<1>(boundary[i]);
+
+        x_next = x+1;
+        x_prev = x-1;
+        y_next = y+1;
+        y_prev = y-1;
+
+        if (x == 0)
+          x_prev = Nx-1;
+        if (x == Nx-1)
+          x_next = 0;
+        if (y == 0)
+          y_prev = Ny-1;
+        if (y == Ny-1)
+          y_next = 0;
+
+        g_star(x_next, y, 1) = g_star(x,y,3);
+        g_star(x, y_next, 2) = g_star(x,y,4);
+        g_star(x_prev, y, 3) = g_star(x,y,1);
+        g_star(x, y_prev, 4) = g_star(x,y,2);
+
+        g_star(x_next, y_next, 5) = g_star(x,y,7);
+        g_star(x_prev, y_next, 6) = g_star(x,y,8);
+        g_star(x_prev, y_prev, 7) = g_star(x,y,5);
+        g_star(x_next, y_prev, 8) = g_star(x,y,6);
+
+        g_star(x,y,0) = 0;
+        g_star(x,y,1) = 0;
+        g_star(x,y,2) = 0;
+        g_star(x,y,3) = 0;
+        g_star(x,y,4) = 0;
+        g_star(x,y,5) = 0;
+        g_star(x,y,6) = 0;
+        g_star(x,y,7) = 0;
+        g_star(x,y,8) = 0;
+      }
+
+  //sources  
+  // for (int j = 0; j < source.size(); j++){
+  //    x = get<0>(source[j]);
+  //    y = get<1>(source[j]);
+  //    g_star(x,y,0) += C_in(T-t-1, j);}
+
+  g = g_star;
+  if (t%data_divide == 0)
+    {
+      write_C(counter, "back");
      counter += 1;
      cout << counter << " " << data_lines << endl;}
   }
 }
+
   void MainClass::write_u()
   {
     ofstream outfile("../data/final_vel.txt");
@@ -340,9 +488,9 @@ void MainClass::ADE(int T)
   }
 
 
-void MainClass::write_C(int T)
+void MainClass::write_C(int T, string filename)
 {
-  ofstream outfile("../data/C_" + to_string(T) + ".txt");
+  ofstream outfile("../data/C_" + to_string(T) + "_" + filename + ".txt");
   if (!outfile.is_open())
   cout<<"Could not open file" << endl;
   for (int i = 0; i < Nx; i++)
@@ -350,6 +498,20 @@ void MainClass::write_C(int T)
       for (int j = 0; j < Ny; j++){
       outfile << C(i, j) << " "; 
     }
+  }
+}
+
+void MainClass::write_source(mat data, int T, string filename)
+{
+  ofstream outfile("../data/source" + filename + ".txt");
+  if (!outfile.is_open())
+  cout<<"Could not open file" << endl;
+  for (int j = 0; j < source.size(); j++)
+    {
+      for (int t = 0; t < T; t++){
+      outfile << data(t, j) << " "; 
+    }
+    outfile << "\n";
   }
 }
 
