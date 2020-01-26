@@ -14,8 +14,8 @@ matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-datafiles = 100
-Nx = 140
+datafiles = 1000
+Nx = 160
 Ny = 64
 C = np.zeros((Nx, Ny, datafiles))
 
@@ -28,14 +28,14 @@ max_C = np.max(np.max(np.max(C)))
 fig,ax = plt.subplots()
 
 def animate(i):
-	data = np.loadtxt("../data/C_"+str(i)+"_back.txt")
+	data = np.loadtxt("../data/C_"+str(i+100)+"_back.txt")
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
 	ax.clear()
 	ax.contourf(C[:,:,i])#, levels=np.linspace(-100, np.max(np.max(C[:,:,i])), 50))
 	ax.axis("equal")
 
 
-interval = 20 #in ms     
+interval = 5 #in ms     
 ani = animation.FuncAnimation(fig,animate,datafiles, interval=interval, blit=False, repeat=False)
 
 plt.show()

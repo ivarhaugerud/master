@@ -35,12 +35,19 @@ for i in range(datafiles):
 
 	data_front = np.loadtxt("../data/C_"+str(i)+"_front.txt")
 	C_front[:, :, i] = (np.reshape(data_front, (Nx, Ny)))
-	print(np.sum(np.sum(C_back[:,:, i])), np.sum(np.sum(C_front[:,:,i])))
+
+C_back  /= np.sum(np.sum(C_back[:,:, 0]))
+C_front /= np.sum(np.sum(C_front[:,:, 0]))
+
 x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
 plt.plot( C_back[Dx, Dy, :])
 plt.plot(C_front[Sx, Sy, :], "o")
+plt.xlabel(r"Time", fontsize=14)
+plt.ylabel(r"Normalized concentration", fontsize=14)
+plt.savefig("../figures/reciprocal_symmetry.pdf", bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%("../figures/reciprocal_symmetry.pdf", "../figures/reciprocal_symmetry.pdf"))
 plt.show()
 #print("Argument of global maxima: ", np.unravel_index(np.argmax(C, axis=None), C.shape))
 #print("Center of mass: ", np.mean(np.dot(x_axis, C)), np.mean(np.dot(C, y_axis)))
@@ -53,11 +60,18 @@ fig = plt.figure()
 plt.ylabel(r"$x$", fontsize=14)
 plt.xlabel(r"$y$", fontsize=14)
 
-print("mass: ", np.sum(np.sum(C)))
-ax1 = plt.contourf(y_,x_, C)#, levels=np.linspace(0, np.max(np.max(C)), 30))
+ax1 = plt.contourf(y_,x_, C_back[:,:,-1])#, levels=np.linspace(0, np.max(np.max(C)), 30))
 cbar = fig.colorbar(ax1)
 cbar.ax.set_ylabel(r'Concentration $C$', fontsize=14)
-#plt.xscale('log')
-#plt.savefig("../figures/relative_diff.pdf", bbox_inches="tight")
-#os.system('pdfcrop %s %s &> /dev/null &'%("../figures/relative_diff.pdf", "../figures/relative_diff.pdf"))
+plt.show()
+
+
+x_, y_ = np.meshgrid( y_axis, x_axis)
+fig = plt.figure()
+plt.ylabel(r"$x$", fontsize=14)
+plt.xlabel(r"$y$", fontsize=14)
+
+ax1 = plt.contourf(y_,x_, C_front[:,:,-1])#, levels=np.linspace(0, np.max(np.max(C)), 30))
+cbar = fig.colorbar(ax1)
+cbar.ax.set_ylabel(r'Concentration $C$', fontsize=14)
 plt.show()
