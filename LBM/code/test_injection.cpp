@@ -41,17 +41,17 @@ int main(int argc, char const *argv[])
     cout << "equilibrated" << endl;
     instance.write_u();
 
-    //instance.initialize_C(35, 32 , 0, 100);
+    instance.initialize_C(14, 34 , 0, 100);
 
-    //for (int i = 0; i < Ny; i++)
-    //{
-    //instance.define_sources(63, i);
-    //}
+    for (int i = 0; i < Ny; i++)
+    {
+    instance.define_sources(160, i);
+    }
 
-    //mat C_in = instance.ADE(350000);
-    //instance.clear_g();
+    mat C_in = instance.ADE(350000);
+    instance.clear_g();
 
-    //instance.ADE_back(350000, C_in);
-    //instance.write_u();
+    instance.ADE_back(350000, C_in);
+    instance.write_u();
     return 0;
   }

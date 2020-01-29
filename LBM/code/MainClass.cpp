@@ -131,11 +131,12 @@ void MainClass::open()
 
 void MainClass::run()
 {
-  bool equil = false;
+  //bool equil = false;
   int counter = 0;
-  double current_max_u;
+  //double current_max_u;
 
-  while (not equil)
+  //while (not equil)
+  for (int t = 0; t < 20000; t++)
     {for (int k = 0; k < rest.size(); k++)
       {x = get<0>(rest[k]);
        y = get<1>(rest[k]);
@@ -233,16 +234,16 @@ void MainClass::run()
         f_star(x,y,8) = 0;
       }}
       
-  current_max_u = u.max();
+  //current_max_u = u.max();
 
-  if (abs(u - prev_u).max() <  tol*current_max_u)
-      {equil = true;
-      cout << abs(u - prev_u).max() << " " << current_max_u << endl;}
-  prev_u = u;
+  //if (abs(u - prev_u).max() <  tol*current_max_u)
+  //    {equil = true;
+  //    cout << abs(u - prev_u).max() << " " << current_max_u << endl;}
+  //prev_u = u;
   f = f_star;
-  counter += 1;
+  //counter += 1;
   }
-  cout << "number of steps for equilibration: " << counter << endl;
+  //cout << "number of steps for equilibration: " << counter << endl;
 }
 
 
