@@ -349,9 +349,9 @@ mat MainClass::ADE(int T)
   if (t%data_divide == 0)
     {write_C(counter, "front");
      counter += 1;
-     cout << counter << " " << data_lines << endl;}
+     //cout << counter << " " << data_lines << endl;
+    }
   }
-  //cout << C_in << endl;
   write_source(C_in, T, "front");
   return C_in;
 }
@@ -361,7 +361,6 @@ void MainClass::ADE_back(int T, mat C_in)
 {
   int data_divide = T/data_lines;
   int counter = 0;
-  cout << "begin" << endl;
   Mat<double> C_out;
   C_out = Mat<double>(T, source.size());
 
@@ -451,10 +450,10 @@ void MainClass::ADE_back(int T, mat C_in)
       }
 
   //sources  
-  // for (int j = 0; j < source.size(); j++){
-  //    x = get<0>(source[j]);
-  //    y = get<1>(source[j]);
-  //    g_star(x,y,0) += C_in(T-t-1, j);}
+   for (int j = 0; j < source.size(); j++){
+      x = get<0>(source[j]);
+      y = get<1>(source[j]);
+      g_star(x,y,0) += C_in(T-t-1, j);}
 
   g = g_star;
   if (t%data_divide == 0)
