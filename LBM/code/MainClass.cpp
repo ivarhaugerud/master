@@ -454,7 +454,16 @@ void MainClass::ADE_back(int T, mat C_in)
    for (int j = 0; j < source.size(); j++){
       x = get<0>(source[j]);
       y = get<1>(source[j]);
-      g_star(x,y,0) += C_in(T-t-1, j);}
+      g_star(x,y,0) += 4*C_in(T-t-1, j)/9;
+      g_star(x,y,1) +=   C_in(T-t-1, j)/9;
+      g_star(x,y,2) +=   C_in(T-t-1, j)/9;
+      g_star(x,y,3) +=   C_in(T-t-1, j)/9;
+      g_star(x,y,4) +=   C_in(T-t-1, j)/9;
+      g_star(x,y,5) +=   C_in(T-t-1, j)/36;
+      g_star(x,y,6) +=   C_in(T-t-1, j)/36;
+      g_star(x,y,7) +=   C_in(T-t-1, j)/36;
+      g_star(x,y,8) +=   C_in(T-t-1, j)/36;
+      }
 
   g = g_star;
   if (t%data_divide == 0)
