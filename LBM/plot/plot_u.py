@@ -20,8 +20,11 @@ u_y = u[1, :]
 Nx = 256
 Ny = 64
 
+#for i in range(len(u[0, :])):
+#	print(u[0, i])
 print(np.max(np.max(u)))
 
+print(np.where( abs(u[0, :]) < 1e-8))
 f = 5*1e-8
 mu = (2-0.5)/3
 a = int(Ny/2)-1
