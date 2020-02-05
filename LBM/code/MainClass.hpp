@@ -77,10 +77,13 @@ class MainClass
   mat ADE(int t);
   void ADE_back(int t, mat C_in);
   void write_u();
-  void write_C(int T, string filename);
+  void write_C(int T, string filename2);
+  void change_D(double D_factor);
+  void change_F(double FX, double FY);
+
   void set_boundary();
   void define_sources(int x, int y);
-  void write_source(mat data, int T, string filename);
+  void write_source(mat data, int T, string filename2);
   void open();  
   void clear_g();
   void test_mass_cons();

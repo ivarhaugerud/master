@@ -69,6 +69,20 @@ void MainClass::initialize_C(int x, int y, int i, double rho)
   g(x, y, i) = rho;
 }
 
+void MainClass::change_D(double D_factor)
+{
+  double new_tau_g = tau_g/D_factor + 0.5*(D_factor - 1);
+  cout << new_tau_g << " " << tau_g << endl;
+  eta   = 1-1/new_tau_g;
+  zeta  = 1/new_tau_g;
+}
+
+void MainClass::change_F(double FX, double FY)
+{
+  F(0) = FX;
+  F(1) = FY;
+}
+
 void MainClass::set_boundary()
 {
   for (int i = 0; i < Nx; i ++)
@@ -110,6 +124,7 @@ void MainClass::clear_g()
   }
 }
 
+//gets indices of all lattice points not in a boundary
 void MainClass::open()
 {
   bool in_boundary;
@@ -132,11 +147,12 @@ void MainClass::open()
 void MainClass::run()
 {
   //bool equil = false;
-  int counter = 0;
+  //int counter = 0;
   //double current_max_u;
 
   //while (not equil)
-  for (int t = 0; t < 20000; t++)
+  cout << rest.size() << " " << boundary.size() << " " << Nx*Ny << " " << boundary.size() + rest.size() << endl;
+  for (int t = 0; t < 5000; t++)
     {for (int k = 0; k < rest.size(); k++)
       {x = get<0>(rest[k]);
        y = get<1>(rest[k]);
@@ -144,8 +160,8 @@ void MainClass::run()
       rho(x, y)  = f(x, y, 0) + f(x, y, 1) + f(x, y, 2) + f(x, y, 3) + f(x, y, 4) + f(x, y, 5) + f(x, y, 6) + f(x, y, 7) + f(x, y, 8); 
       u(x, y, 0) = (f(x, y, 1) - f(x, y, 3) + f(x, y, 5) - f(x, y, 6) - f(x, y, 7) + f(x, y, 8))/rho(x,y) + F(0)/(2*rho(x,y));
       u(x, y, 1) = (f(x, y, 2) - f(x, y, 4) + f(x, y, 5) + f(x, y, 6) - f(x, y, 7) - f(x, y, 8))/rho(x,y) + F(1)/(2*rho(x,y));
-      three_u_squared = u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1);
-      FU = 3*(F(0)*u(x,y,0) + F(1)*u(x,y,1));
+      three_u_squared = 3*u(x, y, 0)*u(x, y, 0) + 3*u(x, y, 1)*u(x, y, 1);
+      FU = 3*(F(0)*u(x,y,0) + 3*F(1)*u(x,y,1));
 
       f(x, y, 0) = f(x, y, 0)*alpha + beta*rho(x, y)*(2 - three_u_squared)*2/9 - delta*FU*4/9;
       f(x, y, 1) = f(x, y, 1)*alpha + beta*rho(x, y)*(2 + 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18 + delta*(3*F(0) + 9*F(0)*u(x,y,0) - FU)/9;
@@ -182,6 +198,7 @@ void MainClass::run()
       f_star(x_next, y_prev, 8) = f(x, y, 8);
     }
 
+    /*
     f_prev = f_star;
     for (int i = 0; i < boundary.size(); i++)
       {
@@ -232,7 +249,7 @@ void MainClass::run()
         f_star(x,y,6) = 0;
         f_star(x,y,7) = 0;
         f_star(x,y,8) = 0;
-      }}
+      }}*/
       
   //current_max_u = u.max();
 
@@ -476,7 +493,7 @@ void MainClass::ADE_back(int T, mat C_in)
 
   void MainClass::write_u()
   {
-    ofstream outfile("../data/final_vel.txt");
+    ofstream outfile("../data/" + filename + "_u.txt");
     if (!outfile.is_open())
      cout<<"Could not open file" << endl;
     for (int i = 0; i < Nx; i++)
@@ -497,9 +514,9 @@ void MainClass::ADE_back(int T, mat C_in)
   }
 
 
-void MainClass::write_C(int T, string filename)
+void MainClass::write_C(int T, string filename2)
 {
-  ofstream outfile("../data/C_" + to_string(T) + "_" + filename + ".txt");
+  ofstream outfile("../data/" + filename + "_C_" + to_string(T) + "_" + filename2 + ".txt");
   if (!outfile.is_open())
   cout<<"Could not open file" << endl;
   for (int i = 0; i < Nx; i++)
@@ -510,9 +527,9 @@ void MainClass::write_C(int T, string filename)
   }
 }
 
-void MainClass::write_source(mat data, int T, string filename)
+void MainClass::write_source(mat data, int T, string filename2)
 {
-  ofstream outfile("../data/source" + filename + ".txt");
+  ofstream outfile("../data/" + filename + "_source_" + filename2 + ".txt");
   if (!outfile.is_open())
   cout<<"Could not open file" << endl;
   for (int j = 0; j < source.size(); j++)
@@ -542,9 +559,10 @@ void MainClass::test_mass_cons()
     {
       for (int y = 0; y < Ny; y++)
       {
-        final_mass +=  rho(x,y); 
+        final_mass +=  f(x, y, 0) + f(x, y, 1) + f(x, y, 2) + f(x, y, 3) + f(x, y, 4) + f(x, y, 5) + f(x, y, 6) + f(x, y, 7) + f(x, y, 8); 
       }
     }
+
   cout << initial_mass << " " << final_mass << " " << initial_mass-final_mass << endl;
   if (abs(initial_mass-final_mass) < 0.0001*initial_mass)
   {cout << "MASS IS CONSERVED" << endl;}
@@ -555,6 +573,7 @@ void MainClass::test_mass_cons()
 void MainClass::test_mass_diffusion()
   {
     double initial_mass = 0;
+    initialize_C(16, 32, 0, 100);
     for (int x = 0; x < Nx; x++)
     {for (int y = 0; y < Ny; y++)
       {initial_mass +=  g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8);}
