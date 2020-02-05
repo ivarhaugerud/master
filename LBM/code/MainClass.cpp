@@ -99,10 +99,22 @@ void MainClass::define_sources(int x, int y)
 
 void MainClass::boundary_disc(int x, int y, double R)
 {
+  bool in_boundary;
   for (int i = 0; i < Nx; i++)
     {for (int j = 0; j < Ny; j++)
-      {if (sqrt( (x-i)*(x-i) + (y-j)*(y-j) ) < R)
-      {boundary.emplace_back(i, j);}}}
+      { in_boundary = false;
+        if (sqrt( (x-i)*(x-i) + (y-j)*(y-j) ) < R)
+      {
+        for (int k = 0; k < boundary.size(); k++){
+          x = get<0>(boundary[k]);
+          y = get<1>(boundary[k]);
+
+          if ((i == x) && (j == y)){
+            in_boundary = true;
+            continue;}}
+
+        if (not in_boundary)
+        {boundary.emplace_back(i,j);}}}}
 }
 
 void MainClass::clear_g()
@@ -161,7 +173,7 @@ void MainClass::run()
       u(x, y, 0) = (f(x, y, 1) - f(x, y, 3) + f(x, y, 5) - f(x, y, 6) - f(x, y, 7) + f(x, y, 8))/rho(x,y) + F(0)/(2*rho(x,y));
       u(x, y, 1) = (f(x, y, 2) - f(x, y, 4) + f(x, y, 5) + f(x, y, 6) - f(x, y, 7) - f(x, y, 8))/rho(x,y) + F(1)/(2*rho(x,y));
       three_u_squared = 3*u(x, y, 0)*u(x, y, 0) + 3*u(x, y, 1)*u(x, y, 1);
-      FU = 3*(F(0)*u(x,y,0) + 3*F(1)*u(x,y,1));
+      FU = 3*(F(0)*u(x,y,0) + F(1)*u(x,y,1));
 
       f(x, y, 0) = f(x, y, 0)*alpha + beta*rho(x, y)*(2 - three_u_squared)*2/9 - delta*FU*4/9;
       f(x, y, 1) = f(x, y, 1)*alpha + beta*rho(x, y)*(2 + 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18 + delta*(3*F(0) + 9*F(0)*u(x,y,0) - FU)/9;
@@ -198,7 +210,7 @@ void MainClass::run()
       f_star(x_next, y_prev, 8) = f(x, y, 8);
     }
 
-    /*
+    
     f_prev = f_star;
     for (int i = 0; i < boundary.size(); i++)
       {
@@ -249,7 +261,7 @@ void MainClass::run()
         f_star(x,y,6) = 0;
         f_star(x,y,7) = 0;
         f_star(x,y,8) = 0;
-      }}*/
+      }}
       
   //current_max_u = u.max();
 
@@ -271,6 +283,7 @@ mat MainClass::ADE(int T)
 
   Mat<double> C_in;
   C_in = Mat<double>(T, source.size());
+  cout << rest.size() << " " << boundary.size() << " " << Nx*Ny << " " << boundary.size() + rest.size() << endl;
 
   for (int t = 0; t < T; t++)
     {//open
@@ -345,7 +358,7 @@ mat MainClass::ADE(int T)
         g_star(x_prev, y_next, 6) = g_star(x,y,8);
         g_star(x_prev, y_prev, 7) = g_star(x,y,5);
         g_star(x_next, y_prev, 8) = g_star(x,y,6);
-
+        
         g_star(x,y,0) = 0;
         g_star(x,y,1) = 0;
         g_star(x,y,2) = 0;
@@ -355,6 +368,7 @@ mat MainClass::ADE(int T)
         g_star(x,y,6) = 0;
         g_star(x,y,7) = 0;
         g_star(x,y,8) = 0;
+
       }
 
   //drains  
