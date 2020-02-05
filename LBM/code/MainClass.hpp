@@ -71,7 +71,7 @@ class MainClass
   vector<tuple<int, int>> source;
 
   MainClass();
-  MainClass(int NX, int NY, double TAU, double TAU_G, double FX, double FY, double tolerence, string filename, int amount_of_data);
+  MainClass(int NX, int NY, double TAU, double TAU_G, double FX, double FY, double tolerence, string FILENAME, int amount_of_data);
   void initialize(double rho);
   void run();
   mat ADE(int t);

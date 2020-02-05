@@ -4,10 +4,10 @@ MainClass::MainClass()
 {}
 
 //all variabels we neeed for the class, in addition to the two functions for the energy and wave function
-MainClass::MainClass(int NX, int NY, double TAU, double TAU_G, double FX, double FY, double tolerence, string filename, int amount_of_data)
+MainClass::MainClass(int NX, int NY, double TAU, double TAU_G, double FX, double FY, double tolerence, string FILENAME, int amount_of_data)
 {
   //the file name for saving data, and number of lines when saving data
-  filename   = filename;
+  filename   = FILENAME;
   data_lines = amount_of_data;
 
   Nx  = NX;
@@ -72,7 +72,6 @@ void MainClass::initialize_C(int x, int y, int i, double rho)
 void MainClass::change_D(double D_factor)
 {
   double new_tau_g = tau_g/D_factor + 0.5*(D_factor - 1);
-  cout << new_tau_g << " " << tau_g << endl;
   eta   = 1-1/new_tau_g;
   zeta  = 1/new_tau_g;
 }
@@ -164,7 +163,7 @@ void MainClass::run()
 
   //while (not equil)
 
-  for (int t = 0; t < 5000; t++)
+  for (int t = 0; t < 20000; t++)
     {for (int k = 0; k < rest.size(); k++)
       {x = get<0>(rest[k]);
        y = get<1>(rest[k]);
@@ -209,7 +208,6 @@ void MainClass::run()
       f_star(x_prev, y_prev, 7) = f(x, y, 7);
       f_star(x_next, y_prev, 8) = f(x, y, 8);
     }
-
     
     f_prev = f_star;
     for (int i = 0; i < boundary.size(); i++)
@@ -283,7 +281,6 @@ mat MainClass::ADE(int T)
 
   Mat<double> C_in;
   C_in = Mat<double>(T, source.size());
-  cout << rest.size() << " " << boundary.size() << " " << Nx*Ny << " " << boundary.size() + rest.size() << endl;
 
   for (int t = 0; t < T; t++)
     {//open
@@ -381,7 +378,6 @@ mat MainClass::ADE(int T)
   if (t%data_divide == 0)
     {write_C(counter, "front");
      counter += 1;
-     //cout << counter << " " << data_lines << endl;
     }
   }
   write_source(C_in, T, "front");
