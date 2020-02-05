@@ -13,16 +13,14 @@ matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-#C_drain = np.loadtxt("../data/sourcefront.txt")
-
-Nx = 140
+Nx = 256
 Ny = 64
 
-Sx = 34
-Sy = 34
+Sx = 14
+Sy = 32
 
-Dx = 32
-Dy = 32
+Dx = 40
+Dy = 18
 
 datafiles = 100
 
@@ -30,10 +28,10 @@ C_front = np.zeros((Nx, Ny, datafiles))
 C_back  = np.zeros((Nx, Ny, datafiles))
 
 for i in range(datafiles):
-	data_back = np.loadtxt("../data/C_"+str(i)+"_back.txt")
+	data_back = np.loadtxt("../data/_C_"+str(i)+"_back.txt")
 	C_back[:, :, i] = (np.reshape(data_back, (Nx, Ny)))
 
-	data_front = np.loadtxt("../data/C_"+str(i)+"_front.txt")
+	data_front = np.loadtxt("../data/_C_"+str(i)+"_front.txt")
 	C_front[:, :, i] = (np.reshape(data_front, (Nx, Ny)))
 
 C_back  /= np.sum(np.sum(C_back[:,:, 0]))
@@ -46,8 +44,8 @@ plt.plot( C_back[Dx, Dy, :])
 plt.plot(C_front[Sx, Sy, :], "o")
 plt.xlabel(r"Time", fontsize=14)
 plt.ylabel(r"Normalized concentration", fontsize=14)
-plt.savefig("../figures/reciprocal_symmetry.pdf", bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%("../figures/reciprocal_symmetry.pdf", "../figures/reciprocal_symmetry.pdf"))
+#plt.savefig("../figures/reciprocal_symmetry.pdf", bbox_inches="tight")
+#os.system('pdfcrop %s %s &> /dev/null &'%("../figures/reciprocal_symmetry.pdf", "../figures/reciprocal_symmetry.pdf"))
 plt.show()
 #print("Argument of global maxima: ", np.unravel_index(np.argmax(C, axis=None), C.shape))
 #print("Center of mass: ", np.mean(np.dot(x_axis, C)), np.mean(np.dot(C, y_axis)))

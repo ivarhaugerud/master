@@ -59,6 +59,7 @@ for i in range(datafiles):
 
 plt.plot(C_r, label="x")
 plt.legend(loc="best")
+plt.yscale("log")
 plt.show()
 
 plt.plot(at_injection_point)

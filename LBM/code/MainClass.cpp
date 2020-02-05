@@ -100,40 +100,21 @@ void MainClass::define_sources(int x, int y)
 void MainClass::boundary_disc(int x, int y, double R)
 {
   bool in_boundary;
-  for (int i = 0; i < Nx; i++)
-    {for (int j = 0; j < Ny; j++)
-      { in_boundary = false;
-        if (sqrt( (x-i)*(x-i) + (y-j)*(y-j) ) < R)
-      {
+
+  for (int i = 0; i < Nx; i++){
+  for (int j = 0; j < Ny; j++){
+    in_boundary = false;
+    if (sqrt( (x-i)*(x-i) + (y-j)*(y-j) ) < R){
         for (int k = 0; k < boundary.size(); k++){
           x = get<0>(boundary[k]);
           y = get<1>(boundary[k]);
 
           if ((i == x) && (j == y)){
             in_boundary = true;
-            continue;}}
-
+            continue;}
+          }
         if (not in_boundary)
         {boundary.emplace_back(i,j);}}}}
-}
-
-void MainClass::clear_g()
-{
-  for (int x = 0; x < Nx; x++)
-    {for (int y = 0; y < Ny; y++)
-      {g(x,y,0) = 0;
-       g(x,y,1) = 0;
-       g(x,y,2) = 0;
-       g(x,y,3) = 0;
-       g(x,y,4) = 0;
-       g(x,y,5) = 0;
-       g(x,y,6) = 0;
-       g(x,y,7) = 0;
-       g(x,y,8) = 0;
-
-       C(x,y) = 0;
-      }
-  }
 }
 
 //gets indices of all lattice points not in a boundary
@@ -156,6 +137,25 @@ void MainClass::open()
     {rest.emplace_back(i,j);} 
 }}}
 
+void MainClass::clear_g()
+{
+  for (int x = 0; x < Nx; x++)
+    {for (int y = 0; y < Ny; y++)
+      {g(x,y,0) = 0;
+       g(x,y,1) = 0;
+       g(x,y,2) = 0;
+       g(x,y,3) = 0;
+       g(x,y,4) = 0;
+       g(x,y,5) = 0;
+       g(x,y,6) = 0;
+       g(x,y,7) = 0;
+       g(x,y,8) = 0;
+
+       C(x,y) = 0;
+      }
+  }
+}
+
 void MainClass::run()
 {
   //bool equil = false;
@@ -163,7 +163,7 @@ void MainClass::run()
   //double current_max_u;
 
   //while (not equil)
-  cout << rest.size() << " " << boundary.size() << " " << Nx*Ny << " " << boundary.size() + rest.size() << endl;
+
   for (int t = 0; t < 5000; t++)
     {for (int k = 0; k < rest.size(); k++)
       {x = get<0>(rest[k]);

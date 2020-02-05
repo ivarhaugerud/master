@@ -26,12 +26,12 @@ C = np.zeros((Nx, Ny, datafiles))
 
 def animate_forward(i):
 	fig.suptitle(str(i))
-	data = np.loadtxt("../data/C_"+str(i)+"_front.txt")
+	data = np.loadtxt("../data/_C_"+str(i)+"_front.txt")
 	u = np.loadtxt("../data/final_vel.txt")
 	u_x = np.reshape(u[0, :], (Nx, Ny))
 
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
-	C[np.where( np.abs(C[:,:,i]) < 0.01) ] = 0
+	C[np.where( np.abs(C[:,:,i]) < 0.5) ] = 0
 	C[np.where( abs(u_x[:, :]) < 1e-8)] = -100
 	ax.clear()
 	#ax.contourf(1-np.exp(-40*C[:,:,i]), cmap='Greys', levels=np.linspace(0, 1, 20))
@@ -47,7 +47,7 @@ plt.show()
 
 def animate_back(i):
 	fig.suptitle(str(i))
-	data = np.loadtxt("../data/C_"+str(i)+"_back.txt")
+	data = np.loadtxt("../data/_C_"+str(i)+"_back.txt")
 	u = np.loadtxt("../data/final_vel.txt")
 	u_x = np.reshape(u[0, :], (Nx, Ny))
 
@@ -56,7 +56,7 @@ def animate_back(i):
 	C[np.where( abs(u_x[:, :]) < 1e-8)] = -100
 	ax.clear()
 	#ax.contourf(1-np.exp(-40*C[:,:,i]), cmap='Greys', levels=np.linspace(0, 1, 20))
-	ax.contourf(C[:,:,i], levels=np.linspace(-0.1, 500, 25))
+	ax.contourf(C[:,:,i], levels=np.linspace(-0.1, 0.5, 25))
 	ax.axis("equal")
 	print(np.max(np.max(C[:,:,i])), np.sum(np.sum(C[:,:,i])), np.argmax(C[:,:,i]))
 
