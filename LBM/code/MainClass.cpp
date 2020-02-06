@@ -508,9 +508,9 @@ void MainClass::ADE_back(int T, mat C_in)
   }
 }
 
-  void MainClass::write_u()
+  void MainClass::write_u(string name)
   {
-    ofstream outfile("../data/" + filename + "_u.txt");
+    ofstream outfile("../data/" + filename + "_" + name + "_u.txt");
     if (!outfile.is_open())
      cout<<"Could not open file" << endl;
     for (int i = 0; i < Nx; i++)

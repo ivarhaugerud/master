@@ -76,7 +76,7 @@ class MainClass
   void run();
   mat ADE(int t);
   void ADE_back(int t, mat C_in);
-  void write_u();
+  void write_u(string name);
   void write_C(int T, string filename2);
   void change_D(double D_factor);
   void change_F(double FX, double FY);
