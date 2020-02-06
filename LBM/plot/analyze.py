@@ -16,13 +16,13 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 Nx = 140
 Ny = 64
 
-Sx = 34
-Sy = 34
+Sx = 100
+Sy = 42
 
-Dx = 32
+Dx = 34
 Dy = 32
 
-datafiles = 100
+datafiles = 300
 
 C_front = np.zeros((Nx, Ny, datafiles))
 C_back  = np.zeros((Nx, Ny, datafiles))
