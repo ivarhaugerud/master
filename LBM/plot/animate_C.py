@@ -17,7 +17,7 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
 datafiles = 200
 var_in = np.zeros(datafiles)
-Nx = 256
+Nx = 150
 Ny = 64
 
 x_axis = np.linspace(0, Nx-1, Nx)
@@ -26,18 +26,19 @@ C = np.zeros((Nx, Ny, datafiles))
 
 def animate_forward(i):
 	fig.suptitle(str(i))
-	data = np.loadtxt("../data/050220_C_"+str(i)+"_front.txt")
-	u = np.loadtxt("../data/final_vel.txt")
-	u_x = np.reshape(u[0, :], (Nx, Ny))
+	data = np.loadtxt("../data/060220_to_C_"+str(i)+"_front.txt")
+	#u = np.loadtxt("../data/final_vel.txt")
+	#u_x = np.reshape(u[0, :], (Nx, Ny))
 
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
 	print(np.max(np.max(C[:,:,i])), np.sum(np.sum(C[:,:,i])), np.argmax(C[:,:,i]))
 	C[np.where( np.abs(C[:,:,i]) < 0.001) ] = 0
-	C[np.where( abs(u_x[:, :]) < 1e-8)] = -1
+	#C[np.where( abs(u_x[:, :]) < 1e-8)] = -1
 	ax.clear()
 	#ax.contourf(1-np.exp(-40*C[:,:,i]), cmap='Greys', levels=np.linspace(0, 1, 20))
 	ax.contourf(C[:,:,i], levels=np.linspace(-0.1, 2, 25))
 	ax.axis("equal")
+
 
 fig,ax = plt.subplots()
 interval = 5 #in ms     
@@ -47,9 +48,9 @@ plt.show()
 
 def animate_back(i):
 	fig.suptitle(str(i))
-	data = np.loadtxt("../data/050220_C_"+str(i)+"_back.txt")
-	u = np.loadtxt("../data/final_vel.txt")
-	u_x = np.reshape(u[0, :], (Nx, Ny))
+	data = np.loadtxt("../data/060220_from_C_"+str(i)+"_front.txt")
+	#u = np.loadtxt("../data/final_vel.txt")
+	#u_x = np.reshape(u[0, :], (Nx, Ny))
 
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
 	#C[np.where( np.abs(C[:,:,i]) < 0.05) ] = 0

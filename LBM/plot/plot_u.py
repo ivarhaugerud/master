@@ -13,13 +13,22 @@ matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-u = np.loadtxt("../data/final_vel.txt")
+#u = np.loadtxt("../data/final_vel.txt")
+u = np.loadtxt("../data/060220_from_u.txt")
 u_x = u[0, :]
 u_y = u[1, :]
 
-Nx = 256
+Nx = 150
 Ny = 64
 
+print(u_x)
+print(u_y)
+
+plt.plot(u_x)
+plt.show()
+
+plt.plot(u_y)
+plt.show()
 #for i in range(len(u[0, :])):
 #	print(u[0, i])
 print(np.max(np.max(u)))

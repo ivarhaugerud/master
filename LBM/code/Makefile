@@ -1,6 +1,6 @@
 CXXFLAGS = -Wall -O3 -larmadillo -std=c++11
 
-program: MainClass.o test_same_Pe.o
+program: MainClass.o test_reciprocity.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 clean:

@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
   	int Nx = 140;  //atoi(argv[1]);
   	int Ny = 64;   //atoi(argv[2]);
 
-    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-4), 5*pow(10,-6), 0, 5*pow(10, -5), "filename", 100);
+    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-4), 5*pow(10,-6), 0, 5*pow(10, -5), "0602reciproc", 100);
 
     instance.boundary_disc(12,  13, 7);
     instance.boundary_disc(15,  44, 13);
