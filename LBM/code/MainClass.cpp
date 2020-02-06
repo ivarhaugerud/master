@@ -72,8 +72,10 @@ void MainClass::initialize_C(int x, int y, int i, double rho)
 void MainClass::change_D(double D_factor)
 {
   double new_tau_g = tau_g/D_factor + 0.5*(D_factor - 1);
+  cout << new_tau_g << " " << tau_g << endl;
   eta   = 1-1/new_tau_g;
   zeta  = 1/new_tau_g;
+
 }
 
 void MainClass::change_F(double FX, double FY)
@@ -99,16 +101,19 @@ void MainClass::define_sources(int x, int y)
 void MainClass::boundary_disc(int x, int y, double R)
 {
   bool in_boundary;
+  int X;
+  int Y;
 
   for (int i = 0; i < Nx; i++){
   for (int j = 0; j < Ny; j++){
     in_boundary = false;
+
     if (sqrt( (x-i)*(x-i) + (y-j)*(y-j) ) < R){
         for (int k = 0; k < boundary.size(); k++){
-          x = get<0>(boundary[k]);
-          y = get<1>(boundary[k]);
+          X = get<0>(boundary[k]);
+          Y = get<1>(boundary[k]);
 
-          if ((i == x) && (j == y)){
+          if ((i == X) && (j == Y)){
             in_boundary = true;
             continue;}
           }
@@ -163,6 +168,7 @@ void MainClass::run()
 
   //while (not equil)
 
+  cout << rest.size() << " " << boundary.size() << " " << Nx*Ny << endl;
   for (int t = 0; t < 20000; t++)
     {for (int k = 0; k < rest.size(); k++)
       {x = get<0>(rest[k]);

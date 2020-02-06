@@ -15,9 +15,9 @@ matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-datafiles = 200
+datafiles = 100
 var_in = np.zeros(datafiles)
-Nx = 150
+Nx = 140
 Ny = 64
 
 x_axis = np.linspace(0, Nx-1, Nx)
@@ -26,7 +26,7 @@ C = np.zeros((Nx, Ny, datafiles))
 
 def animate_forward(i):
 	fig.suptitle(str(i))
-	data = np.loadtxt("../data/060220_to_C_"+str(i)+"_front.txt")
+	data = np.loadtxt("../data/0602reciproc_C_"+str(i)+"_front.txt")
 	#u = np.loadtxt("../data/final_vel.txt")
 	#u_x = np.reshape(u[0, :], (Nx, Ny))
 
@@ -48,7 +48,7 @@ plt.show()
 
 def animate_back(i):
 	fig.suptitle(str(i))
-	data = np.loadtxt("../data/060220_from_C_"+str(i)+"_front.txt")
+	data = np.loadtxt("../data/0602reciproc_C_"+str(i)+"_back.txt")
 	#u = np.loadtxt("../data/final_vel.txt")
 	#u_x = np.reshape(u[0, :], (Nx, Ny))
 

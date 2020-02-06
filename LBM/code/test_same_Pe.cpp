@@ -15,50 +15,39 @@ using namespace arma;
 //simple run function for general input
 int main(int argc, char const *argv[])
   {
-    int Nx = 150;  //atoi(argv[1]);
+
+    int Nx = 140;  //atoi(argv[1]);
     int Ny = 64;   //atoi(argv[2]);
-    int T  = 400000;
-    double tau_g = 0.50 + 6*pow(10,-5);
 
-    MainClass instance(Nx, Ny, 2, tau_g, 5*pow(10,-6), 0, 5*pow(10, -7), "060220_to", 200);
+    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), 5*pow(10,-7), 0, 5*pow(10, -5), "0602reciproc", 100);
 
-    instance.boundary_disc(134,  14, 5);
-    instance.boundary_disc(33,   44, 7);
-    instance.boundary_disc(115,  27, 9);
-    instance.boundary_disc(16,   19, 3);
-    instance.boundary_disc(58,   16, 4);
-    instance.boundary_disc(101,  13, 5);
-    instance.boundary_disc(42,   37, 6);
-    instance.boundary_disc(130,  26, 7);
+    //instance.boundary_disc(12,  13, 7);
+    //instance.boundary_disc(15,  44, 7);
+    instance.boundary_disc(60,  33, 8);
+    //instance.boundary_disc(83,  53, 7);
+    //instance.boundary_disc(72,  10, 9);
+    //instance.boundary_disc(91,  22, 7);
+    //instance.boundary_disc(122, 25, 7);
 
     instance.open();
     instance.initialize(1);
     instance.run();
     cout << "equilibrated" << endl;
+    instance.write_u();
 
-    instance.initialize_C(14, 26 , 0, 100);
-    mat C_in = instance.ADE(T);
+    /*
+    instance.initialize_C(32, 32 , 0, 100);
+    mat C_in = instance.ADE(60000);
 
-    double D_factor = 1.1;
-    double new_tau_g = tau_g/D_factor + 0.5*(D_factor - 1);
-    MainClass instance_back(Nx, Ny, 2, new_tau_g, -D_factor*5*pow(10,-6), 0, 5*pow(10, -7), "060220_from", 200);
 
-    instance_back.boundary_disc(134,  14, 5);
-    instance_back.boundary_disc(33,   44, 7);
-    instance_back.boundary_disc(115,  27, 9);
-    instance_back.boundary_disc(16,   19, 3);
-    instance_back.boundary_disc(58,   16, 4);
-    instance_back.boundary_disc(101,  13, 5);
-    instance_back.boundary_disc(42,   37, 6);
-    instance_back.boundary_disc(130,  26, 7);
+    instance.clear_g();
+    instance.initialize_C(34, 34 , 0, 100);
 
-    instance_back.open();
-    instance_back.initialize(1);
-    instance_back.run();
-    cout << "equilibrated" << endl;
+    double D_factor = 1.03;
+    instance.change_D(D_factor);
+    instance.change_F(D_factor*5*pow(10,-6), 0);
 
-    instance_back.initialize_C(70, 50 , 0, 100);
-    mat C_in_2 = instance_back.ADE(T);
-    instance_back.write_u();
+    instance.ADE_back(60000, C_in);
+    */
     return 0;
   }

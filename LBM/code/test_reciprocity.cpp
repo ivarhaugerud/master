@@ -20,6 +20,7 @@ int main(int argc, char const *argv[])
 
     MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-4), 5*pow(10,-6), 0, 5*pow(10, -5), "0602reciproc", 100);
 
+    /*
     instance.boundary_disc(12,  13, 7);
     instance.boundary_disc(15,  44, 13);
     instance.boundary_disc(60,  33, 8);
@@ -27,6 +28,10 @@ int main(int argc, char const *argv[])
     instance.boundary_disc(72,  10, 9);
     instance.boundary_disc(91,  22, 11);
     instance.boundary_disc(122, 25, 14);
+    */
+
+    instance.boundary_disc(70, 32, 10);
+
 
     instance.open();
     instance.initialize(1);
