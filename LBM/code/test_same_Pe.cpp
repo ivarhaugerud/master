@@ -23,7 +23,7 @@ int main(int argc, char const *argv[])
     double Fy = 0;
     double D_factor = 1.01;
 
-    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), Fx, Fy, 5*pow(10, -5), "0602reciproc", 100);
+    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), Fx, Fy, 5*pow(10, -5), "0602reciproc", 300);
 
     instance.boundary_disc(12,  13, 7);
     instance.boundary_disc(15,  44, 7);
@@ -39,12 +39,12 @@ int main(int argc, char const *argv[])
     cout << "equilibrated" << endl;
     instance.write_u();
 
-    instance.initialize_C(32, 32 , 0, 100);
-    mat C_in = instance.ADE(60000);
+    instance.initialize_C(34, 32 , 0, 100);
+    mat C_in = instance.ADE(2400000);
 
 
     instance.clear_g();
-    instance.initialize_C(34, 34 , 0, 100);
+    instance.initialize_C(100, 42 , 0, 100);
 
     instance.change_D(D_factor);
     instance.change_F(D_factor*Fx, 0);
@@ -54,6 +54,6 @@ int main(int argc, char const *argv[])
     cout << "equilibrated" << endl;
     instance.write_u();
 
-    instance.ADE_back(60000, C_in);
+    instance.ADE_back(2400000, C_in);
     return 0;
   }
