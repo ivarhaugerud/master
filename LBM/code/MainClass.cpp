@@ -71,7 +71,7 @@ void MainClass::initialize_C(int x, int y, int i, double rho)
 
 void MainClass::change_D(double D_factor)
 {
-  double new_tau_g = tau_g/D_factor + 0.5*(D_factor - 1);
+  double new_tau_g = 0.5 + D_factor*(tau_g - 0.5);
   cout << new_tau_g << " " << tau_g << endl;
   eta   = 1-1/new_tau_g;
   zeta  = 1/new_tau_g;

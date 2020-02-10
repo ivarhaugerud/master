@@ -29,7 +29,7 @@ C_front = np.zeros((Nx, Ny, datafiles))
 C_back  = np.zeros((Nx, Ny, datafiles))
 
 for i in range(datafiles):
-	data_back = np.loadtxt("../data/0602reciproc_105_C_"+str(i)+"_back.txt")
+	data_back = np.loadtxt("../data/1002reciproc_105_C_"+str(i)+"_front.txt")
 	C_back[:, :, i] = (np.reshape(data_back, (Nx, Ny)))
 
 	data_front = np.loadtxt("../data/0602reciproc_105_C_"+str(i)+"_front.txt")
@@ -73,12 +73,12 @@ plt.plot(t, C_back[Dx, Dy, :]*1e3, label="Return")
 plt.plot(t, C_front[Sx, Sy, :]*1e3, label="Original")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Normalized concentration $\times 10^3$", fontsize=14)
-plt.axis([0.3, 1.05, -0.02, 0.4])
+#plt.axis([0.3, 1.05, -0.02, 0.4])
 plt.legend(loc="best", fontsize=12)
-
+plt.show()
 #plt.savefig("../figures/reciprocal_symmetry2.pdf", bbox_inches="tight")
 #os.system('pdfcrop %s %s &> /dev/null &'%("../figures/reciprocal_symmetry2.pdf", "../figures/reciprocal_symmetry2.pdf"))
-
+"""
 u = np.loadtxt("../data/0602reciproc_u.txt")
 u_x = u[0, :]
 u_y = u[1, :]
@@ -133,4 +133,4 @@ plt.ylabel(r"Relative velocity [$u_{1.05}/u_{1.00}$ - 1.05] $ \times 10^5$", fon
 plt.savefig("../figures/reciprocal_symmetry4.pdf", bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%("../figures/reciprocal_symmetry4.pdf", "../figures/reciprocal_symmetry4.pdf"))
 plt.show()
-
+"""
