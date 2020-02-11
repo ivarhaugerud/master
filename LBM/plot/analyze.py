@@ -55,10 +55,10 @@ plt.legend(loc="best", fontsize=12)
 
 
 for i in range(datafiles):
-	data_back = np.loadtxt("../data/0602reciproc_C_"+str(i)+"_back.txt")
+	data_back = np.loadtxt("../data/1102reciproc_2_C_"+str(i)+"_back.txt")
 	C_back[:, :, i] = (np.reshape(data_back, (Nx, Ny)))
 
-	data_front = np.loadtxt("../data/0602reciproc_C_"+str(i)+"_front.txt")
+	data_front = np.loadtxt("../data/1102reciproc_2_C_"+str(i)+"_front.txt")
 	C_front[:, :, i] = (np.reshape(data_front, (Nx, Ny)))
 
 C_back  /= np.sum(np.sum(C_back[:,:, 0]))
@@ -68,12 +68,12 @@ x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
 plt.figure(2)
-plt.title("Change of factor 1.01", fontsize=16)
+plt.title("Change of factor 2.00", fontsize=16)
 plt.plot(t, C_back[Dx, Dy, :]*1e3, label="Return")
 plt.plot(t, C_front[Sx, Sy, :]*1e3, label="Original")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Normalized concentration $\times 10^3$", fontsize=14)
-#plt.axis([0.3, 1.05, -0.02, 0.4])
+plt.axis([0.2, 1.05, -0.02, 0.4])
 plt.legend(loc="best", fontsize=12)
 plt.show()
 #plt.savefig("../figures/reciprocal_symmetry2.pdf", bbox_inches="tight")
