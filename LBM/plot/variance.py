@@ -25,7 +25,6 @@ y_axis = np.linspace(0, Ny-1, Ny)
 
 C = np.zeros((Nx, Ny, datafiles))
 C_r  = np.zeros((datafiles))
-
 for i in range(datafiles):
 	data = np.loadtxt("../data/C_"+str(i)+"_front.txt")
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
@@ -42,9 +41,9 @@ y_inject = np.argmax(np.sum(C[:,:,0], axis=1))
 print(x_inject, y_inject)
 at_injection_point = np.zeros(datafiles)
 
-plt.plot(C_r, label="x")
-plt.legend(loc="best")
-plt.show()
+#plt.plot(C_r, label="x")
+#plt.legend(loc="best")
+#plt.show()
 
 for i in range(datafiles):
 	data = np.loadtxt("../data/C_"+str(i)+"_back.txt")
@@ -59,8 +58,8 @@ for i in range(datafiles):
 
 plt.plot(C_r, label="x")
 plt.legend(loc="best")
-plt.yscale("log")
+#plt.yscale("log")
 plt.show()
 
-plt.plot(at_injection_point)
-plt.show()
+#plt.plot(at_injection_point)
+#plt.show()

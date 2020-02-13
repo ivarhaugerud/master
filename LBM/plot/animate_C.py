@@ -29,7 +29,7 @@ u_x = np.reshape(u[0, :], (Nx, Ny))
 
 def animate_forward(i):
 	fig.suptitle(str(i))
-	data = np.loadtxt("../data/0602reciproc_105_C_"+str(i)+"_front.txt")
+	data = np.loadtxt("../data/1102reciproc_2_C_"+str(i)+"_front.txt")
 
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
 	print(np.max(np.max(C[:,:,i])), np.sum(np.sum(C[:,:,i])), C.flatten()[np.argmax(C[:,:,i])])
@@ -38,7 +38,7 @@ def animate_forward(i):
 	C[np.where( abs(u_x[:, :]) < 1e-8)] = -1
 	ax.clear()
 	#ax.contourf(1-np.exp(-40*C[:,:,i]), cmap='Greys', levels=np.linspace(0, 1, 20))
-	ax.contourf(C[:,:,i], levels=np.linspace(-0.0001, 0.5, 25))
+	ax.contourf(C[:,:,i], levels=np.linspace(-0.0001, 1, 25))
 	ax.axis("equal")
 
 #Writer = animation.writers['ffmpeg']
@@ -47,14 +47,13 @@ def animate_forward(i):
 fig,ax = plt.subplots()
 interval = 1 #in ms     
 ani = animation.FuncAnimation(fig,animate_forward,datafiles, interval=interval, blit=False, repeat=False)
-ani.save('im.mp3')
+#ani.save('im.mp3')
 
 plt.show()
-"""
 
 def animate_back(i):
 	fig.suptitle(str(i))
-	data = np.loadtxt("../data/0602reciproc_105_C_"+str(i)+"_back.txt")
+	data = np.loadtxt("../data/1102reciproc_2_C_"+str(i)+"_back.txt")
 
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
 	print(np.max(np.max(C[:,:,i])), np.sum(np.sum(C[:,:,i])), np.argmax(C[:,:,i]))
@@ -72,4 +71,3 @@ interval = 1 #in ms
 ani = animation.FuncAnimation(fig,animate_back,datafiles, interval=interval, blit=False, repeat=False)
 
 plt.show()
-"""

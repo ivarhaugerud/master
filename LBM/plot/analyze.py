@@ -43,7 +43,7 @@ y_axis = np.linspace(0, Ny-1, Ny)
 
 plt.figure(1)
 plt.title("Change of factor 1.05", fontsize=16)
-plt.plot(t, C_back[Dx, Dy, :]*1e3, label="Return")
+plt.plot(t*1.05, C_back[Dx, Dy, :]*1e3, label="Return")
 plt.plot(t, C_front[Sx, Sy, :]*1e3, label="Original")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Normalized concentration $\times 10^3$", fontsize=14)
@@ -69,7 +69,7 @@ y_axis = np.linspace(0, Ny-1, Ny)
 
 plt.figure(2)
 plt.title("Change of factor 2.00", fontsize=16)
-plt.plot(t, C_back[Dx, Dy, :]*1e3, label="Return")
+plt.plot(t*2, C_back[Dx, Dy, :]*1e3, label="Return")
 plt.plot(t, C_front[Sx, Sy, :]*1e3, label="Original")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Normalized concentration $\times 10^3$", fontsize=14)
@@ -78,7 +78,7 @@ plt.legend(loc="best", fontsize=12)
 plt.show()
 #plt.savefig("../figures/reciprocal_symmetry2.pdf", bbox_inches="tight")
 #os.system('pdfcrop %s %s &> /dev/null &'%("../figures/reciprocal_symmetry2.pdf", "../figures/reciprocal_symmetry2.pdf"))
-"""
+
 u = np.loadtxt("../data/0602reciproc_u.txt")
 u_x = u[0, :]
 u_y = u[1, :]
@@ -133,4 +133,4 @@ plt.ylabel(r"Relative velocity [$u_{1.05}/u_{1.00}$ - 1.05] $ \times 10^5$", fon
 plt.savefig("../figures/reciprocal_symmetry4.pdf", bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%("../figures/reciprocal_symmetry4.pdf", "../figures/reciprocal_symmetry4.pdf"))
 plt.show()
-"""
+
