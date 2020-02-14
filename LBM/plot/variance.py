@@ -26,7 +26,7 @@ y_axis = np.linspace(0, Ny-1, Ny)
 C = np.zeros((Nx, Ny, datafiles))
 C_r  = np.zeros((datafiles))
 for i in range(datafiles):
-	data = np.loadtxt("../data/C_"+str(i)+"_front.txt")
+	data = np.loadtxt("../data/filename_C_"+str(i)+"_front.txt")
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
 	summed = np.sum(C[:,:,i], axis=1)
 	C_x = x_axis*summed
@@ -38,15 +38,18 @@ for i in range(datafiles):
 x_inject = np.argmax(np.sum(C[:,:,0], axis=0))
 y_inject = np.argmax(np.sum(C[:,:,0], axis=1))
 
+print(x_inject, y_inject, "HERE")
 print(x_inject, y_inject)
 at_injection_point = np.zeros(datafiles)
+entropy = np.zeros(datafiles)
 
-#plt.plot(C_r, label="x")
-#plt.legend(loc="best")
-#plt.show()
+plt.title("Towards")
+plt.plot(C_r, label="x")
+plt.legend(loc="best")
+plt.show()
 
 for i in range(datafiles):
-	data = np.loadtxt("../data/C_"+str(i)+"_back.txt")
+	data = np.loadtxt("../data/filename_C_"+str(i)+"_back.txt")
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
 	summed = np.sum(C[:,:,i], axis=1)
 	C_x = x_axis*summed
@@ -54,12 +57,13 @@ for i in range(datafiles):
 	m = np.trapz(summed)
 	C_r[i] = np.trapz(C_xx)/m - (np.trapz(C_x)/m)**2
 
-	at_injection_point[i] = C[x_inject, y_inject, i] + C[x_inject+1, y_inject, i] + C[x_inject-1, y_inject, i] + C[x_inject, y_inject+1, i] + C[x_inject, y_inject-1, i]
+	at_injection_point[i] = (C[x_inject, y_inject, i] + C[x_inject+1, y_inject, i] + C[x_inject-1, y_inject, i] + C[x_inject, y_inject+1, i] + C[x_inject, y_inject-1, i])/(5*np.sum(summed))
 
+plt.title("Back home")
 plt.plot(C_r, label="x")
 plt.legend(loc="best")
-#plt.yscale("log")
 plt.show()
 
-#plt.plot(at_injection_point)
-#plt.show()
+plt.title("Consentration at injection_point")
+plt.plot(at_injection_point)
+plt.show()

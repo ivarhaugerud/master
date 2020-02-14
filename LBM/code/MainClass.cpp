@@ -375,11 +375,11 @@ mat MainClass::ADE(int T)
       }
 
   //drains  
-  /* for (int j = 0; j < source.size(); j++){
+  for (int j = 0; j < source.size(); j++){
       x = get<0>(source[j]);
       y = get<1>(source[j]);
       C_in(t, j) = C(x,y);}
-  */
+  
   g = g_star;
   if (t%data_divide == 0)
     {write_C(counter, "front");
@@ -484,7 +484,7 @@ void MainClass::ADE_back(int T, mat C_in)
       }
 
   //sources  
-  /*
+  
    for (int j = 0; j < source.size(); j++){
       x = get<0>(source[j]);
       y = get<1>(source[j]);
@@ -498,7 +498,7 @@ void MainClass::ADE_back(int T, mat C_in)
       g_star(x,y,7) +=   C_in(T-t-1, j)/36;
       g_star(x,y,8) +=   C_in(T-t-1, j)/36;
       }
-  */
+  
   g = g_star;
   if (t%data_divide == 0)
     {
