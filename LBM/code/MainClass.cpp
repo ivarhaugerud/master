@@ -160,6 +160,23 @@ void MainClass::clear_g()
   }
 }
 
+void MainClass::heat_fluid(double wall_T)
+{
+  for (int s = 0; s < rest.size(); s++)
+    {x = get<0>(rest[s]);
+     y = get<1>(rest[s]);
+     initialize_C(x, y, 0, 4*wall_T/9);
+     initialize_C(x, y, 1,   wall_T/9);
+     initialize_C(x, y, 2,   wall_T/9);
+     initialize_C(x, y, 3,   wall_T/9);
+     initialize_C(x, y, 4,   wall_T/9);
+     initialize_C(x, y, 5,   wall_T/36);
+     initialize_C(x, y, 6,   wall_T/36);
+     initialize_C(x, y, 7,   wall_T/36);
+     initialize_C(x, y, 8,   wall_T/36);
+     }
+}
+
 void MainClass::run()
 {
   //bool equil = false;
@@ -506,6 +523,115 @@ void MainClass::ADE_back(int T, mat C_in)
      counter += 1;
      cout << counter << " " << data_lines << endl;}
   }
+}
+
+mat MainClass::ADE_heat(int T, double wall_T)
+{
+  int data_divide = T/data_lines;
+  int counter = 0;
+
+  Mat<double> C_in;
+  C_in = Mat<double>(T, source.size());
+
+  for (int t = 0; t < T; t++)
+    {//open
+      for (int k = 0; k < rest.size(); k++)
+      {x = get<0>(rest[k]);
+       y = get<1>(rest[k]);
+
+      C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
+      three_u_squared = 3*(u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1));
+
+      g(x, y, 0) = g(x, y, 0)*eta + zeta*C(x, y)*(2 - three_u_squared)*2/9;
+      g(x, y, 1) = g(x, y, 1)*eta + zeta*C(x, y)*(2 + 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
+      g(x, y, 2) = g(x, y, 2)*eta + zeta*C(x, y)*(2 + 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
+      g(x, y, 3) = g(x, y, 3)*eta + zeta*C(x, y)*(2 - 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
+      g(x, y, 4) = g(x, y, 4)*eta + zeta*C(x, y)*(2 - 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
+      g(x, y, 5) = g(x, y, 5)*eta + zeta*C(x, y)*(1 + 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
+      g(x, y, 6) = g(x, y, 6)*eta + zeta*C(x, y)*(1 - 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
+      g(x, y, 7) = g(x, y, 7)*eta + zeta*C(x, y)*(1 - 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
+      g(x, y, 8) = g(x, y, 8)*eta + zeta*C(x, y)*(1 + 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
+
+      x_next = x+1;
+      x_prev = x-1;
+      y_next = y+1;
+      y_prev = y-1;
+
+      if (x == 0)
+        x_prev = Nx-1;
+      if (x == Nx-1)
+        x_next = 0;
+      if (y == 0)
+        y_prev = Ny-1;
+      if (y == Ny-1)
+        y_next = 0;
+
+      g_star(x, y,      0) = g(x, y, 0);
+      g_star(x_next, y, 1) = g(x, y, 1);
+      g_star(x, y_next, 2) = g(x, y, 2);
+      g_star(x_prev, y, 3) = g(x, y, 3);
+      g_star(x, y_prev, 4) = g(x, y, 4);
+
+      g_star(x_next, y_next, 5) = g(x, y, 5);
+      g_star(x_prev, y_next, 6) = g(x, y, 6);
+      g_star(x_prev, y_prev, 7) = g(x, y, 7);
+      g_star(x_next, y_prev, 8) = g(x, y, 8);
+    }
+
+    //boundary
+    for (int i = 0; i < boundary.size(); i++)
+      {x = get<0>(boundary[i]);
+       y = get<1>(boundary[i]);
+
+        x_next = x+1;
+        x_prev = x-1;
+        y_next = y+1;
+        y_prev = y-1;
+
+        if (x == 0)
+          x_prev = Nx-1;
+        if (x == Nx-1)
+          x_next = 0;
+        if (y == 0)
+          y_prev = Ny-1;
+        if (y == Ny-1)
+          y_next = 0;
+
+        g_star(x_next, y, 1) = -g_star(x,y,3) + 2*wall_T/9;
+        g_star(x, y_next, 2) = -g_star(x,y,4) + 2*wall_T/9;
+        g_star(x_prev, y, 3) = -g_star(x,y,1) + 2*wall_T/9;
+        g_star(x, y_prev, 4) = -g_star(x,y,2) + 2*wall_T/9;
+
+        g_star(x_next, y_next, 5) = -g_star(x,y,7) + wall_T/18;
+        g_star(x_prev, y_next, 6) = -g_star(x,y,8) + wall_T/18;
+        g_star(x_prev, y_prev, 7) = -g_star(x,y,5) + wall_T/18;
+        g_star(x_next, y_prev, 8) = -g_star(x,y,6) + wall_T/18;
+        
+        g_star(x,y,0) = 0;
+        g_star(x,y,1) = 0;
+        g_star(x,y,2) = 0;
+        g_star(x,y,3) = 0;
+        g_star(x,y,4) = 0;
+        g_star(x,y,5) = 0;
+        g_star(x,y,6) = 0;
+        g_star(x,y,7) = 0;
+        g_star(x,y,8) = 0;
+      }
+
+  //drains  
+  for (int j = 0; j < source.size(); j++){
+      x = get<0>(source[j]);
+      y = get<1>(source[j]);
+      C_in(t, j) = C(x,y);}
+  
+  g = g_star;
+  if (t%data_divide == 0)
+    {write_C(counter, "front");
+     counter += 1;
+    }
+  }
+  write_source(C_in, T, "front");
+  return C_in;
 }
 
   void MainClass::write_u(string name)

@@ -76,12 +76,14 @@ class MainClass
   void run();
   mat ADE(int t);
   void ADE_back(int t, mat C_in);
+  mat ADE_heat(int T, double wall_T);
   void write_u(string name);
   void write_C(int T, string filename2);
   void change_D(double D_factor);
   void change_F(double FX, double FY);
 
   void set_boundary();
+  void heat_fluid(double heat_fluid);
   void define_sources(int x, int y);
   void write_source(mat data, int T, string filename2);
   void open();  
