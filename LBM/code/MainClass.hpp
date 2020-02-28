@@ -94,6 +94,7 @@ class MainClass
   void initialize_C(int x, int y, int i, double rho);
   void boundary_disc(int x, int y, double R);
   void update_g();
+  void bounce_back(int x, int y);
 };
 
 #endif

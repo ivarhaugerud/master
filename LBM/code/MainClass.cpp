@@ -300,7 +300,7 @@ void MainClass::run()
 
 
 void MainClass::update_g()
-{
+{   three_u_squared = 3*(u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1));
     g(x, y, 0) = g(x, y, 0)*eta + zeta*C(x, y)*(2 - three_u_squared)*2/9;
     g(x, y, 1) = g(x, y, 1)*eta + zeta*C(x, y)*(2 + 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
     g(x, y, 2) = g(x, y, 2)*eta + zeta*C(x, y)*(2 + 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
@@ -312,6 +312,35 @@ void MainClass::update_g()
     g(x, y, 8) = g(x, y, 8)*eta + zeta*C(x, y)*(1 + 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
 }
 
+void MainClass::bounce_back(int x, int y)
+{
+  x_next = x+1;
+  x_prev = x-1;
+  y_next = y+1;
+  y_prev = y-1;
+
+  if (x == 0)
+    x_prev = Nx-1;
+  if (x == Nx-1)
+    x_next = 0;
+  if (y == 0)
+    y_prev = Ny-1;
+  if (y == Ny-1)
+    y_next = 0;
+
+  g_star(x, y,      0) = g(x, y, 0);
+  g_star(x_next, y, 1) = g(x, y, 1);
+  g_star(x, y_next, 2) = g(x, y, 2);
+  g_star(x_prev, y, 3) = g(x, y, 3);
+  g_star(x, y_prev, 4) = g(x, y, 4);
+
+  g_star(x_next, y_next, 5) = g(x, y, 5);
+  g_star(x_prev, y_next, 6) = g(x, y, 6);
+  g_star(x_prev, y_prev, 7) = g(x, y, 7);
+  g_star(x_next, y_prev, 8) = g(x, y, 8);
+}
+
+
 mat MainClass::ADE(int T)
 {
   int data_divide = T/data_lines;
@@ -321,39 +350,14 @@ mat MainClass::ADE(int T)
   C_in = Mat<double>(T, source.size());
 
   for (int t = 0; t < T; t++)
-    {//open
+    {
       for (int k = 0; k < rest.size(); k++)
       {x = get<0>(rest[k]);
        y = get<1>(rest[k]);
 
       C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
-      three_u_squared = 3*(u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1));
       update_g();
-
-      x_next = x+1;
-      x_prev = x-1;
-      y_next = y+1;
-      y_prev = y-1;
-
-      if (x == 0)
-        x_prev = Nx-1;
-      if (x == Nx-1)
-        x_next = 0;
-      if (y == 0)
-        y_prev = Ny-1;
-      if (y == Ny-1)
-        y_next = 0;
-
-      g_star(x, y,      0) = g(x, y, 0);
-      g_star(x_next, y, 1) = g(x, y, 1);
-      g_star(x, y_next, 2) = g(x, y, 2);
-      g_star(x_prev, y, 3) = g(x, y, 3);
-      g_star(x, y_prev, 4) = g(x, y, 4);
-
-      g_star(x_next, y_next, 5) = g(x, y, 5);
-      g_star(x_prev, y_next, 6) = g(x, y, 6);
-      g_star(x_prev, y_prev, 7) = g(x, y, 7);
-      g_star(x_next, y_prev, 8) = g(x, y, 8);
+      bounce_back(x, y);
     }
 
     //boundary
@@ -428,42 +432,8 @@ void MainClass::ADE_back(int T, mat C_in)
        y = get<1>(rest[k]);
 
       C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
-      three_u_squared = 3*(u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1));
-
-      g(x, y, 0) = g(x, y, 0)*eta + zeta*C(x, y)*(2 - three_u_squared)*2/9;
-      g(x, y, 1) = g(x, y, 1)*eta + zeta*C(x, y)*(2 - 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
-      g(x, y, 2) = g(x, y, 2)*eta + zeta*C(x, y)*(2 - 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
-      g(x, y, 3) = g(x, y, 3)*eta + zeta*C(x, y)*(2 + 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
-      g(x, y, 4) = g(x, y, 4)*eta + zeta*C(x, y)*(2 + 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
-      g(x, y, 5) = g(x, y, 5)*eta + zeta*C(x, y)*(1 - 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-      g(x, y, 6) = g(x, y, 6)*eta + zeta*C(x, y)*(1 + 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-      g(x, y, 7) = g(x, y, 7)*eta + zeta*C(x, y)*(1 + 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-      g(x, y, 8) = g(x, y, 8)*eta + zeta*C(x, y)*(1 - 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-
-      x_next = x+1;
-      x_prev = x-1;
-      y_next = y+1;
-      y_prev = y-1;
-
-      if (x == 0)
-        x_prev = Nx-1;
-      if (x == Nx-1)
-        x_next = 0;
-      if (y == 0)
-        y_prev = Ny-1;
-      if (y == Ny-1)
-        y_next = 0;
-
-      g_star(x, y,      0) = g(x, y, 0);
-      g_star(x_next, y, 1) = g(x, y, 1);
-      g_star(x, y_next, 2) = g(x, y, 2);
-      g_star(x_prev, y, 3) = g(x, y, 3);
-      g_star(x, y_prev, 4) = g(x, y, 4);
-
-      g_star(x_next, y_next, 5) = g(x, y, 5);
-      g_star(x_prev, y_next, 6) = g(x, y, 6);
-      g_star(x_prev, y_prev, 7) = g(x, y, 7);
-      g_star(x_next, y_prev, 8) = g(x, y, 8);
+      update_g();
+      bounce_back(x, y);
     }
 
     //boundary
@@ -546,42 +516,8 @@ mat MainClass::ADE_heat(int T, double wall_T)
        y = get<1>(rest[k]);
 
       C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
-      three_u_squared = 3*(u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1));
-
-      g(x, y, 0) = g(x, y, 0)*eta + zeta*C(x, y)*(2 - three_u_squared)*2/9;
-      g(x, y, 1) = g(x, y, 1)*eta + zeta*C(x, y)*(2 + 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
-      g(x, y, 2) = g(x, y, 2)*eta + zeta*C(x, y)*(2 + 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
-      g(x, y, 3) = g(x, y, 3)*eta + zeta*C(x, y)*(2 - 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
-      g(x, y, 4) = g(x, y, 4)*eta + zeta*C(x, y)*(2 - 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
-      g(x, y, 5) = g(x, y, 5)*eta + zeta*C(x, y)*(1 + 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-      g(x, y, 6) = g(x, y, 6)*eta + zeta*C(x, y)*(1 - 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-      g(x, y, 7) = g(x, y, 7)*eta + zeta*C(x, y)*(1 - 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-      g(x, y, 8) = g(x, y, 8)*eta + zeta*C(x, y)*(1 + 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
-
-      x_next = x+1;
-      x_prev = x-1;
-      y_next = y+1;
-      y_prev = y-1;
-
-      if (x == 0)
-        x_prev = Nx-1;
-      if (x == Nx-1)
-        x_next = 0;
-      if (y == 0)
-        y_prev = Ny-1;
-      if (y == Ny-1)
-        y_next = 0;
-
-      g_star(x, y,      0) = g(x, y, 0);
-      g_star(x_next, y, 1) = g(x, y, 1);
-      g_star(x, y_next, 2) = g(x, y, 2);
-      g_star(x_prev, y, 3) = g(x, y, 3);
-      g_star(x, y_prev, 4) = g(x, y, 4);
-
-      g_star(x_next, y_next, 5) = g(x, y, 5);
-      g_star(x_prev, y_next, 6) = g(x, y, 6);
-      g_star(x_prev, y_prev, 7) = g(x, y, 7);
-      g_star(x_next, y_prev, 8) = g(x, y, 8);
+      update_g();
+      bounce_back(x, y);
     }
 
     //boundary
