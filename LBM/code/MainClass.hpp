@@ -85,7 +85,6 @@ class MainClass
   void set_boundary();
   void heat_fluid(double heat_fluid);
   void define_sources(int x, int y);
-  void write_source(mat data, int T, string filename2);
   void open();  
   void clear_g();
   void test_mass_cons();
@@ -95,6 +94,8 @@ class MainClass
   void boundary_disc(int x, int y, double R);
   void update_g();
   void bounce_back(int x, int y);
+  void anti_bounce_back(int x, int y, double wall_T);
+  void propegate(int x, int y);
 };
 
 #endif
