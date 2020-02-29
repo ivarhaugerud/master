@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
   	int Nx = 140;  //atoi(argv[1]);
   	int Ny = 64;   //atoi(argv[2]);
 
-    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-4), 5*pow(10,-6), 0, 5*pow(10, -5), "0602reciproc", 100);
+    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-4), 5*pow(10,-5), 0, 4*pow(10, -4), "test", 100);
 
     instance.boundary_disc(12,  13, 7);
     instance.boundary_disc(15,  44, 13);
@@ -35,12 +35,11 @@ int main(int argc, char const *argv[])
     instance.run();
     cout << "equilibrated" << endl;
 
-    instance.initialize_C(32, 32 , 0, 100);
+    instance.initialize_C(32, 32 , 0, 1);
 
     mat C_in = instance.ADE(60000);
     instance.clear_g();
-    instance.initialize_C(34, 34 , 0, 100);
+    instance.initialize_C(34, 34 , 0, 1);
     instance.ADE_back(60000, C_in);
-    instance.write_u();
     return 0;
   }

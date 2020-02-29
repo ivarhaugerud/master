@@ -182,6 +182,7 @@ void MainClass::run()
   bool equil = false;
   double sum_difference = 0;
   double sum = 0;
+  int counter = 0;
   //double current_max_u;
 
   while (not equil)
@@ -286,9 +287,10 @@ void MainClass::run()
         f_star(x,y,7) = 0;
         f_star(x,y,8) = 0;
       }}
-      
+  counter += 1;
   if (sqrt(sum_difference/sum) <  tol)
-      {equil = true;}
+      {equil = true;
+        cout << "number of steps to equilibration: " << counter << endl;}
   prev_u = u;
   f = f_star;
   }
@@ -306,6 +308,19 @@ void MainClass::update_g()
     g(x, y, 6) = g(x, y, 6)*eta + zeta*C(x, y)*(1 - 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
     g(x, y, 7) = g(x, y, 7)*eta + zeta*C(x, y)*(1 - 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
     g(x, y, 8) = g(x, y, 8)*eta + zeta*C(x, y)*(1 + 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
+}
+
+void MainClass::update_g_reversed()
+{   three_u_squared = 3*(u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1));
+    g(x, y, 0) = g(x, y, 0)*eta + zeta*C(x, y)*(2 - three_u_squared)*2/9;
+    g(x, y, 1) = g(x, y, 1)*eta + zeta*C(x, y)*(2 - 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
+    g(x, y, 2) = g(x, y, 2)*eta + zeta*C(x, y)*(2 - 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
+    g(x, y, 3) = g(x, y, 3)*eta + zeta*C(x, y)*(2 + 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18;
+    g(x, y, 4) = g(x, y, 4)*eta + zeta*C(x, y)*(2 + 6*u(x,y,1) + 9*u(x,y,1)*u(x,y,1) - three_u_squared)/18;
+    g(x, y, 5) = g(x, y, 5)*eta + zeta*C(x, y)*(1 - 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
+    g(x, y, 6) = g(x, y, 6)*eta + zeta*C(x, y)*(1 + 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
+    g(x, y, 7) = g(x, y, 7)*eta + zeta*C(x, y)*(1 + 3*(u(x,y,0)+u(x,y,1)) + 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
+    g(x, y, 8) = g(x, y, 8)*eta + zeta*C(x, y)*(1 - 3*(u(x,y,0)-u(x,y,1)) - 9*u(x,y,0)*u(x,y,1) + three_u_squared)/36;
 }
 
 void MainClass::propegate(int x, int y)
@@ -466,7 +481,7 @@ void MainClass::ADE_back(int T, mat C_in)
        y = get<1>(rest[k]);
 
       C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
-      update_g();
+      update_g_reversed();
       propegate(x, y);
     }
 

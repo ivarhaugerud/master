@@ -93,6 +93,7 @@ class MainClass
   void initialize_C(int x, int y, int i, double rho);
   void boundary_disc(int x, int y, double R);
   void update_g();
+  void update_g_reversed();
   void bounce_back(int x, int y);
   void anti_bounce_back(int x, int y, double wall_T);
   void propegate(int x, int y);
