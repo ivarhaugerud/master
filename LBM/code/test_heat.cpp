@@ -19,8 +19,8 @@ int main(int argc, char const *argv[])
   	int Ny = 64;   //atoi(argv[2]);
     double T_inject = 1;
     double T_background = 0.001*T_inject;
-    int Time = 600000;
-    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), 5*pow(10,-6), 0, 5*pow(10, -5), "1902heat", 100);
+    int Time = 60000;
+    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), 5*pow(10,-5), 0, 6.2*pow(10, -5), "2902heat", 100);
 
     instance.boundary_disc(12,  13, 7);
     instance.boundary_disc(15,  44, 13);
@@ -44,7 +44,7 @@ int main(int argc, char const *argv[])
 
     instance.clear_g();
     instance.heat_fluid(T_background);
-    instance.initialize_C(100, 36 , 0, T_inject);
+    instance.initialize_C(90, 36 , 0, T_inject);
     instance.ADE_back(Time, C_in);
 
     return 0;

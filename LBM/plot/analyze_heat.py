@@ -16,7 +16,7 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 Nx = 140
 Ny = 64
 
-Sx = 100
+Sx = 90
 Sy = 36
 
 Dx = 32
@@ -29,24 +29,27 @@ C_front = np.zeros((Nx, Ny, datafiles))
 C_back  = np.zeros((Nx, Ny, datafiles))
 
 for i in range(datafiles):
-	data_back = np.loadtxt("../data/1902heat_C_"+str(i)+"_back.txt")
+	data_back = np.loadtxt("../data/2902heat_C_"+str(i)+"_back.txt")
 	C_back[:, :, i] = (np.reshape(data_back, (Nx, Ny)))
 
-	data_front = np.loadtxt("../data/1902heat_C_"+str(i)+"_front.txt")
+	data_front = np.loadtxt("../data/2902heat_C_"+str(i)+"_front.txt")
 	C_front[:, :, i] = (np.reshape(data_front, (Nx, Ny)))
 
 C_back  /= np.sum(np.sum(C_back[:,:, 0]))
 C_front /= np.sum(np.sum(C_front[:,:, 0]))
 
+C_back  -= C_back[Dx, Dy, 0]
+C_front -= C_front[Sx, Sy, 0]
+
 x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
 plt.figure(1)
-plt.plot(t, (C_back[Dx, Dy, :]-C_back[Dx, Dy, 0])*1e3, label="Return")
-plt.plot(t, (C_front[Sx, Sy, :]-C_front[Sx, Sy, 0])*1e3, label="Original")
+plt.plot(t, C_back[Dx, Dy, :], label="Return")
+plt.plot(t, C_front[Sx, Sy, :], label="Original")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Normalized concentration $\times 10^3$", fontsize=14)
-plt.axis([0.1, 1.05, -0.001, 0.05])
+#plt.axis([0.1, 1.05, -0.001, 0.05])
 plt.legend(loc="best", fontsize=12)
 #plt.savefig("../figures/reciprocal_symmetry1.pdf", bbox_inches="tight")
 #os.system('pdfcrop %s %s &> /dev/null &'%("../figures/reciprocal_symmetry1.pdf", "../figures/reciprocal_symmetry1.pdf"))

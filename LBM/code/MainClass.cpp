@@ -288,6 +288,7 @@ void MainClass::run()
         f_star(x,y,8) = 0;
       }}
   counter += 1;
+  cout << sqrt(sum_difference/sum) << endl;
   if (sqrt(sum_difference/sum) <  tol)
       {equil = true;
         cout << "number of steps to equilibration: " << counter << endl;}
