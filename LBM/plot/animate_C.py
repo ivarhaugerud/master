@@ -29,7 +29,7 @@ u_x = np.reshape(u[0, :], (Nx, Ny))
 
 def animate_forward(i):
 	fig.suptitle(str(i))
-	data = np.loadtxt("../data/2902heat_C_"+str(i)+"_front.txt")
+	data = np.loadtxt("../data/1902heat_C_"+str(i)+"_front.txt")
 
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
 	print(np.max(np.max(C[:,:,i])), np.sum(np.sum(C[:,:,i])), C.flatten()[np.argmax(C[:,:,i])])
@@ -38,7 +38,7 @@ def animate_forward(i):
 	C[np.where( abs(u_x[:, :]) < 1e-8)] = -1
 	ax.clear()
 	#ax.contourf(1-np.exp(-40*C[:,:,i]), cmap='Greys', levels=np.linspace(0, 1, 20))
-	ax.contourf(C[:,:,i], levels=np.linspace(-0.0001, 0.1, 25))
+	ax.contourf(C[:,:,i], levels=np.linspace(-0.01, 0.01, 25))
 	ax.axis("equal")
 
 #Writer = animation.writers['ffmpeg']
@@ -53,7 +53,7 @@ plt.show()
 
 def animate_back(i):
 	fig.suptitle(str(i))
-	data = np.loadtxt("../data/2902heat_C_"+str(i)+"_back.txt")
+	data = np.loadtxt("../data/1902heat_C_"+str(i)+"_back.txt")
 
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
 	print(np.max(np.max(C[:,:,i])), np.sum(np.sum(C[:,:,i])), np.argmax(C[:,:,i]))
@@ -62,7 +62,7 @@ def animate_back(i):
 	C[np.where( abs(u_x[:, :]) < 1e-8)] = -1
 	ax.clear()
 	#ax.contourf(1-np.exp(-40*C[:,:,i]), cmap='Greys', levels=np.linspace(0, 1, 20))
-	ax.contourf(C[:,:,i], levels=np.linspace(-0.001, 0.01, 25))
+	ax.contourf(C[:,:,i], levels=np.linspace(-0.01, 0.01, 25))
 	ax.axis("equal")
 
 fig,ax = plt.subplots()
