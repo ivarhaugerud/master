@@ -23,11 +23,11 @@ int main(int argc, char const *argv[])
     MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), 3.5*pow(10,-6), 0, 1.81*pow(10, -4), "0203heat", 300);
 
     instance.boundary_disc(12,  13, 7);
-    instance.boundary_disc(15,  44, 13);
+    instance.boundary_disc(15,  44, 11);
     instance.boundary_disc(83,  53, 12);
     instance.boundary_disc(72,  10, 9);
-    instance.boundary_disc(91,  22, 11);
-    instance.boundary_disc(122, 25, 14);
+    instance.boundary_disc(58,  40, 8);
+    instance.boundary_disc(122, 25, 11);
 
 
     instance.open();
