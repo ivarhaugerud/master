@@ -15,7 +15,7 @@ matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-datafiles = 100
+datafiles = 300
 var_in = np.zeros(datafiles)
 Nx = 140
 Ny = 64
@@ -29,7 +29,7 @@ u_x = np.reshape(u[0, :], (Nx, Ny))
 
 def animate_forward(i):
 	fig.suptitle(str(i))
-	data = np.loadtxt("../data/1902heat_C_"+str(i)+"_front.txt")
+	data = np.loadtxt("../data/0203heat_C_"+str(i)+"_to.txt")
 
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
 	print(np.max(np.max(C[:,:,i])), np.sum(np.sum(C[:,:,i])), C.flatten()[np.argmax(C[:,:,i])])
@@ -53,7 +53,7 @@ plt.show()
 
 def animate_back(i):
 	fig.suptitle(str(i))
-	data = np.loadtxt("../data/1902heat_C_"+str(i)+"_back.txt")
+	data = np.loadtxt("../data/0203heat_C_"+str(i)+"_from.txt")
 
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
 	print(np.max(np.max(C[:,:,i])), np.sum(np.sum(C[:,:,i])), np.argmax(C[:,:,i]))

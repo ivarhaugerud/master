@@ -76,7 +76,7 @@ class MainClass
   void run();
   mat ADE(int t);
   void ADE_back(int t, mat C_in);
-  mat ADE_heat(int T, double wall_T);
+  mat ADE_heat(int T, double wall_T, string name);
   void write_u(string name);
   void write_C(int T, string filename2);
   void change_D(double D_factor);
