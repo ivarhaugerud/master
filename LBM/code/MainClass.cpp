@@ -179,14 +179,13 @@ void MainClass::heat_fluid(double wall_T)
 
 void MainClass::run()
 {
-  bool equil = false;
-  double sum_difference = 0;
+  //bool equil = false;
+  long double sum_difference = 0;
   double sum = 0;
-  int counter = 0;
+  //int counter = 0;
   //double current_max_u;
-
   //while (not equil)
-  for (int t = 0; t < 20000; t++)
+  for (int t = 0; t < 50000; t++)
     {for (int k = 0; k < rest.size(); k++)
       {x = get<0>(rest[k]);
        y = get<1>(rest[k]);
@@ -197,8 +196,8 @@ void MainClass::run()
       three_u_squared = 3*u(x, y, 0)*u(x, y, 0) + 3*u(x, y, 1)*u(x, y, 1);
       FU = 3*(F(0)*u(x,y,0) + F(1)*u(x,y,1));
 
-      //sum_difference += (u(x,y,0)-prev_u(x,y,0))*(u(x,y,0)-prev_u(x,y,0)) + (u(x,y,1)-prev_u(x,y,1))*(u(x,y,1)-prev_u(x,y,1));
-      //sum            += u(x,y,0)*u(x,y,0) + u(x,y,1)*u(x,y,1);
+      sum_difference += (u(x,y,0)-prev_u(x,y,0))*(u(x,y,0)-prev_u(x,y,0)) + (u(x,y,1)-prev_u(x,y,1))*(u(x,y,1)-prev_u(x,y,1));
+      sum            += u(x,y,0)*u(x,y,0) + u(x,y,1)*u(x,y,1);
 
       f(x, y, 0) = f(x, y, 0)*alpha + beta*rho(x, y)*(2 - three_u_squared)*2/9 - delta*FU*4/9;
       f(x, y, 1) = f(x, y, 1)*alpha + beta*rho(x, y)*(2 + 6*u(x,y,0) + 9*u(x,y,0)*u(x,y,0) - three_u_squared)/18 + delta*(3*F(0) + 9*F(0)*u(x,y,0) - FU)/9;
@@ -290,12 +289,15 @@ void MainClass::run()
   //cout << sqrt(sum_difference/sum) << endl;
   //if (sqrt(sum_difference/sum) <  tol)
   //    {equil = true;
-  //      cout << "number of steps to equilibration: " << counter << endl;}
-  //prev_u = u;
+  //       cout << "number of steps to equilibration: " << counter << endl;}
+  if (t % 1000 == 0)
+  {
+    cout << t << " " << sqrt(sum_difference/sum) << " " << (u-prev_u).max() << endl;
+  }
   f = f_star;
-
-  //sum = 0;
-  //sum_difference = 0;
+  prev_u = u;
+  sum = 0;
+  sum_difference = 0;
   }
 }
 

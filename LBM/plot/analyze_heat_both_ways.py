@@ -29,10 +29,10 @@ C_front = np.zeros((Nx, Ny, datafiles))
 C_back  = np.zeros((Nx, Ny, datafiles))
 
 for i in range(datafiles):
-	data_back = np.loadtxt("../data/0203heat_C_"+str(i)+"_from.txt")
+	data_back = np.loadtxt("../data/0303heat_C_"+str(i)+"_from.txt")
 	C_back[:, :, i] = (np.reshape(data_back, (Nx, Ny)))
 
-	data_front = np.loadtxt("../data/0203heat_C_"+str(i)+"_to.txt")
+	data_front = np.loadtxt("../data/0303heat_F10-7_C_"+str(i)+"_to.txt")
 	C_front[:, :, i] = (np.reshape(data_front, (Nx, Ny)))
 
 #C_back  /= np.sum(np.sum(C_back[:,:, 0]))
@@ -49,13 +49,13 @@ plt.plot(t, C_back[Dx, Dy, :]*1e3, label="Return")
 plt.plot(t, C_front[Sx, Sy, :]*1e3, "--", label="Original")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Concentration $\times 10^3$", fontsize=14)
-plt.axis([0.3, 1.01, -0.01, 0.7])
+#plt.axis([0.3, 1.01, -0.01, 0.7])
 plt.legend(loc="best", fontsize=12)
 #plt.savefig("../figures/reciprocal_symmetry1.pdf", bbox_inches="tight")
 #os.system('pdfcrop %s %s &> /dev/null &'%("../figures/reciprocal_symmetry1.pdf", "../figures/reciprocal_symmetry1.pdf"))
 
 plt.show()
-u = np.loadtxt("../data/0203heat_heat_u.txt")
+u = np.loadtxt("../data/0303heat_heat_u.txt")
 u_x = u[0, :]
 u_y = u[1, :]
 
