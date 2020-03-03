@@ -29,6 +29,7 @@ int main(int argc, char const *argv[])
     instance.boundary_disc(58,  40, 8);
     instance.boundary_disc(122, 25, 11);
 
+    /*
     instance.open();
     instance.initialize(1);
     instance.run();
@@ -38,6 +39,9 @@ int main(int argc, char const *argv[])
 
     mat C_in = instance.ADE_heat(Time, T_background, "to");
     instance.write_u("heat");
+    */
+    instance.open();
+    instance.initialize(1);
 
     instance.change_F(-3.5*pow(10,-7), 0);
     instance.run();

@@ -29,7 +29,7 @@ C_front = np.zeros((Nx, Ny, datafiles))
 C_back  = np.zeros((Nx, Ny, datafiles))
 
 for i in range(datafiles):
-	data_back = np.loadtxt("../data/0303heat_C_"+str(i)+"_from.txt")
+	data_back = np.loadtxt("../data/0303heat_F10-7_C_"+str(i)+"_from.txt")
 	C_back[:, :, i] = (np.reshape(data_back, (Nx, Ny)))
 
 	data_front = np.loadtxt("../data/0303heat_F10-7_C_"+str(i)+"_to.txt")

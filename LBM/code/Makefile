@@ -1,6 +1,6 @@
 CXXFLAGS = -Wall -O3 -larmadillo -std=c++11
 
-program: MainClass.o test_heat_both_ways.o
+program: MainClass.o injection_peaks.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 clean:

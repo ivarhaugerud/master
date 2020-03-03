@@ -14,7 +14,7 @@ matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
 #u = np.loadtxt("../data/final_vel.txt")
-u = np.loadtxt("../data/0203heat_heat_u.txt")
+u = np.loadtxt("../data/0303heat_F10-7_heat_u.txt")
 u_x = u[0, :]
 u_y = u[1, :]
 

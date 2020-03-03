@@ -472,7 +472,7 @@ mat MainClass::ADE(int T)
 }
 
 
-void MainClass::ADE_back(int T, mat C_in)
+void MainClass::ADE_back(int T, mat C_in, string name)
 {
   int data_divide = T/data_lines;
   int counter = 0;
@@ -514,7 +514,7 @@ void MainClass::ADE_back(int T, mat C_in)
       }
   g = g_star;
   if (t%data_divide == 0)
-    {write_C(counter, "back");
+    {write_C(counter, name);
      counter += 1;}
 }}
 
