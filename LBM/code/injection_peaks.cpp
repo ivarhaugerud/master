@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
     int Nx = 140;  //atoi(argv[1]);
     int Ny = 64;   //atoi(argv[2]);
     int T  = 230000;
-    int T_back = 1.2*T
+    int T_back = 1.25*T;
     MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), 5*pow(10,-6), 0, 5*pow(10, -7), "peak", 300);
 
     instance.boundary_disc(12,  13, 7);
@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
     mat C_in = instance.ADE(T);
 
     //no cutoff 
-    instance.ADE_back(T_back, C_in, "1_0");
+    instance.ADE_back(T_back, C_in, "1_0", T);
 
     //cutoff 0.5
     instance.clear_g();
@@ -59,7 +59,7 @@ int main(int argc, char const *argv[])
         }
     }
 
-    instance.ADE_back(T_back, C_in, "0_5");
+    instance.ADE_back(T_back, C_in, "0_5", T);
 
     //cutoff 0.8
     instance.clear_g();
@@ -76,7 +76,7 @@ int main(int argc, char const *argv[])
         }
     }
 
-    instance.ADE_back(T_back, C_in, "0_8");
+    instance.ADE_back(T_back, C_in, "0_8", T);
 
     //cutoff 0.9
     instance.clear_g();
@@ -93,14 +93,14 @@ int main(int argc, char const *argv[])
         }
     }
 
-    instance.ADE_back(T_back, C_in, "0_9");
+    instance.ADE_back(T_back, C_in, "0_9", T);
 
     // exponential
     instance.clear_g();
     double total_sum = 0;
     for (int y=0; y < Ny; y++){
         for (int t=0; t < T; t++){
-            if (C_in(t, y) < cut_off){
+            if (C_in(t, y) > cut_off){
                 C_in(t, y) = exp(C_in(t, y));
                 total_sum += C_in(t, y);
             }
@@ -111,6 +111,6 @@ int main(int argc, char const *argv[])
             C_in(t, y) = 100*C_in(t, y)/total_sum;
         }}
 
-    instance.ADE_back(T_back, C_in, "exponential");
+    instance.ADE_back(T_back, C_in, "exponential", T);
     return 0;
   }

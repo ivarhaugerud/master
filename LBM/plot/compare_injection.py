@@ -25,16 +25,16 @@ t = np.linspace(0, 1, datafiles)
 C = np.zeros((Nx, Ny, datafiles, 5))
 
 for i in range(datafiles):
-	data = np.loadtxt("../data/peak_C_"+str(i)+"__1_0.txt")
+	data = np.loadtxt("../data/peak_C_"+str(i)+"_1_0.txt")
 	C[:, :, i, 0] = (np.reshape(data, (Nx, Ny)))
 
-	data = np.loadtxt("../data/peak_C_"+str(i)+"__0_5.txt")
+	data = np.loadtxt("../data/peak_C_"+str(i)+"_0_5.txt")
 	C[:, :, i, 1] = (np.reshape(data, (Nx, Ny)))
 
-	data = np.loadtxt("../data/peak_C_"+str(i)+"__0_8.txt")
+	data = np.loadtxt("../data/peak_C_"+str(i)+"_0_8.txt")
 	C[:, :, i, 2] = (np.reshape(data, (Nx, Ny)))
 
-	data = np.loadtxt("../data/peak_C_"+str(i)+"__0_9.txt")
+	data = np.loadtxt("../data/peak_C_"+str(i)+"_0_9.txt")
 	C[:, :, i, 3] = (np.reshape(data, (Nx, Ny)))
 
 	data = np.loadtxt("../data/peak_C_"+str(i)+"_exponential.txt")
@@ -73,7 +73,7 @@ for f in range(len(C[0,0,0,:])):
 		m = np.trapz(summed)
 		C_var[i, f] = np.trapz(C_xx)/m - (np.trapz(C_x)/m)**2
 
-	plt.plot(C_var[:, f])
+	plt.plot(t, C_var[:, f])
 plt.show()
 
 #plt.savefig("../figures/reciprocal_symmetry1.pdf", bbox_inches="tight")

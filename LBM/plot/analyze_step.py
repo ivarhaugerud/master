@@ -22,17 +22,17 @@ Sy = 45
 Dx = 10
 Dy = 25
 
-datafiles = 150-50
+datafiles = 300
 t = np.linspace(0, 1, datafiles)
 
 C_front = np.zeros((Nx, Ny, datafiles))
 C_back  = np.zeros((Nx, Ny, datafiles))
 
 for i in range(datafiles):
-  data_back = np.loadtxt("../data/step_C_"+str(i+49)+"_back.txt")
+  data_back = np.loadtxt("../data/step_0403_C_"+str(i)+"_step.txt")
   C_back[:, :, i] = (np.reshape(data_back, (Nx, Ny)))
 
-  data_front = np.loadtxt("../data/step_C_"+str(i+49)+"_front.txt")
+  data_front = np.loadtxt("../data/step_0403_C_"+str(i)+"_front.txt")
   C_front[:, :, i] = (np.reshape(data_front, (Nx, Ny)))
 
 #print(np.sum(C_back[:,:, 0]), np.sum(C_front[:,:, 0]))
@@ -43,32 +43,32 @@ x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
 plt.figure(1)
-plt.plot(t, C_back[Dx, Dy, :]*1e3, label="Return")
-plt.plot(t, C_front[Sx, Sy, :]*1e3, "--", label="Original")
+plt.plot(t, C_back[Dx, Dy, :], label="Return")
+plt.plot(t, C_front[Sx, Sy, :], "--", label="Original")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Normalized concentration $\times 10^3$", fontsize=14)
-#plt.axis([0.03, 1.05, -0.02, 0.4])
+plt.axis([0.6, 1.05, -0.000007, 0.0002])
 plt.legend(loc="best", fontsize=12)
 plt.show()
 
 plt.figure(2)
 plt.plot(t[:-1], np.diff(C_back[Dx, Dy, :])/max(np.diff(C_back[Dx, Dy, :])), label="Derivative of return")
-plt.plot(t, C_front[Sx, Sy, :]/max(C_front[Sx, Sy, :]), "--", label="Original")
+plt.plot(t, C_front[Sx, Sy, :]/max(C_front[Sx, Sy, int(0.5*datafiles):]), "--", label="Original")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Normalized concentration $\times 10^3$", fontsize=14)
-#plt.axis([0.03, 1.05, -0.02, 0.4])
+plt.axis([0.6, 1.05, -0.04, 1.05])
 plt.legend(loc="best", fontsize=12)
 plt.show()
 
 import scipy.integrate as sci 
 
-integrated = sci.cumtrapz(C_front[Sx,Sy,:])
+integrated = sci.cumtrapz(C_front[Sx,Sy, int(0.5*datafiles):])
 plt.figure(2)
 plt.plot(t, C_back[Dx, Dy, :]/C_back[Dx, Dy, -1], label="Return")
-plt.plot(t[:-1], integrated/integrated[-1], "--", label="Integrate of initial")
+plt.plot(t[int(0.5*datafiles)+1:], integrated/integrated[-1], "--", label="Integrate of initial")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Normalized concentration $\times 10^3$", fontsize=14)
-#plt.axis([0.03, 1.05, -0.02, 0.4])
+plt.axis([0.6, 1.05, -0.02, 1.05])
 plt.legend(loc="best", fontsize=12)
 plt.show()
 #plt.savefig("../figures/reciprocal_symmetry1.pdf", bbox_inches="tight")

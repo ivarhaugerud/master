@@ -75,7 +75,7 @@ class MainClass
   void initialize(double rho);
   void run();
   mat ADE(int t);
-  void ADE_back(int t, mat C_in, string name);
+  void ADE_back(int t, mat C_in, string name, int injection_T);
   mat ADE_heat(int T, double wall_T, string name);
   void write_u(string name);
   void write_C(int T, string filename2);

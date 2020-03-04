@@ -17,17 +17,15 @@ int main(int argc, char const *argv[])
   {
     int Nx = 140;  //atoi(argv[1]);
     int Ny = 64;   //atoi(argv[2]);
-    int T  = 750000;
-    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), 5*pow(10,-5), 0, 5*pow(10, -7), "step", 300);
+    int T  = 300000;
+    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), 5*pow(10,-6), 0, 5*pow(10, -7), "step_0403", 300);
 
     instance.boundary_disc(12,  13, 7);
-    instance.boundary_disc(15,  44, 13);
-    instance.boundary_disc(60,  33, 8);
-    instance.boundary_disc(83,  53, 12);
+    instance.boundary_disc(15,  44, 11);
+    instance.boundary_disc(83,  48, 9);
     instance.boundary_disc(72,  10, 9);
-    instance.boundary_disc(91,  22, 11);
-    instance.boundary_disc(122, 25, 14);
-    instance.boundary_disc(70, 32, 10);
+    instance.boundary_disc(58,  40, 8);
+    instance.boundary_disc(122, 25, 11);
 
     instance.open();
     instance.initialize(1);
@@ -44,7 +42,7 @@ int main(int argc, char const *argv[])
     }
 
     instance.clear_g();
-    instance.ADE_back(T, C_in);
+    instance.ADE_back(T, C_in, "step", T);
     instance.write_u("step_back");
     return 0;
   }
