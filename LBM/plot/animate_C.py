@@ -35,11 +35,11 @@ def animate_forward(i):
 	print(np.sum(np.sum(C[100,:,i])))
 	print(np.max(np.max(C[:,:,i])), np.sum(np.sum(C[:,:,i])), C.flatten()[np.argmax(C[:,:,i])])
 
-	C[np.where( (C[:,:,i]) < 10) ] = 0
-	C[np.where( abs(u_x[:, :]) < 1e-8)] = -1
+	#C[np.where( (C[:,:,i]) < 10) ] = 0
+	#C[np.where( abs(u_x[:, :]) < 1e-8)] = -1
 	ax.clear()
 	#ax.contourf(1-np.exp(-40*C[:,:,i]), cmap='Greys', levels=np.linspace(0, 1, 20))
-	ax.contourf(C[:,:,i], levels=np.linspace(-0.01, 1e-4, 35))
+	ax.contourf(C[:,:,i])#, levels=np.linspace(-0.00001, 0.0004, 35))
 	ax.axis("equal")
 
 #Writer = animation.writers['ffmpeg']

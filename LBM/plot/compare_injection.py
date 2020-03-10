@@ -59,7 +59,7 @@ C[:, :, :, 3] /= np.sum(np.sum(C[:,:,-1,3]))
 C[:, :, :, 4] /= np.sum(np.sum(C[:,:,-1,4]))
 C[:, :, :, 5] /= np.sum(np.sum(C[:,:,-1,5]))
 C[:, :, :, 6] /= np.sum(np.sum(C[:,:,-1,6]))
-C[:, :, :, 7] /= np.sum(np.sum(C[:,:,-1,6]))
+C[:, :, :, 7] /= np.sum(np.sum(C[:,:,-100,7]))
 
 plt.figure(1)
 plt.plot(t, C[Dx, Dy, :, 0]*100, label="no cutoff")

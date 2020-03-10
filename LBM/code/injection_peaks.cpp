@@ -38,7 +38,7 @@ int main(int argc, char const *argv[])
     instance.define_sources(100, i);
     }
 
-    instance.initialize_C(25, 25 , 0, 0.1);
+    instance.initialize_C(25, 25 , 0, 10);
     mat C_in = instance.ADE(T);
     instance.clear_g();
 
@@ -73,14 +73,13 @@ int main(int argc, char const *argv[])
         for (int t = 0; t < T; t++){
             if (C_in(t, i) > current_heighest)
             {current_heighest = C_in(t, i);
-             current_heighest = t;}}
+             index_of_heighest = t;}}
 
      for (int t = 0; t < T; t++){
-        if ( t != current_heighest ){
+        if ( t != index_of_heighest){
             C_in(t, i) = 0;}}
     }
-    cout << C_in << endl;
-    cout << C_in.max() << endl;
+
     instance.ADE_back(T_back, C_in, "maxima", T);
 
     /*
