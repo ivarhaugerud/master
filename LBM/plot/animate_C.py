@@ -29,16 +29,17 @@ u_x = np.reshape(u[0, :], (Nx, Ny))
 
 def animate_forward(i):
 	fig.suptitle(str(i))
-	data = np.loadtxt("../data/step_0403_C_"+str(i)+"_step.txt")
+	data = np.loadtxt("../data/peak_C_"+str(i)+"_maxima.txt")
 
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
+	print(np.sum(np.sum(C[100,:,i])))
 	print(np.max(np.max(C[:,:,i])), np.sum(np.sum(C[:,:,i])), C.flatten()[np.argmax(C[:,:,i])])
 
 	C[np.where( (C[:,:,i]) < 10) ] = 0
 	C[np.where( abs(u_x[:, :]) < 1e-8)] = -1
 	ax.clear()
 	#ax.contourf(1-np.exp(-40*C[:,:,i]), cmap='Greys', levels=np.linspace(0, 1, 20))
-	ax.contourf(C[:,:,i], levels=np.linspace(-0.01, 1400, 35))
+	ax.contourf(C[:,:,i], levels=np.linspace(-0.01, 1e-4, 35))
 	ax.axis("equal")
 
 #Writer = animation.writers['ffmpeg']

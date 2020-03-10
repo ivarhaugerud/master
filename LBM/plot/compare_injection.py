@@ -22,7 +22,7 @@ Dy = 25
 datafiles = 300
 t = np.linspace(0, 1, datafiles)
 
-C = np.zeros((Nx, Ny, datafiles, 5))
+C = np.zeros((Nx, Ny, datafiles, 8))
 
 for i in range(datafiles):
 	data = np.loadtxt("../data/peak_C_"+str(i)+"_1_0.txt")
@@ -40,6 +40,15 @@ for i in range(datafiles):
 	data = np.loadtxt("../data/peak_C_"+str(i)+"_exponential.txt")
 	C[:, :, i, 4] = (np.reshape(data, (Nx, Ny)))
 
+	data = np.loadtxt("../data/peak_C_"+str(i)+"_single_maxima.txt")
+	C[:, :, i, 5] = (np.reshape(data, (Nx, Ny)))
+
+	data = np.loadtxt("../data/peak_C_"+str(i)+"_global_maxima.txt")
+	C[:, :, i, 6] = (np.reshape(data, (Nx, Ny)))
+
+	data = np.loadtxt("../data/peak_C_"+str(i)+"_maxima.txt")
+	C[:, :, i, 7] = (np.reshape(data, (Nx, Ny)))
+
 x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
@@ -48,19 +57,25 @@ C[:, :, :, 1] /= np.sum(np.sum(C[:,:,-1,1]))
 C[:, :, :, 2] /= np.sum(np.sum(C[:,:,-1,2]))
 C[:, :, :, 3] /= np.sum(np.sum(C[:,:,-1,3]))
 C[:, :, :, 4] /= np.sum(np.sum(C[:,:,-1,4]))
+C[:, :, :, 5] /= np.sum(np.sum(C[:,:,-1,5]))
+C[:, :, :, 6] /= np.sum(np.sum(C[:,:,-1,6]))
+C[:, :, :, 7] /= np.sum(np.sum(C[:,:,-1,6]))
 
 plt.figure(1)
-plt.plot(t, C[Dx, Dy, :, 0]*100, label="0")
-plt.plot(t, C[Dx, Dy, :, 1]*100, label="1")
-plt.plot(t, C[Dx, Dy, :, 2]*100, label="2")
-plt.plot(t, C[Dx, Dy, :, 3]*100, label="3")
-plt.plot(t, C[Dx, Dy, :, 4]*100, label="4")
+plt.plot(t, C[Dx, Dy, :, 0]*100, label="no cutoff")
+plt.plot(t, C[Dx, Dy, :, 1]*100, label="0.5 cutoff")
+plt.plot(t, C[Dx, Dy, :, 2]*100, label="0.8 cutoff")
+plt.plot(t, C[Dx, Dy, :, 3]*100, label="0.9 cutoff")
+#plt.plot(t, C[Dx, Dy, :, 4]*100, label="0.9 cutoff - exp")
+plt.plot(t, C[Dx, Dy, :, 5]*100, label="singe maximum")
+plt.plot(t, C[Dx, Dy, :, 6]*100, label="max for each t")
+plt.plot(t, C[Dx, Dy, :, 7]*100, label="max for each pos")
 
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Concentration %", fontsize=14)
 #plt.axis([0.03, 1.05, -0.02, 0.4])
-plt.legend(loc="best", fontsize=12)
-#plt.show()
+plt.legend(loc="best", fontsize=13)
+plt.show()
 
 C_var  = np.zeros((datafiles, len(C[0,0,0,:])))
 

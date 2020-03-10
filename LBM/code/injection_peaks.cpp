@@ -38,10 +38,54 @@ int main(int argc, char const *argv[])
     instance.define_sources(100, i);
     }
 
-    instance.initialize_C(25, 25 , 0, 100);
+    instance.initialize_C(25, 25 , 0, 0.1);
     mat C_in = instance.ADE(T);
+    instance.clear_g();
 
+    /*
+    double global_heighest = 0;
+    int    t_index = 0;
+    int    y_index = 0;
+
+    for (int i = 0; i < Ny; i++){
+        for (int t = 0; t < T; t++){
+            if (C_in(t, i) > global_heighest)
+            {global_heighest = C_in(t, i);
+             t_index = t;
+             y_index = i;}}}
+
+    Mat<double> C_out;
+    C_out = Mat<double>(T, Ny);
+    C_out(t_index, y_index) = global_heighest;
+
+    cout << C_out << endl;
+    cout << C_out.max() << endl;
+    instance.clear_g();
+    instance.ADE_back(T_back, C_out, "single_maxima", T);
+    */
+    //maxima of each point along line
+    
+    double current_heighest = 0;
+    int    index_of_heighest = 0;
+
+    for (int i = 0; i < Ny; i++){
+        current_heighest = 0;
+        for (int t = 0; t < T; t++){
+            if (C_in(t, i) > current_heighest)
+            {current_heighest = C_in(t, i);
+             current_heighest = t;}}
+
+     for (int t = 0; t < T; t++){
+        if ( t != current_heighest ){
+            C_in(t, i) = 0;}}
+    }
+    cout << C_in << endl;
+    cout << C_in.max() << endl;
+    instance.ADE_back(T_back, C_in, "maxima", T);
+
+    /*
     //no cutoff 
+    
     instance.ADE_back(T_back, C_in, "1_0", T);
 
     //cutoff 0.5
@@ -112,5 +156,6 @@ int main(int argc, char const *argv[])
         }}
 
     instance.ADE_back(T_back, C_in, "exponential", T);
+    */
     return 0;
   }
