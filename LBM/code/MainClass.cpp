@@ -476,8 +476,6 @@ void MainClass::ADE_back(int T, mat C_in, string name, int injection_T)
 {
   int data_divide = T/data_lines;
   int counter = 0;
-  Mat<double> C_out;
-  C_out = Mat<double>(T, source.size());
 
   for (int t = 0; t < T; t++)
     {//open

@@ -5,6 +5,10 @@ import os
 import matplotlib
 import pandas as pd 
 
+
+
+
+
 plt.style.use("bmh")
 sns.color_palette("hls", 1)
 
@@ -18,39 +22,38 @@ Ny = 64
 
 Dx = 25
 Dy = 25
-
+"""
+C = np.zeros((Nx, Ny, 300))
+for i in range(300):
+	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_front.txt")
+	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
+plt.plot(np.max(C[100,:,:], axis=0))
+plt.show()
+"""
 datafiles = 300
 t = np.linspace(0, 1, datafiles)
-
-C = np.zeros((Nx, Ny, datafiles, 8))
-
-for i in range(datafiles):
-	data = np.loadtxt("../data/peak_C_"+str(i)+"_1_0.txt")
-	C[:, :, i, 0] = (np.reshape(data, (Nx, Ny)))
-
-	data = np.loadtxt("../data/peak_C_"+str(i)+"_0_5.txt")
-	C[:, :, i, 1] = (np.reshape(data, (Nx, Ny)))
-
-	data = np.loadtxt("../data/peak_C_"+str(i)+"_0_8.txt")
-	C[:, :, i, 2] = (np.reshape(data, (Nx, Ny)))
-
-	data = np.loadtxt("../data/peak_C_"+str(i)+"_0_9.txt")
-	C[:, :, i, 3] = (np.reshape(data, (Nx, Ny)))
-
-	data = np.loadtxt("../data/peak_C_"+str(i)+"_exponential.txt")
-	C[:, :, i, 4] = (np.reshape(data, (Nx, Ny)))
-
-	data = np.loadtxt("../data/peak_C_"+str(i)+"_single_maxima.txt")
-	C[:, :, i, 5] = (np.reshape(data, (Nx, Ny)))
-
-	data = np.loadtxt("../data/peak_C_"+str(i)+"_global_maxima.txt")
-	C[:, :, i, 6] = (np.reshape(data, (Nx, Ny)))
-
-	data = np.loadtxt("../data/peak_C_"+str(i)+"_maxima.txt")
-	C[:, :, i, 7] = (np.reshape(data, (Nx, Ny)))
-
+C = np.zeros((Nx, Ny, datafiles, 6))
 x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
+
+for i in range(datafiles):
+	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_1_0.txt")
+	C[:, :, i, 0] = (np.reshape(data, (Nx, Ny)))
+
+	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_0_5.txt")
+	C[:, :, i, 1] = (np.reshape(data, (Nx, Ny)))
+
+	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_0_8.txt")
+	C[:, :, i, 2] = (np.reshape(data, (Nx, Ny)))
+
+	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_0_9.txt")
+	C[:, :, i, 3] = (np.reshape(data, (Nx, Ny)))
+
+	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_single_maxima.txt")
+	C[:, :, i, 4] = (np.reshape(data, (Nx, Ny)))
+
+	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_maxima.txt")
+	C[:, :, i, 5] = (np.reshape(data, (Nx, Ny)))
 
 C[:, :, :, 0] /= np.sum(np.sum(C[:,:,-1,0]))
 C[:, :, :, 1] /= np.sum(np.sum(C[:,:,-1,1]))
@@ -58,18 +61,14 @@ C[:, :, :, 2] /= np.sum(np.sum(C[:,:,-1,2]))
 C[:, :, :, 3] /= np.sum(np.sum(C[:,:,-1,3]))
 C[:, :, :, 4] /= np.sum(np.sum(C[:,:,-1,4]))
 C[:, :, :, 5] /= np.sum(np.sum(C[:,:,-1,5]))
-C[:, :, :, 6] /= np.sum(np.sum(C[:,:,-1,6]))
-C[:, :, :, 7] /= np.sum(np.sum(C[:,:,-100,7]))
 
 plt.figure(1)
 plt.plot(t, C[Dx, Dy, :, 0]*100, label="no cutoff")
 plt.plot(t, C[Dx, Dy, :, 1]*100, label="0.5 cutoff")
 plt.plot(t, C[Dx, Dy, :, 2]*100, label="0.8 cutoff")
 plt.plot(t, C[Dx, Dy, :, 3]*100, label="0.9 cutoff")
-#plt.plot(t, C[Dx, Dy, :, 4]*100, label="0.9 cutoff - exp")
-plt.plot(t, C[Dx, Dy, :, 5]*100, label="singe maximum")
-plt.plot(t, C[Dx, Dy, :, 6]*100, label="max for each t")
-plt.plot(t, C[Dx, Dy, :, 7]*100, label="max for each pos")
+plt.plot(t, C[Dx, Dy, :, 4]*100, label="singe maximum")
+plt.plot(t, C[Dx, Dy, :, 5]*100, label="max for each pos")
 
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Concentration %", fontsize=14)
@@ -78,7 +77,7 @@ plt.legend(loc="best", fontsize=13)
 plt.show()
 
 C_var  = np.zeros((datafiles, len(C[0,0,0,:])))
-
+"""
 plt.figure(2)
 for f in range(len(C[0,0,0,:])):
 	for i in range(datafiles):
@@ -87,10 +86,28 @@ for f in range(len(C[0,0,0,:])):
 		C_xx = x_axis*C_x
 		m = np.trapz(summed)
 		C_var[i, f] = np.trapz(C_xx)/m - (np.trapz(C_x)/m)**2
+"""
+import scipy.integrate as sci 
 
-	plt.plot(t, C_var[:, f])
+plt.figure(2)
+for f in range(len(C[0,0,0,:])):
+	for i in range(datafiles):
+		C_var[i, f] = sci.dblquad(C[:,:,i,f], Nx, Ny, x_axis, y_axis)
+		#C_x = x_axis*summed
+		#C_xx = x_axis*C_x
+		#m = np.trapz(summed)
+		#C_var[i, f] = np.trapz(C_xx)/m - (np.trapz(C_x)/m)**2
+
+plt.plot(t, C_var[:, 0], label="no cutoff")
+plt.plot(t, C_var[:, 1], label="0.5 cutoff")
+plt.plot(t, C_var[:, 2], label="0.8 cutoff")
+plt.plot(t, C_var[:, 3], label="0.9 cutoff")
+plt.plot(t, C_var[:, 4], label="single maximum")
+plt.plot(t, C_var[:, 5], label="max for each pos")
+plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
+plt.ylabel(r"Variance of concentration", fontsize=14)
+plt.legend(loc="best", fontsize=13)
 plt.show()
-
 #plt.savefig("../figures/reciprocal_symmetry1.pdf", bbox_inches="tight")
 #os.system('pdfcrop %s %s &> /dev/null &'%("../figures/reciprocal_symmetry1.pdf", "../figures/reciprocal_symmetry1.pdf"))
 

@@ -29,7 +29,7 @@ u_x = np.reshape(u[0, :], (Nx, Ny))
 
 def animate_forward(i):
 	fig.suptitle(str(i))
-	data = np.loadtxt("../data/peak_C_"+str(i)+"_maxima.txt")
+	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_1_0.txt")
 
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
 	print(np.sum(np.sum(C[100,:,i])))

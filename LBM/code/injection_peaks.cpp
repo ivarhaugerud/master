@@ -19,7 +19,7 @@ int main(int argc, char const *argv[])
     int Ny = 64;   //atoi(argv[2]);
     int T  = 230000;
     int T_back = 1.25*T;
-    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), 5*pow(10,-6), 0, 5*pow(10, -7), "peak", 300);
+    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), 5*pow(10,-6), 0, 5*pow(10, -7), "peak_1104", 300);
 
     instance.boundary_disc(12,  13, 7);
     instance.boundary_disc(15,  44, 11);
@@ -31,58 +31,23 @@ int main(int argc, char const *argv[])
     instance.open();
     instance.initialize(1);
     instance.run();
-    instance.write_u("peak");
+    instance.write_u("peak_1104");
+    //instance.change_D(5);
 
     for (int i = 0; i < Ny; i++)
     {
     instance.define_sources(100, i);
     }
 
-    instance.initialize_C(25, 25 , 0, 10);
+    instance.initialize_C(25, 25 , 0, 0.1);
     mat C_in = instance.ADE(T);
     instance.clear_g();
+    C_in = C_in*1000;
 
-    /*
-    double global_heighest = 0;
-    int    t_index = 0;
-    int    y_index = 0;
+    for (int y=0; y < Ny; y++){
+        for (int t=0; t < 0.1*T; t++){
+            C_in(t, y) = 0;}}
 
-    for (int i = 0; i < Ny; i++){
-        for (int t = 0; t < T; t++){
-            if (C_in(t, i) > global_heighest)
-            {global_heighest = C_in(t, i);
-             t_index = t;
-             y_index = i;}}}
-
-    Mat<double> C_out;
-    C_out = Mat<double>(T, Ny);
-    C_out(t_index, y_index) = global_heighest;
-
-    cout << C_out << endl;
-    cout << C_out.max() << endl;
-    instance.clear_g();
-    instance.ADE_back(T_back, C_out, "single_maxima", T);
-    */
-    //maxima of each point along line
-    
-    double current_heighest = 0;
-    int    index_of_heighest = 0;
-
-    for (int i = 0; i < Ny; i++){
-        current_heighest = 0;
-        for (int t = 0; t < T; t++){
-            if (C_in(t, i) > current_heighest)
-            {current_heighest = C_in(t, i);
-             index_of_heighest = t;}}
-
-     for (int t = 0; t < T; t++){
-        if ( t != index_of_heighest){
-            C_in(t, i) = 0;}}
-    }
-
-    instance.ADE_back(T_back, C_in, "maxima", T);
-
-    /*
     //no cutoff 
     
     instance.ADE_back(T_back, C_in, "1_0", T);
@@ -138,23 +103,42 @@ int main(int argc, char const *argv[])
 
     instance.ADE_back(T_back, C_in, "0_9", T);
 
-    // exponential
+    //maximum single point
     instance.clear_g();
-    double total_sum = 0;
-    for (int y=0; y < Ny; y++){
-        for (int t=0; t < T; t++){
-            if (C_in(t, y) > cut_off){
-                C_in(t, y) = exp(C_in(t, y));
-                total_sum += C_in(t, y);
-            }
-        }
-    }
-    for (int y=0; y < Ny; y++){
-        for (int t=0; t < T; t++){
-            C_in(t, y) = 100*C_in(t, y)/total_sum;
-        }}
+    double global_heighest = 0;
+    int    t_index = 0;
+    int    y_index = 0;
 
-    instance.ADE_back(T_back, C_in, "exponential", T);
-    */
+    for (int i = 0; i < Ny; i++){
+        for (int t = 0; t < T; t++){
+            if (C_in(t, i) > global_heighest)
+            {global_heighest = C_in(t, i);
+             t_index = t;
+             y_index = i;}}}
+
+    Mat<double> C_out;
+    C_out = Mat<double>(T, Ny);
+    C_out(t_index, y_index) = global_heighest;
+
+    instance.ADE_back(T_back, C_out, "single_maxima", T);
+
+    //maxima of each point along line
+    instance.clear_g();
+    double current_heighest = 0;
+    int    index_of_heighest = 0;
+
+    for (int i = 0; i < Ny; i++){
+        current_heighest = 0;
+        for (int t = 0; t < T; t++){
+            if (C_in(t, i) > current_heighest)
+            {current_heighest = C_in(t, i);
+             index_of_heighest = t;}}
+
+     for (int t = 0; t < T; t++){
+        if ( t != index_of_heighest){
+            C_in(t, i) = 0;}}
+    }
+
+    instance.ADE_back(T_back, C_in, "maxima", T);
     return 0;
   }
