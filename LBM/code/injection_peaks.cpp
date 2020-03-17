@@ -17,9 +17,9 @@ int main(int argc, char const *argv[])
   {
     int Nx = 140;  //atoi(argv[1]);
     int Ny = 64;   //atoi(argv[2]);
-    int T  = 230000;
+    int T  = 250000;
     int T_back = 1.25*T;
-    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), 5*pow(10,-6), 0, 5*pow(10, -7), "peak_1104", 300);
+    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), 5*pow(10,-6), 0, 5*pow(10, -7), "peak_1104_2", 300);
 
     instance.boundary_disc(12,  13, 7);
     instance.boundary_disc(15,  44, 11);
@@ -32,7 +32,7 @@ int main(int argc, char const *argv[])
     instance.initialize(1);
     instance.run();
     instance.write_u("peak_1104");
-    //instance.change_D(5);
+    instance.change_D(50);
 
     for (int i = 0; i < Ny; i++)
     {

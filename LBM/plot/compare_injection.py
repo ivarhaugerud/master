@@ -37,22 +37,22 @@ x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
 for i in range(datafiles):
-	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_1_0.txt")
+	data = np.loadtxt("../data/peak_1104_2_C_"+str(i)+"_1_0.txt")
 	C[:, :, i, 0] = (np.reshape(data, (Nx, Ny)))
 
-	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_0_5.txt")
+	data = np.loadtxt("../data/peak_1104_2_C_"+str(i)+"_0_5.txt")
 	C[:, :, i, 1] = (np.reshape(data, (Nx, Ny)))
 
-	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_0_8.txt")
+	data = np.loadtxt("../data/peak_1104_2_C_"+str(i)+"_0_8.txt")
 	C[:, :, i, 2] = (np.reshape(data, (Nx, Ny)))
 
-	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_0_9.txt")
+	data = np.loadtxt("../data/peak_1104_2_C_"+str(i)+"_0_9.txt")
 	C[:, :, i, 3] = (np.reshape(data, (Nx, Ny)))
 
-	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_single_maxima.txt")
+	data = np.loadtxt("../data/peak_1104_2_C_"+str(i)+"_single_maxima.txt")
 	C[:, :, i, 4] = (np.reshape(data, (Nx, Ny)))
 
-	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_maxima.txt")
+	data = np.loadtxt("../data/peak_1104_2_C_"+str(i)+"_maxima.txt")
 	C[:, :, i, 5] = (np.reshape(data, (Nx, Ny)))
 
 C[:, :, :, 0] /= np.sum(np.sum(C[:,:,-1,0]))
