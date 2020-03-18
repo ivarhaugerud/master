@@ -484,7 +484,7 @@ void MainClass::ADE_back(int T, mat C_in, string name, int injection_T)
        y = get<1>(rest[k]);
 
       C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
-      update_g_reversed();
+      update_g();
       propegate(x, y);
     }
 

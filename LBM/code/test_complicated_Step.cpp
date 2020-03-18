@@ -17,8 +17,10 @@ int main(int argc, char const *argv[])
   {
     int Nx = 140;  //atoi(argv[1]);
     int Ny = 64;   //atoi(argv[2]);
-    int T  = 600000;
-    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), 5*pow(10,-6), 0, 5*pow(10, -7), "cos_1703", 300);
+    int T  = 500000;
+    double F_x = 5*pow(10,-6);
+    double F_y = 0;
+    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), F_x, F_y, 5*pow(10, -7), "1803_step", 300);
 
     instance.boundary_disc(12,  13, 7);
     instance.boundary_disc(15,  44, 11);
@@ -30,20 +32,21 @@ int main(int argc, char const *argv[])
     instance.open();
     instance.initialize(1);
     instance.run();
-    cout << "equilibrated" << endl;
-    instance.write_u("cos");
+    instance.write_u("_1");
 
     instance.define_sources(108, 45);
     instance.initialize_C(10, 25 , 0, 0.005);
-
     mat C_in = instance.ADE(T);
 
     for (int t=0; t < T; t++){
-            C_in(t, 0) = 0.0001*cos(4*2*3.14159*t/T)*cos(4*2*3.14159*t/T);
+            C_in(t, 0) = 0.0001;
     }
 
     instance.clear_g();
-    instance.ADE_back(T, C_in, "cos", T);
-    instance.write_u("cos_back");
+    instance.change_F(-F_x, F_y);
+    instance.initialize(1);
+    instance.run();
+
+    instance.ADE_back(T, C_in, "step", T);
     return 0;
   }

@@ -32,7 +32,7 @@ for i in range(datafiles):
   data_back = np.loadtxt("../data/cos_1703_C_"+str(i)+"_cos.txt")
   C_back[:, :, i] = (np.reshape(data_back, (Nx, Ny)))
 
-  data_front = np.loadtxt("../data/cos_1703_C_"+str(i)+"_front.txt")
+  data_front = np.loadtxt("../data/step_1803_C_"+str(i)+"_step.txt")
   C_front[:, :, i] = (np.reshape(data_front, (Nx, Ny)))
 
 C_back  /= np.sum(np.sum(C_back[ :,:, -1]))
@@ -70,13 +70,12 @@ import scipy.integrate as sci
 for i in range(integrated):
 	integrated[i+1] = np.trapz(C_front[Sx, Sy, :i]*injection)
 """
-plt.plot(injection*C_front[Sx,Sy, :])
-plt.plot(np.flip(injection, axis=0)*C_front[Sx,Sy, :], "--")
 
-integrated = sci.cumtrapz(np.flip(injection, axis=0)*C_front[Sx,Sy, :])
+
+integrated = np.flip(injection, axis=0)*C_front[Sx,Sy, :]
 plt.figure(2)
-plt.plot(t, C_back[Dx, Dy, :]/C_back[Dx, Dy, -1], label="Return")
-plt.plot(t[:-1], integrated/integrated[-1], "--", label="Integrate of initial")
+plt.plot(t, C_back[Dx, Dy, :], label="Return")
+plt.plot(t, 1.56*1e-6+integrated, "--", label="Integrate of initial")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Normalized concentration $\times 10^3$", fontsize=14)
 #plt.axis([0.6, 1.05, -0.02, 1.05])
