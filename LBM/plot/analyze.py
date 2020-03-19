@@ -42,18 +42,18 @@ x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
 plt.figure(1)
-plt.title("Change of factor 1.05", fontsize=16)
-plt.plot(t, C_back[Dx, Dy, :]*1e3, label="Return")
-plt.plot(t, C_front[Sx, Sy, :]*1e3, label="Original")
+#plt.title("Change of factor 1.05", fontsize=16)
+plt.plot(t, C_back[Dx, Dy, :], label=r"$C_A(\mathbf{x}_B, t)$")
+plt.plot(t, C_front[Sx, Sy, :], "--", label="$C_B(\mathbf{x}_A, t)$")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
-plt.ylabel(r"Normalized concentration $\times 10^3$", fontsize=14)
-#plt.axis([0.03, 1.05, -0.02, 0.4])
-plt.legend(loc="best", fontsize=12)
+plt.ylabel(r"Normalized concentration", fontsize=14)
+plt.axis([0.00, 1.02, 0.00, 0.033])
+plt.legend(loc="best", fontsize=14)
+plt.savefig("../powerpoint/figures/reciprocal_relation.pdf", bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/reciprocal_relation.pdf", "../powerpoint/figures/reciprocal_relation.pdf"))
+plt.show()
 
-#plt.savefig("../figures/reciprocal_symmetry1.pdf", bbox_inches="tight")
-#os.system('pdfcrop %s %s &> /dev/null &'%("../figures/reciprocal_symmetry1.pdf", "../figures/reciprocal_symmetry1.pdf"))
-
-
+"""
 for i in range(datafiles):
 	data_back = np.loadtxt("../data/1102reciproc_2_C_"+str(i)+"_back.txt")
 	C_back[:, :, i] = (np.reshape(data_back, (Nx, Ny)))
@@ -125,4 +125,4 @@ u_y = u[1, :]
 u1 = np.loadtxt("../data/0602reciproc_105_back_u.txt")
 u_x1 = u1[0, :]
 u_y1 = u1[1, :]
-
+"""

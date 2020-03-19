@@ -29,14 +29,14 @@ C_front = np.zeros((Nx, Ny, datafiles))
 C_back  = np.zeros((Nx, Ny, datafiles))
 
 for i in range(datafiles):
-  data_back = np.loadtxt("../data/cos_1703_C_"+str(i)+"_cos.txt")
+  data_back = np.loadtxt("../data/1803_step_C_"+str(i)+"_step.txt")
   C_back[:, :, i] = (np.reshape(data_back, (Nx, Ny)))
 
-  data_front = np.loadtxt("../data/step_1803_C_"+str(i)+"_step.txt")
+  data_front = np.loadtxt("../data/1803_step_C_"+str(i)+"_front.txt")
   C_front[:, :, i] = (np.reshape(data_front, (Nx, Ny)))
 
-C_back  /= np.sum(np.sum(C_back[ :,:, -1]))
-C_front /= np.sum(np.sum(C_front[:,:, -1]))
+#C_back  /= np.sum(np.sum(C_back[ :,:, -1]))
+#C_front /= np.sum(np.sum(C_front[:,:, -1]))
 
 x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
@@ -44,7 +44,7 @@ y_axis = np.linspace(0, Ny-1, Ny)
 C_front[:,:,:60] = 0
 plt.figure(1)
 plt.plot(t, C_back[Dx, Dy, :], label="Return")
-plt.plot(t, C_front[Sx, Sy, :], "--", label="Original")
+plt.plot(t, C_front[Sx, Sy, :]/0.16666666666, "--", label="Original")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Normalized concentration $\times 10^3$", fontsize=14)
 #plt.axis([0.6, 1.05, -0.000007, 0.0002])
@@ -52,7 +52,7 @@ plt.legend(loc="best", fontsize=12)
 plt.show()
 
 t = np.linspace(0, datafiles-1, datafiles)/datafiles
-injection = np.cos(t*4*2*np.pi)**2
+injection = 5.25/0.16666666666#300*(0.0001*500000)#np.cos(t*4*2*np.pi)**2
 
 """
 plt.figure(2)
@@ -72,10 +72,10 @@ for i in range(integrated):
 """
 
 
-integrated = np.flip(injection, axis=0)*C_front[Sx,Sy, :]
+integrated = sci.cumtrapz(injection*C_front[Sx,Sy, :])
 plt.figure(2)
 plt.plot(t, C_back[Dx, Dy, :], label="Return")
-plt.plot(t, 1.56*1e-6+integrated, "--", label="Integrate of initial")
+plt.plot(t[:-1], integrated, "--", label="Integrate of initial")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Normalized concentration $\times 10^3$", fontsize=14)
 #plt.axis([0.6, 1.05, -0.02, 1.05])
