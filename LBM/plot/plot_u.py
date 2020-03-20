@@ -55,12 +55,12 @@ stream_points[:, 0] = x_streampoints
 stream_points[:, 1] = 130
 plt.streamplot(y_axis, x_axis, u_y, u_x, start_points=stream_points, density=15, color="k", linewidth=1)
 """
-plt.figure(figsize=(4.5,6))
-x_streampoints = np.arange(0, 63, 0.4)
+plt.figure(figsize=(3,6))
+x_streampoints = np.arange(0, 63, 0.8)
 stream_points = np.zeros((len(x_streampoints), 2))
 stream_points[:, 0] = x_streampoints
 stream_points[:, 1] = 84
-plt.streamplot(y_axis, x_axis, u_y, u_x, start_points=stream_points, density=30, color="k", linewidth=1)
+plt.streamplot(y_axis, x_axis, u_y, u_x, start_points=stream_points, density=15, color="k", linewidth=1, arrowsize=0.000001)
 
 plt.axis("equal")
 plt.plot(25, 15, "ro")

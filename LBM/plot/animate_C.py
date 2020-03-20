@@ -28,26 +28,27 @@ u = np.loadtxt("../data/0303heat_heat_u.txt")
 u_x = np.reshape(u[0, :], (Nx, Ny))
 
 def animate_forward(i):
-	#fig.suptitle(str(i))
-	data = np.loadtxt("../data/1903_reciproc_C_"+str(i)+"_back.txt")
+	#fig.suptitle(str(i+86))
+	data = np.loadtxt("../data/peak_1104_C_"+str(i)+"_1_0.txt")
 
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
+	C[:, :, i] /= np.sum(np.sum(C[:,:,i]))
 	#print(np.sum(np.sum(C[100,:,i])))
-	#print(np.max(np.max(C[:,:,i])), np.sum(np.sum(C[:,:,i])), C.flatten()[np.argmax(C[:,:,i])])
+	#print(np.max(np.max(np.log10(abs(C[:,:,i]+1)))), np.min(np.min(np.log10(abs(C[:,:,i]+1)))))
 
-	C[np.where( (C[:,:,i]) < 1e-7) ] = 1e-10
-	C[np.where( abs(u_x[:, :]) < 1e-8)] = -1e-10
+	#C[np.where( (C[:,:,i]) < 1e-7) ] = 1e-4
+	C[np.where( abs(u_x[:, :]) < 1e-8)] = -1
 	ax.clear()
 	#ax.contourf(1-np.exp(-40*C[:,:,i]), cmap='Greys', levels=np.linspace(0, 1, 20))
-	ax.contourf(C[:,:,i])#, levels=np.linspace(0, 0.00025, 35))
+	ax.contourf(np.log10(((C[:,:,i]+1e-4))), levels=np.linspace(-4.5, -1.4, 35))
 	ax.axis("equal")
-	ax.set_xlabel(r"$x$-position", fontsize=14)
-	ax.set_ylabel(r"$y$-position", fontsize=14)
+	#ax.set_xlabel(r"$x$-position", fontsize=14)
+	#ax.set_ylabel(r"$y$-position", fontsize=14)
 
 #Writer = animation.writers['ffmpeg']
 #writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
 
-fig,ax = plt.subplots(figsize=(4.5,6))
+fig,ax = plt.subplots(figsize=(3,6))
 
 interval = 1 #in ms   
 #Writer = animation.writers["ffmpeg"]
@@ -57,7 +58,7 @@ ani = animation.FuncAnimation(fig,animate_forward, datafiles, interval=interval,
 #ani.save('../powerpoint/figures/im.mp4')#, writer=writer)
 # writer = animation.FFMpegWriter(
 #     fps=15, metadata=dict(artist='Me'), bitrate=1800)
-#ani.save("../powerpoint/figures/animation_back.gif")#, Writer=writer)
+#ani.save("../powerpoint/figures/animation_single_maxima.gif")#, Writer=writer)
 plt.show()
 """
 def animate_back(i):

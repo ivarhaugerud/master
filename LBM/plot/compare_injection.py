@@ -37,22 +37,22 @@ x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
 for i in range(datafiles):
-	data = np.loadtxt("../data/peak_1104_2_C_"+str(i)+"_1_0.txt")
+	data = np.loadtxt("../data/peak_1104_C_"+str(i)+"_1_0.txt")
 	C[:, :, i, 0] = (np.reshape(data, (Nx, Ny)))
 
-	data = np.loadtxt("../data/peak_1104_2_C_"+str(i)+"_0_5.txt")
+	data = np.loadtxt("../data/peak_1104_C_"+str(i)+"_0_5.txt")
 	C[:, :, i, 1] = (np.reshape(data, (Nx, Ny)))
 
-	data = np.loadtxt("../data/peak_1104_2_C_"+str(i)+"_0_8.txt")
+	data = np.loadtxt("../data/peak_1104_C_"+str(i)+"_0_8.txt")
 	C[:, :, i, 2] = (np.reshape(data, (Nx, Ny)))
 
-	data = np.loadtxt("../data/peak_1104_2_C_"+str(i)+"_0_9.txt")
+	data = np.loadtxt("../data/peak_1104_C_"+str(i)+"_0_9.txt")
 	C[:, :, i, 3] = (np.reshape(data, (Nx, Ny)))
 
-	data = np.loadtxt("../data/peak_1104_2_C_"+str(i)+"_single_maxima.txt")
+	data = np.loadtxt("../data/peak_1104_C_"+str(i)+"_single_maxima.txt")
 	C[:, :, i, 4] = (np.reshape(data, (Nx, Ny)))
 
-	data = np.loadtxt("../data/peak_1104_2_C_"+str(i)+"_maxima.txt")
+	data = np.loadtxt("../data/peak_1104_C_"+str(i)+"_maxima.txt")
 	C[:, :, i, 5] = (np.reshape(data, (Nx, Ny)))
 
 C[:, :, :, 0] /= np.sum(np.sum(C[:,:,-1,0]))
@@ -61,6 +61,9 @@ C[:, :, :, 2] /= np.sum(np.sum(C[:,:,-1,2]))
 C[:, :, :, 3] /= np.sum(np.sum(C[:,:,-1,3]))
 C[:, :, :, 4] /= np.sum(np.sum(C[:,:,-1,4]))
 C[:, :, :, 5] /= np.sum(np.sum(C[:,:,-1,5]))
+
+C[:, :, :100, 4] = 0
+C[:, :, :100, 5] = 0
 
 plt.figure(1)
 plt.plot(t, C[Dx, Dy, :, 0]*100, label="no cutoff")
@@ -72,46 +75,58 @@ plt.plot(t, C[Dx, Dy, :, 5]*100, label="max for each pos")
 
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Concentration %", fontsize=14)
-#plt.axis([0.03, 1.05, -0.02, 0.4])
-plt.legend(loc="best", fontsize=13)
+plt.axis([0.6, 1.01, -0.02, 1.75])
+plt.legend(loc="best", fontsize=14)
+plt.savefig("../powerpoint/figures/injection_low_D.pdf", bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/injection_low_D.pdf", "../powerpoint/figures/injection_low_D.pdf"))
 plt.show()
 
-C_var  = np.zeros((datafiles, len(C[0,0,0,:])))
-"""
-plt.figure(2)
-for f in range(len(C[0,0,0,:])):
-	for i in range(datafiles):
-		summed = np.sum(C[:, :, i, f], axis=1)
-		C_x = x_axis*summed
-		C_xx = x_axis*C_x
-		m = np.trapz(summed)
-		C_var[i, f] = np.trapz(C_xx)/m - (np.trapz(C_x)/m)**2
-"""
-import scipy.integrate as sci 
+for i in range(datafiles):
+	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_1_0.txt")
+	C[:, :, i, 0] = (np.reshape(data, (Nx, Ny)))
 
-plt.figure(2)
-for f in range(len(C[0,0,0,:])):
-	for i in range(datafiles):
-		C_var[i, f] = sci.dblquad(C[:,:,i,f], Nx, Ny, x_axis, y_axis)
-		#C_x = x_axis*summed
-		#C_xx = x_axis*C_x
-		#m = np.trapz(summed)
-		#C_var[i, f] = np.trapz(C_xx)/m - (np.trapz(C_x)/m)**2
+	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_0_5.txt")
+	C[:, :, i, 1] = (np.reshape(data, (Nx, Ny)))
 
-plt.plot(t, C_var[:, 0], label="no cutoff")
-plt.plot(t, C_var[:, 1], label="0.5 cutoff")
-plt.plot(t, C_var[:, 2], label="0.8 cutoff")
-plt.plot(t, C_var[:, 3], label="0.9 cutoff")
-plt.plot(t, C_var[:, 4], label="single maximum")
-plt.plot(t, C_var[:, 5], label="max for each pos")
+	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_0_8.txt")
+	C[:, :, i, 2] = (np.reshape(data, (Nx, Ny)))
+
+	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_0_9.txt")
+	C[:, :, i, 3] = (np.reshape(data, (Nx, Ny)))
+
+	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_single_maxima.txt")
+	C[:, :, i, 4] = (np.reshape(data, (Nx, Ny)))
+
+	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_maxima.txt")
+	C[:, :, i, 5] = (np.reshape(data, (Nx, Ny)))
+
+C[:, :, :, 0] /= np.sum(np.sum(C[:,:,-1,0]))
+C[:, :, :, 1] /= np.sum(np.sum(C[:,:,-1,1]))
+C[:, :, :, 2] /= np.sum(np.sum(C[:,:,-1,2]))
+C[:, :, :, 3] /= np.sum(np.sum(C[:,:,-1,3]))
+C[:, :, :, 4] /= np.sum(np.sum(C[:,:,-1,4]))
+C[:, :, :, 5] /= np.sum(np.sum(C[:,:,-1,5]))
+
+C[:, :, :100, 4] = 0
+C[:, :, :100, 5] = 0
+
+plt.figure(1)
+plt.plot(t, C[Dx, Dy, :, 0]*100, label="No cutoff")
+plt.plot(t, C[Dx, Dy, :, 1]*100, label="0.5 cutoff")
+plt.plot(t, C[Dx, Dy, :, 2]*100, label="0.8 cutoff")
+plt.plot(t, C[Dx, Dy, :, 3]*100, label="0.9 cutoff")
+plt.plot(t, C[Dx, Dy, :, 4]*100, label="Singe maximum")
+plt.plot(t, C[Dx, Dy, :, 5]*100, label="Max for each pos")
+
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
-plt.ylabel(r"Variance of concentration", fontsize=14)
-plt.legend(loc="best", fontsize=13)
+plt.ylabel(r"Concentration %", fontsize=14)
+plt.axis([0.4, 1.05, -0.02, 0.4])
+plt.legend(loc="best", fontsize=14)
+plt.savefig("../powerpoint/figures/injection_large_D.pdf", bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/injection_large_D.pdf", "../powerpoint/figures/injection_large_D.pdf"))
 plt.show()
-#plt.savefig("../figures/reciprocal_symmetry1.pdf", bbox_inches="tight")
-#os.system('pdfcrop %s %s &> /dev/null &'%("../figures/reciprocal_symmetry1.pdf", "../figures/reciprocal_symmetry1.pdf"))
 
-u = np.loadtxt("../data/0602reciproc_u.txt")
+u = np.loadtxt("../data/peak_1104_peak_1104_u.txt")
 u_x = u[0, :]
 u_y = u[1, :]
 
@@ -132,10 +147,24 @@ visc = (2-0.5)/3
 
 Re = U*average_disc_diameter/visc
 
-tau_g  = 0.50 + 6*pow(10,-5)
+tau_g  = 0.50 + 6*pow(10,-5)#0.50 + 6*pow(10,-5)
 D = (tau_g-0.5)/3
 Pe = average_disc_diameter*U/D
 
 print("Reynolds number: ", Re)
 print("Peclet number: ", Pe)
 
+plt.figure(figsize=(3,6))
+x_streampoints = np.arange(0, 63, 0.8)
+stream_points = np.zeros((len(x_streampoints), 2))
+stream_points[:, 0] = x_streampoints
+stream_points[:, 1] = 84
+plt.streamplot(y_axis, x_axis, u_y, u_x, start_points=stream_points, density=15, color="k", linewidth=1, arrowsize=0.000001)
+
+plt.axis("equal")
+plt.plot(25, 25, "ro")
+plt.plot([-1, 65], [100, 100], "r-")
+
+plt.savefig("../powerpoint/figures/velocity_inject.pdf", bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/velocity_inject.pdf", "../powerpoint/figures/velocity_inject.pdf"))
+plt.show()

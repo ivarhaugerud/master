@@ -30,6 +30,8 @@
 *.fdb_latexmk
 *.fls
 *.toc
+*.pdf
+*.pptx
 
 
 # Logs and databases #

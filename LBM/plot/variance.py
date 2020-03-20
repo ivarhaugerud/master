@@ -38,8 +38,6 @@ for i in range(datafiles):
 x_inject = np.argmax(np.sum(C[:,:,0], axis=0))
 y_inject = np.argmax(np.sum(C[:,:,0], axis=1))
 
-print(x_inject, y_inject, "HERE")
-print(x_inject, y_inject)
 at_injection_point = np.zeros(datafiles)
 entropy = np.zeros(datafiles)
 
@@ -60,7 +58,7 @@ for i in range(datafiles):
 	at_injection_point[i] = (C[x_inject, y_inject, i] + C[x_inject+1, y_inject, i] + C[x_inject-1, y_inject, i] + C[x_inject, y_inject+1, i] + C[x_inject, y_inject-1, i])/(5*np.sum(summed))
 
 plt.title("Back home")
-plt.plot(C_r, label="x")
+plt.plot(C_r)
 plt.legend(loc="best")
 plt.show()
 
