@@ -25,6 +25,9 @@ C = np.zeros((Nx, Ny, datafiles, 6))
 x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
+u = np.loadtxt("../data/peak_1104_peak_1104_u.txt")
+u_x = np.reshape(u[0, :], (Nx, Ny))
+
 for i in range(datafiles):
 	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_1_0.txt")
 	C[:, :, i, 0] = (np.reshape(data, (Nx, Ny))) + np.ones((Nx, Ny))*1e2
@@ -44,27 +47,34 @@ for i in range(datafiles):
 	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_maxima.txt")
 	C[:, :, i, 5] = (np.reshape(data, (Nx, Ny))) + np.ones((Nx, Ny))*1e2
 
-C[:, :, :, 0] /= np.sum(np.sum(C[:,:,-1,0]))
-C[:, :, :, 1] /= np.sum(np.sum(C[:,:,-1,1]))
-C[:, :, :, 2] /= np.sum(np.sum(C[:,:,-1,2]))
-C[:, :, :, 3] /= np.sum(np.sum(C[:,:,-1,3]))
-C[:, :, :, 4] /= np.sum(np.sum(C[:,:,-1,4]))
-C[:, :, :, 5] /= np.sum(np.sum(C[:,:,-1,5]))
+for f in range(len(C[0,0,0,:])):
+	for i in range(datafiles):
+		C[:, :, i, f] /= np.sum(np.sum(C[:,:,i,f]))
+	print(np.sum(np.sum(np.sum(C[:,:,:,f], axis=0),axis=0), axis=0))
 
-S_each_y = np.zeros((datafiles, Ny, len(C[0,0,0,:])))
+S_each_y    = np.zeros((datafiles, Ny, len(C[0,0,0,:])))
+mass_each_y = np.zeros((datafiles, Ny, len(C[0,0,0,:])))
+mass = np.zeros((datafiles, len(C[0,0,0,:])))
 S    = np.zeros((datafiles, len(C[0,0,0,:])))
 
 import scipy.integrate as sci 
-#C[:, :, :11+84, 5] = 0 #some noise in the beginning
 plt.figure(2)
-
 
 for f in range(len(C[0,0,0,:])):
 	for i in range(datafiles):
 		for j in range(Ny):
+			#C[np.where( abs((u_x[:, :])) < 1e-8), i, f] = 0
+
 			S_each_y[i, j, f] = np.trapz((C[:, j, i, f])*np.log((C[:, j, i, f])), x_axis)
+			mass_each_y[i, j, f] = np.trapz(C[:, j, i, f], x_axis)
+
 		S[i, f] = np.trapz(S_each_y[i, :, f], y_axis)
+		mass[i, f] = np.trapz(mass_each_y[i, :, f], y_axis)
 	S[:, f] - S[0,f]+1
+
+plt.plot(mass)
+plt.show()
+
 plt.plot(t, S[:, 0], label="No cutoff")
 plt.plot(t, S[:, 1], label="0.5 cutoff")
 plt.plot(t, S[:, 2], label="0.8 cutoff")
@@ -101,12 +111,13 @@ for i in range(datafiles):
 	data = np.loadtxt("../data/peak_1104_C_"+str(i)+"_maxima.txt")
 	C[:, :, i, 5] = (np.reshape(data, (Nx, Ny))) + np.ones((Nx, Ny))*5*1e2
 
-C[:, :, :, 0] /= np.sum(np.sum(C[:,:,-1,0]))
-C[:, :, :, 1] /= np.sum(np.sum(C[:,:,-1,1]))
-C[:, :, :, 2] /= np.sum(np.sum(C[:,:,-1,2]))
-C[:, :, :, 3] /= np.sum(np.sum(C[:,:,-1,3]))
-C[:, :, :, 4] /= np.sum(np.sum(C[:,:,-1,4]))
-C[:, :, :, 5] /= np.sum(np.sum(C[:,:,-1,5]))
+for i in range(datafiles):
+	C[:, :, i, 0] /= np.sum(np.sum(C[:,:,i,0]))
+	C[:, :, i, 1] /= np.sum(np.sum(C[:,:,i,1]))
+	C[:, :, i, 2] /= np.sum(np.sum(C[:,:,i,2]))
+	C[:, :, i, 3] /= np.sum(np.sum(C[:,:,i,3]))
+	C[:, :, i, 4] /= np.sum(np.sum(C[:,:,i,4]))
+	C[:, :, i, 5] /= np.sum(np.sum(C[:,:,i,5]))
 
 for f in range(len(C[0,0,0,:])):
 	for i in range(datafiles):
@@ -114,6 +125,7 @@ for f in range(len(C[0,0,0,:])):
 			S_each_y[i, j, f] = np.trapz((C[:, j, i, f])*np.log((C[:, j, i, f])), x_axis)
 		S[i, f] = np.trapz(S_each_y[i, :, f], y_axis)
 	S[:, f] - S[0,f]+1
+
 plt.plot(t, S[:, 0], label="No cutoff")
 plt.plot(t, S[:, 1], label="0.5 cutoff")
 plt.plot(t, S[:, 2], label="0.8 cutoff")
