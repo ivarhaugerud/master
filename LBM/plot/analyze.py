@@ -16,23 +16,23 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 Nx = 140
 Ny = 64
 
-Sx = 34
-Sy = 34
+Sx = 108
+Sy = 45
 
-Dx = 32
-Dy = 32
+Dx = 10
+Dy = 25
 
-datafiles = 100
+datafiles = 300
 t = np.linspace(0, 1, datafiles)
 
 C_front = np.zeros((Nx, Ny, datafiles))
 C_back  = np.zeros((Nx, Ny, datafiles))
 
 for i in range(datafiles):
-	data_back = np.loadtxt("../data/test_C_"+str(i)+"_back.txt")
+	data_back = np.loadtxt("../data/1903_reciproc_C_"+str(i)+"_back.txt")
 	C_back[:, :, i] = (np.reshape(data_back, (Nx, Ny)))
 
-	data_front = np.loadtxt("../data/test_C_"+str(i)+"_front.txt")
+	data_front = np.loadtxt("../data/1903_reciproc_C_"+str(i)+"_front.txt")
 	C_front[:, :, i] = (np.reshape(data_front, (Nx, Ny)))
 
 C_back  /= np.sum(np.sum(C_back[:,:, 0]))
@@ -47,7 +47,7 @@ plt.plot(t, C_back[Dx, Dy, :], label=r"$C_A(\mathbf{x}_B, t)$")
 plt.plot(t, C_front[Sx, Sy, :], "--", label="$C_B(\mathbf{x}_A, t)$")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 plt.ylabel(r"Normalized concentration", fontsize=14)
-plt.axis([0.00, 1.02, 0.00, 0.033])
+plt.axis([0.19, 0.61, -0.00002, 0.00065])
 plt.legend(loc="best", fontsize=14)
 plt.savefig("../powerpoint/figures/reciprocal_relation.pdf", bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/reciprocal_relation.pdf", "../powerpoint/figures/reciprocal_relation.pdf"))

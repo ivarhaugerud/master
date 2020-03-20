@@ -15,7 +15,7 @@ matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-datafiles = 150
+datafiles = 300
 var_in = np.zeros(datafiles)
 Nx = 140
 Ny = 64
@@ -29,20 +29,20 @@ u_x = np.reshape(u[0, :], (Nx, Ny))
 
 def animate_forward(i):
 	#fig.suptitle(str(i))
-	data = np.loadtxt("../data/1803_step_C_"+str(i)+"_front.txt")
+	data = np.loadtxt("../data/1903_reciproc_C_"+str(i)+"_back.txt")
 
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
 	#print(np.sum(np.sum(C[100,:,i])))
 	#print(np.max(np.max(C[:,:,i])), np.sum(np.sum(C[:,:,i])), C.flatten()[np.argmax(C[:,:,i])])
 
 	C[np.where( (C[:,:,i]) < 1e-7) ] = 1e-10
-	C[np.where( abs(u_x[:, :]) < 1e-8)] = -1
+	C[np.where( abs(u_x[:, :]) < 1e-8)] = -1e-10
 	ax.clear()
 	#ax.contourf(1-np.exp(-40*C[:,:,i]), cmap='Greys', levels=np.linspace(0, 1, 20))
-	ax.contourf(C[:,:,i], levels=np.linspace(0, 0.00025, 35))
+	ax.contourf(C[:,:,i])#, levels=np.linspace(0, 0.00025, 35))
 	ax.axis("equal")
-	ax.set_xlabel(r"$x$-position")
-	ax.set_ylabel(r"$y$-position")
+	ax.set_xlabel(r"$x$-position", fontsize=14)
+	ax.set_ylabel(r"$y$-position", fontsize=14)
 
 #Writer = animation.writers['ffmpeg']
 #writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
@@ -57,7 +57,7 @@ ani = animation.FuncAnimation(fig,animate_forward, datafiles, interval=interval,
 #ani.save('../powerpoint/figures/im.mp4')#, writer=writer)
 # writer = animation.FFMpegWriter(
 #     fps=15, metadata=dict(artist='Me'), bitrate=1800)
-ani.save("../powerpoint/figures/movie.gif")#, Writer=writer)
+#ani.save("../powerpoint/figures/animation_back.gif")#, Writer=writer)
 plt.show()
 """
 def animate_back(i):

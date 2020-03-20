@@ -17,17 +17,16 @@ int main(int argc, char const *argv[])
   {
   	int Nx = 140;  //atoi(argv[1]);
   	int Ny = 64;   //atoi(argv[2]);
+    int T  = 500000;
 
-    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-4), 5*pow(10,-5), 0, 4*pow(10, -4), "test", 100);
+    MainClass instance(Nx, Ny, 2, 0.50 + pow(10,-4), 5*pow(10,-6), 0, 4*pow(10, -4), "1903_reciproc", 300);
 
     instance.boundary_disc(12,  13, 7);
-    instance.boundary_disc(15,  44, 13);
-    instance.boundary_disc(60,  33, 8);
-    instance.boundary_disc(83,  53, 12);
+    instance.boundary_disc(15,  44, 11);
+    instance.boundary_disc(83,  48, 9);
     instance.boundary_disc(72,  10, 9);
-    instance.boundary_disc(91,  22, 11);
-    instance.boundary_disc(122, 25, 14);
-    instance.boundary_disc(70, 32, 10);
+    instance.boundary_disc(58,  40, 8);
+    instance.boundary_disc(122, 25, 11);
 
 
     instance.open();
@@ -35,11 +34,11 @@ int main(int argc, char const *argv[])
     instance.run();
     cout << "equilibrated" << endl;
 
-    instance.initialize_C(32, 32 , 0, 1);
+    //instance.initialize_C(10, 25 , 0, 0.005);
 
-    mat C_in = instance.ADE(60000);
-    instance.clear_g();
-    instance.initialize_C(34, 34 , 0, 1);
-    instance.ADE_back(60000, C_in);
+    //mat C_in = instance.ADE(T);
+    //instance.clear_g();
+    instance.initialize_C(108, 45 , 0, 0.005);
+    instance.ADE_back_no_source(T, "back");
     return 0;
   }

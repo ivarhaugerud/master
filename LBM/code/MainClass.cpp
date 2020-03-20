@@ -516,6 +516,35 @@ void MainClass::ADE_back(int T, mat C_in, string name, int injection_T)
      counter += 1;}
 }}
 
+void MainClass::ADE_back_no_source(int T, string name)
+{
+  int data_divide = T/data_lines;
+  int counter = 0;
+
+  for (int t = 0; t < T; t++)
+    {//open
+      for (int k = 0; k < rest.size(); k++)
+      {x = get<0>(rest[k]);
+       y = get<1>(rest[k]);
+
+      C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
+      update_g_reversed();
+      propegate(x, y);
+    }
+
+    //boundary
+    for (int i = 0; i < boundary.size(); i++)
+      {x = get<0>(boundary[i]);
+       y = get<1>(boundary[i]);
+      bounce_back(x, y);
+      }
+
+  g = g_star;
+  if (t%data_divide == 0)
+    {write_C(counter, name);
+     counter += 1;}
+}}
+
 mat MainClass::ADE_heat(int T, double wall_T, string name)
 {
   int data_divide = T/data_lines;
