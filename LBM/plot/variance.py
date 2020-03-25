@@ -49,10 +49,10 @@ plt.show()
 for i in range(datafiles):
 	data = np.loadtxt("../data/filename_C_"+str(i)+"_back.txt")
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
-	summed = np.sum(C[:,:,i], axis=1)
+	summed = np.trapz(C[:,:,i],y_axis, axis=1)
 	C_x = x_axis*summed
 	C_xx = x_axis*C_x
-	m = np.trapz(summed)
+	m = np.trapz(summed, x_axis)
 	C_r[i] = np.trapz(C_xx)/m - (np.trapz(C_x)/m)**2
 
 	at_injection_point[i] = (C[x_inject, y_inject, i] + C[x_inject+1, y_inject, i] + C[x_inject-1, y_inject, i] + C[x_inject, y_inject+1, i] + C[x_inject, y_inject-1, i])/(5*np.sum(summed))
