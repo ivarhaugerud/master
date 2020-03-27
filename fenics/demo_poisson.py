@@ -88,7 +88,7 @@ from dolfin import *
 # Create mesh and define function space
 mesh = UnitSquareMesh(64, 64)
 V = FunctionSpace(mesh, "Lagrange", 1)
-
+print("RIP min tid")
 # The second argument to :py:class:`FunctionSpace
 # <dolfin.functions.functionspace.FunctionSpace>` is the finite element
 # family, while the third argument specifies the polynomial
