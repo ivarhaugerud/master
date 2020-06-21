@@ -1,10 +1,11 @@
 #from dolfin import *
 import numpy as np
 import dolfin as dlf
+import matplotlib.pyplot as plt 
 
 l = 10
-Nx = 32
-Ny = 32
+Nx = 64
+Ny = 64
 
 p0 = dlf.Point(np.array([0.0, 0.0]))
 p1 = dlf.Point(np.array([l, l]))
@@ -25,7 +26,7 @@ subdomains.set_all(mark["generic"])
 
 class Wall(dlf.SubDomain):
 	def inside(self, x, on_boundary):
-		return on_boundary and (dlf.near(x[1], 0) or dlf.near(x[1], l) or dlf.near(x[0], 0))
+		return on_boundary and (dlf.near(x[0], 0) or dlf.near(x[0], l) or dlf.near(x[1], 0))
 		#if on_boundary is False then it will always return False
 		#dlf.near checks if the x-position is on the boundary
 		#both must be true for it to return true
@@ -38,14 +39,20 @@ class Lid(dlf.SubDomain):
 		#both must be true for it to return true
 
 wall = Wall()
+print(wall.inside([5, 0], True))
+print(wall.inside([5, l], True))
+print(wall.inside([0, 5], True))
+print(wall.inside([l, 5], True))
+
 wall.mark(subdomains, mark["wall"])
 
 lid = Lid()
+print(lid.inside([l, 5], True))
 lid.mark(subdomains, mark["lid"])
 
 #does not work
-#dlf.plot(subdomains, title="Subdomains")
-#np.interactive()
+dlf.plot(subdomains, title="Subdomains")
+plt.savefig("subdom.png")
 
 
 #CG =  continuous-Galerkin
@@ -102,11 +109,16 @@ dlf.solve(F == 0, w, bcs, J=J)
 
 
 # Plot solution
-#plot(u, title="Velocity")
-#plot(p, title="Pressure")
-#interactive()
+dlf.plot(u, title="Velocity")
+plt.savefig("u2.png")
 
-#plot(dlf.sqrt(u**2), "Speed")
-#interavtive()
+dlf.plot(p, title="Pressure")
+plt.savefig("p2.png")
 
+dlf.plot(dlf.sqrt(u**2), "Speed")
+plt.savefig("umag2.png")
 
+u_, p_ = w.split(deepcopy = True)
+
+#with dlf.XDMFFile(mesh.mpi_comm(), "u.xdmf") as xdmff:
+#	xdmff.write(u_, 0) 

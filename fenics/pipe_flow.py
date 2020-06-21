@@ -1,6 +1,7 @@
 #from dolfin import *
 import numpy as np
 import dolfin as dlf
+import matplotlib.pyplot as plt 
 
 delta = 0.5
 l = 10
@@ -59,8 +60,8 @@ wall = Wall()
 wall.mark(subdomains, mark["wall"])
 
 #does not work
-#dlf.plot(subdomains, title="Subdomains")
-#np.interactive()
+dlf.plot(subdomains, title="Subdomains")
+plt.savefig("subdomains.png")
 
 
 #CG =  continuous-Galerkin
@@ -120,11 +121,13 @@ dlf.solve(a == L, w, bcs)
 (u, p) = w.split(True)
 
 # Plot solution
-#plot(u, title="Velocity")
-#plot(p, title="Pressure")
-#interactive()
+dlf.plot(u, title="Velocity")
+plt.savefig("u.png")
 
-#plot(dlf.sqrt(u**2), "Speed")
-#interavtive()
+dlf.plot(p, title="Pressure")
+plt.savefig("p.png")
+
+dlf.plot(dlf.sqrt(u**2), "Speed")
+plt.savefig("u_mag.png")
 
 

@@ -32,7 +32,7 @@
 *.toc
 *.pdf
 *.gif
-
+*.dat
 
 # Logs and databases #
 ######################
