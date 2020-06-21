@@ -95,6 +95,8 @@ class MainClass
   void boundary_disc(int x, int y, double R);
   void update_g();
   void update_g_reversed();
+  void update_g_oscillate(double t_rel);
+  void update_g_reversed_oscillate(double t_rel);
   void bounce_back(int x, int y);
   void anti_bounce_back(int x, int y, double wall_T);
   void propegate(int x, int y);

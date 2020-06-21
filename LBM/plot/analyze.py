@@ -13,13 +13,13 @@ matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-Nx = 140
+Nx = 102
 Ny = 64
 
-Sx = 108
-Sy = 45
+Sx = 10
+Sy = 25
 
-Dx = 10
+Dx = 60
 Dy = 25
 
 datafiles = 300
@@ -29,10 +29,10 @@ C_front = np.zeros((Nx, Ny, datafiles))
 C_back  = np.zeros((Nx, Ny, datafiles))
 
 for i in range(datafiles):
-	data_back = np.loadtxt("../data/1903_reciproc_C_"+str(i)+"_back.txt")
+	data_back = np.loadtxt("../data/1706_reciproc_lin_3_C_"+str(i)+"_front.txt")
 	C_back[:, :, i] = (np.reshape(data_back, (Nx, Ny)))
 
-	data_front = np.loadtxt("../data/1903_reciproc_C_"+str(i)+"_front.txt")
+	data_front = np.loadtxt("../data/1706_reciproc_lin_3_C_"+str(i)+"_back.txt")
 	C_front[:, :, i] = (np.reshape(data_front, (Nx, Ny)))
 
 C_back  /= np.sum(np.sum(C_back[:,:, 0]))

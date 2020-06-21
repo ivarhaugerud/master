@@ -15,18 +15,18 @@ using namespace arma;
 //simple run function for general input
 int main(int argc, char const *argv[])
   {
-  	int Nx = 140;  //atoi(argv[1]);
+  	int Nx = 102;  //atoi(argv[1]);
   	int Ny = 64;   //atoi(argv[2]);
-    int T  = 500000;
+    int T  = 3*250000;
 
-    MainClass instance(Nx, Ny, 2, 0.50 + pow(10,-4), 5*pow(10,-6), 0, 4*pow(10, -4), "1903_reciproc", 300);
+    MainClass instance(Nx, Ny, 2, 0.50 + pow(10,-4), 5*pow(10,-6), 0, 6*pow(10, -4), "1706_reciproc_lin_3", 300);
 
     instance.boundary_disc(12,  13, 7);
     instance.boundary_disc(15,  44, 11);
     instance.boundary_disc(83,  48, 9);
     instance.boundary_disc(72,  10, 9);
     instance.boundary_disc(58,  40, 8);
-    instance.boundary_disc(122, 25, 11);
+    //instance.boundary_disc(122, 25, 11);
 
 
     instance.open();
@@ -34,11 +34,12 @@ int main(int argc, char const *argv[])
     instance.run();
     cout << "equilibrated" << endl;
 
-    //instance.initialize_C(10, 25 , 0, 0.005);
+    instance.initialize_C(10, 25 , 0, 0.001);
 
-    //mat C_in = instance.ADE(T);
-    //instance.clear_g();
-    instance.initialize_C(108, 45 , 0, 0.005);
+    mat C_in = instance.ADE(T);
+
+    instance.clear_g();
+    instance.initialize_C(60, 25 , 0, 0.001);
     instance.ADE_back_no_source(T, "back");
     return 0;
   }
