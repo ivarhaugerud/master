@@ -49,19 +49,19 @@ plt.ylabel(r"Effective diffusion $D_{\parallel}/2Dt$", fontsize=14)
 plt.plot(t, variance/(2*t), color=c, label=r"$r=0.4$")
 plt.plot(t, 8.333670647214470595e-01*t/t, "--", color=c)
 """
-data  = np.loadtxt("data_square/RandomWalkers/Re0.000000_b1.500000_Dm0.062500_U1.000000_dt0.000032_Nrw1000/tdata.dat")
+data  = np.loadtxt("data_square/RandomWalkers/Re0.000000_b1.500000_Dm0.001000_U1.000000_dt0.000128_Nrw1000/tdata.dat")
 
 t = data[:, 0]
 mean = data[:, 1]
 variance = data[:, 2]
 t_cut = np.argmin(abs(t-733.0))
-Dm = 0.25
+Dm = 0.001
 
 start_index = np.argmax(variance[1:]/t[1:])+1
 D_eff = variance[start_index:]/(2*t[start_index:])
 
 plt.figure(2)
-analytic = 9.195160475665391
+analytic = 129565
 c=sns.color_palette()[1]
 plt.plot(t[1:], variance[1:]/(Dm*2*t[1:]), color=c)
 plt.plot(t[1:], analytic*t[1:]/t[1:])
@@ -74,6 +74,7 @@ plt.xlabel(r"Time $t$", fontsize=14)
 plt.ylabel(r"Effective diffusion $D_{\parallel}/2Dt$", fontsize=14)
 plt.legend(loc="best", fontsize=12)
 m,c ,delta_m, delta_c = linear_regresion(t, mean)
+
 plt.show()
 """
 data  = np.loadtxt("data_square/RandomWalkers/Re0.000000_b1.500000_Dm1.000000_U1.000000_dt0.000002_Nrw1000/tdata.dat")
@@ -174,14 +175,14 @@ plt.ylabel(r"Effective diffusion $D_{\parallel}/2Dt$", fontsize=14)
 plt.legend(loc="best", fontsize=12)
 plt.show()
 """
-
-data  = np.loadtxt("data_square/RandomWalkers/Re0.000000_b1.500000_Dm1.000000_U1.000000_dt0.000002_Nrw1000/Positions/xy_t15.000000.pos")
+"""
+data  = np.loadtxt("data_square/RandomWalkers/Re0.000000_b1.500000_Dm0.001000_U1.000000_dt0.002048_Nrw1000/declinedpos.dat")
 x = data[:, 1]
 y = data[:, 2]
 
 plt.scatter(x, y, s=2)
 plt.show()
-
+"""
 """
 data  = np.loadtxt("data_square/RandomWalkers/Re0.000000_b0.800000_Dm1.000000_U0.000000_dt0.000003_Nrw8000/tdata.dat")
 
