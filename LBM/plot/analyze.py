@@ -22,17 +22,17 @@ Sy = 25
 Dx = 60
 Dy = 25
 
-datafiles = 300
+datafiles = 900
 t = np.linspace(0, 1, datafiles)
 
 C_front = np.zeros((Nx, Ny, datafiles))
 C_back  = np.zeros((Nx, Ny, datafiles))
 
 for i in range(datafiles):
-	data_back = np.loadtxt("../data/1706_reciproc_lin_3_C_"+str(i)+"_front.txt")
+	data_back = np.loadtxt("../data/1307_reciproc_5_oscls_C_"+str(i)+"_front.txt")
 	C_back[:, :, i] = (np.reshape(data_back, (Nx, Ny)))
 
-	data_front = np.loadtxt("../data/1706_reciproc_lin_3_C_"+str(i)+"_back.txt")
+	data_front = np.loadtxt("../data/1307_reciproc_5_oscls_C_"+str(i)+"_back.txt")
 	C_front[:, :, i] = (np.reshape(data_front, (Nx, Ny)))
 
 C_back  /= np.sum(np.sum(C_back[:,:, 0]))
@@ -41,13 +41,23 @@ C_front /= np.sum(np.sum(C_front[:,:, 0]))
 x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
+C_back[Dx, Dy, :20] = 0 
+C_front[Sx, Sy, :20] = 0 
+
+correct_points = 8
+dx = 0.01
+
 plt.figure(1)
 #plt.title("Change of factor 1.05", fontsize=16)
 plt.plot(t, C_back[Dx, Dy, :], label=r"$C_A(\mathbf{x}_B, t)$")
-plt.plot(t, C_front[Sx, Sy, :], "--", label="$C_B(\mathbf{x}_A, t)$")
+plt.plot(t, C_front[Sx, Sy, :], label="$C_B(\mathbf{x}_A, t)$")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
+for i in range(correct_points):
+	if  i % 2 != 0:
+		plt.fill_between([i/correct_points-dx, i/correct_points+dx], [0, 0], [max(C_back[Dx, Dy, :]), max(C_back[Dx, Dy, :])], color="green", alpha=0.3)
+
 plt.ylabel(r"Normalized concentration", fontsize=14)
-plt.axis([0.19, 0.61, -0.00002, 0.00065])
+#plt.axis([0.19, 0.61, -0.00002, 0.00065])
 plt.legend(loc="best", fontsize=14)
 plt.savefig("../powerpoint/figures/reciprocal_relation.pdf", bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/reciprocal_relation.pdf", "../powerpoint/figures/reciprocal_relation.pdf"))

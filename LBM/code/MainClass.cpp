@@ -185,7 +185,7 @@ void MainClass::run()
   //int counter = 0;
   //double current_max_u;
   //while (not equil)
-  for (int t = 0; t < 20000; t++)
+  for (int t = 0; t < 40000; t++)
     {for (int k = 0; k < rest.size(); k++)
       {x = get<0>(rest[k]);
        y = get<1>(rest[k]);
@@ -292,7 +292,7 @@ void MainClass::run()
   //       cout << "number of steps to equilibration: " << counter << endl;}
   if (t % 1000 == 0)
   {
-    cout << t << " " << sqrt(sum_difference/sum) << " " << (u-prev_u).max() << endl;
+    cout << t << " " << sqrt(sum_difference/sum)*pow(10, 5) << " " << (u-prev_u).max()*pow(10, 7) << endl;
   }
   f = f_star;
   prev_u = u;
@@ -301,6 +301,128 @@ void MainClass::run()
   }
 }
 
+void MainClass::run_no_Re()
+{
+  //bool equil = false;
+  long double sum_difference = 0;
+  double sum = 0;
+  //int counter = 0;
+  //double current_max_u;
+  //while (not equil)
+  for (int t = 0; t < 10000; t++)
+    {for (int k = 0; k < rest.size(); k++)
+      {x = get<0>(rest[k]);
+       y = get<1>(rest[k]);
+
+      rho(x, y)  = f(x, y, 0) + f(x, y, 1) + f(x, y, 2) + f(x, y, 3) + f(x, y, 4) + f(x, y, 5) + f(x, y, 6) + f(x, y, 7) + f(x, y, 8); 
+      u(x, y, 0) = (f(x, y, 1) - f(x, y, 3) + f(x, y, 5) - f(x, y, 6) - f(x, y, 7) + f(x, y, 8))/rho(x,y) + F(0)/(2*rho(x,y));
+      u(x, y, 1) = (f(x, y, 2) - f(x, y, 4) + f(x, y, 5) + f(x, y, 6) - f(x, y, 7) - f(x, y, 8))/rho(x,y) + F(1)/(2*rho(x,y));
+      FU = 3*(F(0)*u(x,y,0) + F(1)*u(x,y,1));
+
+      sum_difference += (u(x,y,0)-prev_u(x,y,0))*(u(x,y,0)-prev_u(x,y,0)) + (u(x,y,1)-prev_u(x,y,1))*(u(x,y,1)-prev_u(x,y,1));
+      sum            += u(x,y,0)*u(x,y,0) + u(x,y,1)*u(x,y,1);
+
+      f(x, y, 0) = f(x, y, 0)*alpha + beta*rho(x, y)*4/9 - delta*FU*4/9;
+      f(x, y, 1) = f(x, y, 1)*alpha + beta*rho(x, y)*(2 + 6*u(x,y,0))/18 + delta*(3*F(0) + 9*F(0)*u(x,y,0) - FU)/9;
+      f(x, y, 2) = f(x, y, 2)*alpha + beta*rho(x, y)*(2 + 6*u(x,y,1))/18 + delta*(3*F(1) + 9*F(1)*u(x,y,1) - FU)/9;
+      f(x, y, 3) = f(x, y, 3)*alpha + beta*rho(x, y)*(2 - 6*u(x,y,0))/18 + delta*(-3*F(0) + 9*F(0)*u(x,y,0) - FU)/9;
+      f(x, y, 4) = f(x, y, 4)*alpha + beta*rho(x, y)*(2 - 6*u(x,y,1))/18 + delta*(-3*F(1) + 9*F(1)*u(x,y,1) - FU)/9;
+      f(x, y, 5) = f(x, y, 5)*alpha + beta*rho(x, y)*(1 + 3*(u(x,y,0)+u(x,y,1)))/36 + delta*( 3*( F(0) + F(1)) + 9*(F(0)  + F(1))*( u(x,y,0)+u(x,y,1)) - FU)/36;
+      f(x, y, 6) = f(x, y, 6)*alpha + beta*rho(x, y)*(1 - 3*(u(x,y,0)-u(x,y,1)))/36 + delta*( 3*(-F(0) + F(1)) + 9*(-F(0) + F(1))*(-u(x,y,0)+u(x,y,1)) - FU)/36;
+      f(x, y, 7) = f(x, y, 7)*alpha + beta*rho(x, y)*(1 - 3*(u(x,y,0)+u(x,y,1)))/36 + delta*(-3*( F(0) + F(1)) + 9*(F(0)  + F(1))*( u(x,y,0)+u(x,y,1)) - FU)/36;
+      f(x, y, 8) = f(x, y, 8)*alpha + beta*rho(x, y)*(1 + 3*(u(x,y,0)-u(x,y,1)))/36 + delta*( 3*( F(0) - F(1)) + 9*(F(0)  - F(1))*( u(x,y,0)-u(x,y,1)) - FU)/36;
+
+      x_next = x+1;
+      x_prev = x-1;
+      y_next = y+1;
+      y_prev = y-1;
+
+      if (x == 0)
+        x_prev = Nx-1;
+      if (x == Nx-1)
+        x_next = 0;
+      if (y == 0)
+        y_prev = Ny-1;
+      if (y == Ny-1)
+        y_next = 0;
+
+      f_star(x, y, 0)      = f(x, y, 0);
+      f_star(x_next, y, 1) = f(x, y, 1);
+      f_star(x, y_next, 2) = f(x, y, 2);
+      f_star(x_prev, y, 3) = f(x, y, 3);
+      f_star(x, y_prev, 4) = f(x, y, 4);
+      f_star(x_next, y_next, 5) = f(x, y, 5);
+      f_star(x_prev, y_next, 6) = f(x, y, 6);
+      f_star(x_prev, y_prev, 7) = f(x, y, 7);
+      f_star(x_next, y_prev, 8) = f(x, y, 8);
+    }
+    
+    f_prev = f_star;
+    for (int i = 0; i < boundary.size(); i++)
+      {
+        x = get<0>(boundary[i]);
+        y = get<1>(boundary[i]);
+
+        if (f_prev(x,y,0)+f_prev(x,y,1)+f_prev(x,y,2)+f_prev(x,y,3)+f_prev(x,y,4)+f_prev(x,y,5)+f_prev(x,y,6)+f_prev(x,y,7)+f_prev(x,y,8) > 0.000000001)
+        {
+        f(x,y,1) = f_prev(x,y,3);
+        f(x,y,2) = f_prev(x,y,4);
+        f(x,y,3) = f_prev(x,y,1);
+        f(x,y,4) = f_prev(x,y,2);
+        f(x,y,5) = f_prev(x,y,7);
+        f(x,y,6) = f_prev(x,y,8);
+        f(x,y,7) = f_prev(x,y,5);
+        f(x,y,8) = f_prev(x,y,6);
+
+        x_next = x+1;
+        x_prev = x-1;
+        y_next = y+1;
+        y_prev = y-1;
+
+        if (x == 0)
+          x_prev = Nx-1;
+        if (x == Nx-1)
+          x_next = 0;
+        if (y == 0)
+          y_prev = Ny-1;
+        if (y == Ny-1)
+          y_next = 0;
+
+        f_star(x, y, 0)      = f(x, y, 0);
+        f_star(x_next, y, 1) = f(x, y, 1);
+        f_star(x, y_next, 2) = f(x, y, 2);
+        f_star(x_prev, y, 3) = f(x, y, 3);
+        f_star(x, y_prev, 4) = f(x, y, 4);
+        f_star(x_next, y_next, 5) = f(x, y, 5);
+        f_star(x_prev, y_next, 6) = f(x, y, 6);
+        f_star(x_prev, y_prev, 7) = f(x, y, 7);
+        f_star(x_next, y_prev, 8) = f(x, y, 8);
+
+        f_star(x,y,0) = 0;
+        f_star(x,y,1) = 0;
+        f_star(x,y,2) = 0;
+        f_star(x,y,3) = 0;
+        f_star(x,y,4) = 0;
+        f_star(x,y,5) = 0;
+        f_star(x,y,6) = 0;
+        f_star(x,y,7) = 0;
+        f_star(x,y,8) = 0;
+      }}
+  //counter += 1;
+  //cout << sqrt(sum_difference/sum) << endl;
+  //if (sqrt(sum_difference/sum) <  tol)
+  //    {equil = true;
+  //       cout << "number of steps to equilibration: " << counter << endl;}
+  if (t % 1000 == 0)
+  {
+    cout << t << " " << sqrt(sum_difference/sum) << " " << (u-prev_u).max() << endl;
+  }
+  f = f_star;
+  prev_u = u;
+  sum = 0;
+  sum_difference = 0;
+  }
+}
 
 void MainClass::update_g()
 {   three_u_squared = 3*(u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1));
@@ -329,8 +451,8 @@ void MainClass::update_g_reversed()
 }
 
 void MainClass::update_g_oscillate(double t_rel)
-{   //double omega = 3.14159/2;
-    double factor = 1-2*t_rel; 
+{   double omega = 4*2*3.14159;
+    double factor = cos(omega*t_rel); 
     double factor_squared = factor*factor;
 
     three_u_squared = 3*(u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1))*factor_squared;
@@ -346,8 +468,8 @@ void MainClass::update_g_oscillate(double t_rel)
 }
 
 void MainClass::update_g_reversed_oscillate(double t_rel)
-{   //double omega = 3.14159/2;
-    double factor = 1-2*(1-t_rel); 
+{   double omega = 4*2*3.14159;
+    double factor = -sin(omega*t_rel);
     double factor_squared = factor*factor;
 
     three_u_squared = 3*(u(x, y, 0)*u(x, y, 0) + u(x, y, 1)*u(x, y, 1))*factor_squared;

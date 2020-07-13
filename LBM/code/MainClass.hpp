@@ -74,6 +74,7 @@ class MainClass
   MainClass(int NX, int NY, double TAU, double TAU_G, double FX, double FY, double tolerence, string FILENAME, int amount_of_data);
   void initialize(double rho);
   void run();
+  void run_no_Re();
   mat ADE(int t);
   void ADE_back(int t, mat C_in, string name, int injection_T);
   void ADE_back_no_source(int t, string name);
