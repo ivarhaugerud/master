@@ -121,6 +121,7 @@ plt.xscale('log')
 #os.system('pdfcrop %s %s &> /dev/null &'%("../figures/relative_diff.pdf", "../figures/relative_diff.pdf"))
 plt.xlabel(r"Peclet number Pe", fontsize=14)
 plt.ylabel(r"Roughness $b$", fontsize=14)
+plt.savefig("../../oppgave/figures/g_tilde_contour.pdf")
 
 plt.figure(5)
 plt.xlabel(r"Roughness $b$", fontsize=14)

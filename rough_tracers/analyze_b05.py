@@ -79,7 +79,7 @@ plt.xscale("log")
 plt.xlabel(r"Peclet number Pe", fontsize=14)
 plt.ylabel(r"Effective diffusion $D_{\parallel}$ $[D_m]$", fontsize=14)
 plt.legend(loc="best", fontsize=12)
-plt.savefig("../../oppgave/figures/b0.pdf")
+plt.savefig("../../oppgave/figures/b05.pdf")
 plt.show()
 
 analytic = interpool(Pe2)

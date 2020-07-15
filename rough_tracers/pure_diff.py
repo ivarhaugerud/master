@@ -34,6 +34,7 @@ data = np.zeros((args.b_N, 2))
 for ib, b in enumerate(np.linspace(
         args.b_min, args.b_max, args.b_N)):
     # Change this
+    #print(b, dx)
     mesh = square_rough_mesh(b, dx)
     coords = mesh.coordinates()[:]
     Lx = df.MPI.max(df.MPI.comm_world, coords[:, 0].max())
@@ -88,4 +89,8 @@ for ib, b in enumerate(np.linspace(
     data[ib, 1] = 1+integral
 
 if rank == 0:
-    np.savetxt("{}/Pe0.dat".format(folder), data)
+    np.savetxt("{}/Pe0_square_rough_mesh_res{}_bmax{}.dat".format(folder, N, args.b_max), data)
+
+
+
+

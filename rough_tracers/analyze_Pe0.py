@@ -30,11 +30,30 @@ def linear_regresion(x, y):
     return m, c, delta_m, delta_c
     #using linear regression from Squires, with uncertainty to find slope and constant term
 
-Brenner = np.loadtxt("data_square/Pe0_300.dat")
-b = Brenner[:, 0]
-D_eff_B = Brenner[:, 1]
+data_strings = ["data_square/Pe0_square_rough_mesh_res550_bmax0.4.dat",
+                "data_square/Pe0_square_rough_mesh_res380_bmax0.82.dat",
+                "data_square/Pe0_square_rough_mesh_res300_bmax1.24.dat",
+                "data_square/Pe0_square_rough_mesh_res200_bmax1.66.dat",
+                "data_square/Pe0_square_rough_mesh_res100_bmax1.98.dat"]
 
-interpool = sci.interp1d(b, D_eff_B)
+Brenner = np.zeros(int( (len(data_strings)-1)*21 + 16 + 1))
+b = np.linspace(0, 2, int( (len(data_strings)-1)*21 + 16 + 1))
+
+max_index = np.zeros(len(data_strings)-1, dtype='int')
+
+for i in range(len(data_strings)-1):
+    data = np.loadtxt(data_strings[i])
+    b[i*21:(i+1)*21]     = data[:, 0]
+    Brenner[i*21:(i+1)*21] = data[:, 1]
+
+data = np.loadtxt(data_strings[-1])
+b[-17:-1]     = data[:, 0]
+Brenner[-17:-1] = data[:, 1]
+
+b[-1] = 2.0
+Brenner[-1] = 0
+
+interpool = sci.interp1d(b, Brenner)
 
 data_strings = ["data_square/RandomWalkers/Re0.000000_b0.000000_Dm1.000000_U0.000000_dt0.000010_Nrw5000/tdata.dat",
                 "data_square/RandomWalkers/Re0.000000_b0.200000_Dm1.000000_U0.000000_dt0.000001_Nrw10000/tdata.dat",
@@ -78,14 +97,15 @@ for i in range(len(data_strings)):
     D_eff[i, 1] = np.std((variance[t_cut:]/(2*t[t_cut:])))
 
 plt.errorbar(B, D_eff[:, 0], yerr=D_eff[:,1], fmt="o", label="Random Walks")
-plt.plot(b, D_eff_B, label=r"Brenner")
+plt.plot(b, Brenner, label=r"Brenner")
 b_test = np.linspace(0, 2-1e-5, 1e4)
 prop_open = 2*b_test/(2+b_test)
-plt.plot(b_test, (1-prop_open)*(1+prop_open), label="Reguera")
+#plt.plot(b_test, (1-prop_open)*(1+prop_open), label="Reguera")
 plt.xlabel(r"Roughness $b$", fontsize=14)
 plt.ylabel(r"Effective diffusion $D_{\parallel}$ $[D_m]$", fontsize=14)
 plt.legend(loc="best", fontsize=12)
-plt.savefig("../../oppgave/figures/Pe0.pdf")
+plt.savefig("../../oppgave/figures/Pe0.pdf", bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%("../../oppgave/figures/Pe0.pdf", "../../oppgave/figures/Pe0.pdf"))
 plt.show()
 
 plt.errorbar(B, (D_eff[:, 0]-interpool(B))/interpool(B), yerr=D_eff[:,1]/interpool(B), fmt='o')
@@ -97,7 +117,7 @@ plt.savefig("../../oppgave/figures/Pe0_differenece.pdf")
 plt.show()
 
 
-
+"""
 data_strings = ["data_square/RandomWalkers/Re0.000000_b0.600000_Dm1.000000_U0.000000_dt0.000003_Nrw10000/tdata.dat",
                 "data_square/RandomWalkers/Re0.000000_b0.800000_Dm1.000000_U0.000000_dt0.000003_Nrw8000/tdata.dat",
                 "data_square/RandomWalkers/Re0.000000_b1.000000_Dm1.000000_U0.000000_dt0.000003_Nrw5000/tdata.dat",
@@ -123,4 +143,15 @@ plt.xlabel(r"Time $t$ [$1/(D_m b^2)$]")
 plt.ylabel(r"Relative difference RW-Brenner $D_{\parallel}$ [$D_m b$]")
 plt.legend(loc="best", fontsize=12)
 plt.savefig("../../oppgave/figures/data_collapse.pdf")
+plt.show()
+"""
+
+
+plt.plot(b, np.gradient(Brenner, b), label=r"Brenner")
+plt.plot(b_test, np.gradient((1-prop_open)*(1+prop_open),b_test), label="Reguera")
+plt.xlabel(r"Roughness $b$", fontsize=14)
+plt.ylabel(r"Derivative of eff. diff. d$D_{\parallel}/$d$b$ $[D_m]$", fontsize=14)
+plt.legend(loc="best", fontsize=12)
+plt.savefig("../../oppgave/figures/Pe0_deriv.pdf", bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%("../../oppgave/figures/Pe0_deriv.pdf", "../../oppgave/figures/Pe0_deriv.pdf"))
 plt.show()
