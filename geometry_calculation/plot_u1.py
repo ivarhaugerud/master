@@ -14,14 +14,14 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 N = int(500)
 epsilon = 0.10
 
-Sc = 10
+Sc = 1
 F0 = 1
 pi = np.pi 
 omega = 1
 kappa = 1
 Nt = 10
 T = np.linspace(0, np.pi/omega, Nt)
-eta = np.linspace(0, 2*np.pi/kappa, 100)
+eta = np.linspace(0, 6*np.pi/kappa, 300)
 xi = np.linspace(-1, 1, 100)
 
 u_x = np.zeros(len(xi), dtype="complex")
@@ -94,7 +94,7 @@ for i in range(len(T)):
 	for j in range(len(xi)):
 		u_x0[j, :, i] = u_x[j]
 
-	u_x = np.zeros(len(xi))
+	u_x = np.zeros(len(xi), dtype="complex")
 """
 for t in range(len(T)):
 	X, Y = np.meshgrid(eta, xi)
@@ -110,6 +110,9 @@ for t in range(len(T)):
 	plt.clf()
 plt.show()
 """
+flow_field = np.real(flow_field)
+u_x0 	   = np.real(u_x0)
+
 max_vel = np.amax(epsilon*flow_field[:,:,:,0]+u_x0[:, :, :])
 
 for i in range(len(T)):
@@ -118,7 +121,7 @@ for i in range(len(T)):
 	X, Y = np.meshgrid(eta, xi)
 	Z = np.sqrt((epsilon*flow_field[:,:,i,0]+u_x0[:, :, i])*(epsilon*flow_field[:,:,i,0]+u_x0[:, :, i]) + epsilon*flow_field[:,:,i,1]*epsilon*flow_field[:,:,i,1])
 
-	cp = plt.contourf(X, Y, Z)#, levels=np.linspace(0, 0.6, 40))
+	cp = plt.contourf(X, Y, Z, levels=np.linspace(0, 0.8, 40))
 	cb = plt.colorbar(cp)
 
 	lw = 2*Z/max_vel
