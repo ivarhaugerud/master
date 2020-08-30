@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 import scipy.integrate as sci 
 
 
-Omega = np.logspace(-3, 3, 40)
+Omega = np.logspace(-4, 4, 70)
 Sc = 1
 Pe = 1
-F0 = 1
+F0 = 3
 pi = np.pi
-M = int(100)
+M = int(30)
 
 a_m_squared = np.zeros(M, dtype="complex")
 D_eff = np.zeros(len(Omega), dtype="complex")
@@ -31,9 +31,9 @@ for o in range(len(Omega)):
 		g_tilde += m*m*a_m_squared[m]/(m*m*m*m*pi*pi*pi*pi + omega*omega)
 
 	g_tilde *= 16*Pe*Pe*Sc*Sc*F0*F0/(pi*pi)
-	D_eff[o] = g_tilde
+	D_eff[o] = 0.5*g_tilde #0.5 due to decomposisition of u in eq 2.6 in Bruus
 
-np.save("D_eff_Bruus", D_eff)
+np.save("data/D_eff_Bruus", D_eff)
 print("saved")
 plt.plot(Omega, np.real(D_eff), "o")
 plt.xscale("log")
