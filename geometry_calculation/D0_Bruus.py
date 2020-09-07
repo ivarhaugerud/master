@@ -38,3 +38,7 @@ print("saved")
 plt.plot(Omega, np.real(D_eff), "o")
 plt.xscale("log")
 plt.show()
+
+
+
+

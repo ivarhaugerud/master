@@ -29,7 +29,7 @@ C = np.zeros((Nx, Ny, datafiles))
 
 def animate_forward(i):
 	fig.suptitle(str(i))
-	data = np.loadtxt("../data/1307_reciproc_5_oscls_C_"+str(i)+"_front.txt")
+	data = np.loadtxt("../data/0207_reciproc_lin_2_C_"+str(i)+"_front.txt")
 
 	C[:, :, i] = (np.reshape(data, (Nx, Ny)))
 	C[:, :, i] /= np.sum(np.sum(C[:,:,i]))

@@ -32,7 +32,7 @@ Ivaar = np.load("data/D_eff_Ivar.npy")
 Omega = np.logspace(-4, 4, 70)
 
 Ivaar *= 105/2
-Bruus *= 105/2
+Bruus *= 105/4
 
 start_index = np.argmin(abs(Omega-10))
 m, c, delta_m, delta_c = linear_regresion(np.log10(Omega[start_index:]), np.log10(Ivaar[start_index:]))
@@ -42,7 +42,7 @@ plt.plot(Omega, Bruus, label="Bruus")
 plt.plot(Omega, Ivaar, "--", label="Our result")
 plt.plot(Omega[start_index:], np.power(10, c+m*np.log10(Omega[start_index:])), "k", label="Slope -3.502(2)")
 
-#plt.yscale("log")
+plt.yscale("log")
 plt.xscale("log")
 plt.xlabel(r"Driving frequency $\omega$", fontsize=14)
 plt.ylabel(r"Geometrical factor $\tilde{g}$", fontsize=14)

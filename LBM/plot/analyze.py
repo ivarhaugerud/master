@@ -19,8 +19,8 @@ Ny = 64
 Sx = 10
 Sy = 25
 
-Dx = 60
-Dy = 25
+Dx = 90
+Dy = 40
 
 datafiles = 900
 t = np.linspace(0, 1, datafiles)
@@ -45,22 +45,30 @@ C_back[Dx, Dy, :20] = 0
 C_front[Sx, Sy, :20] = 0 
 
 correct_points = 8
-dx = 0.01
+dx = 0.005
 
 plt.figure(1)
 #plt.title("Change of factor 1.05", fontsize=16)
 plt.plot(t, C_back[Dx, Dy, :], label=r"$C_A(\mathbf{x}_B, t)$")
 plt.plot(t, C_front[Sx, Sy, :], label="$C_B(\mathbf{x}_A, t)$")
 plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
-for i in range(correct_points):
-	if  i % 2 != 0:
-		plt.fill_between([i/correct_points-dx, i/correct_points+dx], [0, 0], [max(C_back[Dx, Dy, :]), max(C_back[Dx, Dy, :])], color="green", alpha=0.3)
+
+checks = (0.25+np.linspace(0, 3, 4))/4
+
+print(checks)
+
+for i in range(len(checks)):
+	if i > 0:
+		if i == 1:
+			plt.fill_between([checks[i]-dx, checks[i]+dx], [-1, -1], [1, 1], color="green", alpha=0.3, label="Predicted crossing")
+		else:
+			plt.fill_between([checks[i]-dx, checks[i]+dx], [-1, -1], [1, 1], color="green", alpha=0.3)
 
 plt.ylabel(r"Normalized concentration", fontsize=14)
-#plt.axis([0.19, 0.61, -0.00002, 0.00065])
-plt.legend(loc="best", fontsize=14)
-plt.savefig("../powerpoint/figures/reciprocal_relation.pdf", bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/reciprocal_relation.pdf", "../powerpoint/figures/reciprocal_relation.pdf"))
+plt.axis([0, 1.02, -0.00002, 0.0004])
+plt.legend(loc="best", fontsize=12)
+plt.savefig("../powerpoint/figures/time_dep_crossing.pdf", bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/time_dep_crossing.pdf", "../powerpoint/figures/time_dep_crossing.pdf"))
 plt.show()
 
 """

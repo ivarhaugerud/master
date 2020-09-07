@@ -43,8 +43,8 @@ for i in range(len(T)):
 
 
 		particular += -2*kappa*F0*(-1)**(0.5*(n-1))*( xi*np.sin(n*pi*xi/2) + (n*pi*np.cos(n*pi*xi/2))/(kappa*kappa + n*n*pi*pi/4))/(kappa*kappa + n*n*pi*pi/4)
-		term1 += (-1)**(0.5*(n-1))*(theta_n*lambda_n*np.sinh(kappa) - d_n*np.cosh(kappa))/(1j*omega/Sc + kappa*kappa + n*n*pi*pi/4)
-		term2 += (-1)**(0.5*(n-1))*(theta_n*lambda_n*np.cosh(kappa) + d_n*np.sinh(kappa))/(1j*omega/Sc + kappa*kappa + n*n*pi*pi/4)
+		#term1 += (-1)**(0.5*(n-1))*(theta_n*lambda_n*np.sinh(kappa) - d_n*np.cosh(kappa))/(1j*omega/Sc + kappa*kappa + n*n*pi*pi/4)
+		#	term2 += (-1)**(0.5*(n-1))*(theta_n*lambda_n*np.cosh(kappa) + d_n*np.sinh(kappa))/(1j*omega/Sc + kappa*kappa + n*n*pi*pi/4)
 
 	term1 *= np.exp(1j*omega*t)*(1j*omega*np.cosh(kappa*xi)/(Sc*kappa*np.cosh(2*kappa)))
 	term2 *= np.exp(1j*omega*t)*(1j*omega*np.cosh(kappa*xi)/(Sc*kappa*np.cosh(2*kappa)))
@@ -62,7 +62,7 @@ for i in range(len(T)):
 	X, Y = np.meshgrid(eta, xi)
 	Z = epsilon*full_solution[:,:,i]
 
-	cp = plt.contourf(X, Y, Z, levels=np.linspace(-0.2, 0.2, 40))
+	cp = plt.contourf(X, Y, Z, 40)#levels=np.linspace(-0.2, 0.2, 40))
 	cb = plt.colorbar(cp)
 	plt.draw()
 	plt.xlabel(r"Horizontal position $\eta$ $[\kappa^{-1}]$", fontsize=12)

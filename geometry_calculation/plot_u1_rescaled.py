@@ -11,18 +11,18 @@ matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-N = int(500)
+N = int(100)
 epsilon = 0.3
 
 Sc = 1
 F0 = 1
 pi = np.pi 
-omega = 10
+omega = 1
 kappa = 1
-Nt = 10
+Nt = 15
 T = np.linspace(0, np.pi/omega, Nt)
-eta = np.linspace(-2*np.pi, 2*np.pi/kappa, 300)
-xi = np.linspace(-1, 1, 100)
+eta = np.linspace(-2*np.pi, 2*np.pi/kappa, 75)
+xi = np.linspace(-1, 1, 50)
 
 u_x = np.zeros(len(xi), dtype="complex")
 u_y = np.zeros(len(xi), dtype="complex")
@@ -37,8 +37,6 @@ for i in range(len(eta)):
 
 for i in range(len(x)):
 	x[i, :] = a*eta
-
-X, Y = np.meshgrid(eta, xi)
 
 for i in range(len(T)):
 	t = T[i]
@@ -74,22 +72,12 @@ for i in range(len(T)):
 
 	u_x *= np.exp(1j*omega*t)
 	u_y *= np.exp(1j*omega*t)
-
 	for j in range(len(xi)):
-		#flow_field[j, :, i, 0] = np.real(np.sin(kappa*eta)*u_x[j] + Sc*kappa*np.cosh(kappa*xi[j])*(psi1*np.sin(kappa*eta) - phi1*np.cos(kappa*eta))/(1j*omega))
-		flow_field[j, :, i, 1] = np.real(np.cos(kappa*eta)*u_y[j] - Sc*kappa*np.sinh(kappa*xi[j])*(psi1*np.cos(kappa*eta) + phi1*np.sin(kappa*eta))/(1j*omega))
+		flow_field[j, :, i, 1] = -(np.real(np.cos(kappa*eta)*u_y[j] - Sc*kappa*np.sinh(kappa*xi[j])*(psi1*np.cos(kappa*eta) + phi1*np.sin(kappa*eta))/(1j*omega)))
 
 	u_x = np.zeros(len(xi), dtype="complex")
 	u_y = np.zeros(len(xi), dtype="complex")
-"""
-for t in range(len(T)):
-	X, Y = np.meshgrid(eta, xi)
-	plt.quiver(X, Y, flow_field[:,:,t,0], flow_field[:,:,t,1])
-	plt.draw()
-	plt.pause(0.01)
-	plt.clf()
-plt.show()
-"""
+
 u_x = np.zeros(len(xi), dtype=complex)
 u_x0 = np.zeros((len(xi), len(eta), len(T)), dtype=complex)
 
@@ -106,104 +94,41 @@ for i in range(len(T)):
 		u_x0[j, :, i] = u_x[j]
 
 	u_x = np.zeros(len(xi))
-"""
-for t in range(len(T)):
-	X, Y = np.meshgrid(eta, xi)
-	Z = np.sqrt((epsilon*flow_field[:,:,t,0]+u_x0[:, :, t])*(epsilon*flow_field[:,:,t,0]+u_x0[:, :, t]) + epsilon*flow_field[:,:,t,1]*epsilon*flow_field[:,:,t,1])
 
-	cp = plt.contourf(X, Y, Z, levels=np.linspace(0, 0.55, 30))
-	cb = plt.colorbar(cp)
-
-	plt.quiver(X, Y, epsilon*flow_field[:,:,t,0]+u_x0[:, :, t], epsilon*flow_field[:,:,t,1], linewidths=Z.flatten()/60)
-	plt.draw()
-	#plt.axis([min(eta), max(eta), -1.01, 1.1])
-	plt.pause(0.01)
-	plt.clf()
-plt.show()
-"""
 max_vel = np.amax(np.sqrt(np.real( (epsilon*flow_field[:,:,:,0]+u_x0[:, :, :])*(epsilon*flow_field[:,:,:,0]+u_x0[:, :, :]) + flow_field[:,:,:,1]*flow_field[:,:,:,1])))
-
 from scipy.interpolate import griddata
-
-def streams(ax,xx,yy,u,v,speed,base_map=False):
-	 x = np.linspace(np.real(xx).min(), xx.max(), 50)
-	 y = np.linspace(np.real(yy).min(), yy.max(), 50)
-
-	 xi, yi = np.meshgrid(x,y)
-
-	 #then, interpolate your data onto this grid:
-
-	 px = xx.flatten()
-	 py = yy.flatten()
-	 pu = u.flatten()
-	 pv = v.flatten()
-	 pspeed = speed.flatten()
-
-	 gu = griddata(zip(px,py), pu, (xi,yi))
-	 gv = griddata(zip(px,py), pv, (xi,yi))
-	 gspeed = griddata(zip(px,py), pspeed, (xi,yi))
-
-	 lw = np.real(2*gspeed/np.nanmax(gspeed))
-	 #now, you can use x, y, gu, gv and gspeed in streamplot:
-
-	 if base_map:
-	    xx,yy = ax(xx,yy)
-	    xi,yi = ax(xi,yi)
-
-	 #ax.contour(xx,yy,speed, alpha=0.4)
-	 #ax.plot(xx,yy,'-k',alpha=0.3)
-	 #ax.plot(xx.T,yy.T,'-k',alpha=0.3)
-	 #ax.plot(xi,yi,'-b',alpha=0.1)
-	 #ax.plot(xi.T,yi.T,'-b',alpha=0.1)
-	 ax.streamplot(x,y,np.real(gu),np.real(gv), density=2, color="k")
-
-slicing_x = 10
-slicing_y = 10
 total_flow = np.zeros((len(xi), len(eta), len(T), 2))
+
 for t in range(len(T)):
 	for i in range(len(eta)):
 		total_flow[:, i, t, 0] = np.real(epsilon*flow_field[:,i,t,0]+u_x0[:, i, t])
 		total_flow[:, i, t, 1] = np.real(epsilon*flow_field[:,i,t,1])
-"""
-lin_x_axis = np.linspace(min(eta), max(eta), 1e3)
-lin_y_axis = np.linspace(-1+epsilon, 1-epsilon, 1e3)
-XX, YY = np.meshgrid(lin_x_axis, lin_y_axis)
 
-import scipy.interpolate as sci 
-fig, ax = plt.subplots()
+x2 = eta
+y2 = np.linspace(-1-epsilon, 1+epsilon, 110)
+print(x2, y2)
+X, Y = np.meshgrid(x2, y2)
 
-points = np.zeros((len(xi)*len(eta), 2))
-for i in range(len(points[:, 0])):
-	points[i, 0] = x.flatten()[i]
-	points[i, 1] = y.flatten()[i]
-
-values = np.zeros((len(xi)*len(eta), len(T), 2))
-
-for t in range(len(T)):
-	for i in range(len(values[:, 0])-1):
-		#print(np.concatenate(total_flow[:,: t+5, 0]).ravel())
-		values[i, t, 0] = np.concatenate(total_flow[:,: t, 0]).ravel()[i]
-		values[i, t, 1] = np.concatenate(total_flow[:,: t, 1]).ravel()[i]
-"""
 for i in range(len(T)):
-	#u_x_inter = sci.griddata(points, total_flow[:,: t, 0], (XX, YY))
-	#u_y_inter = sci.griddata(points, total_flow[:,:,t, 1], (XX, YY))
-	#plt.streamplot(XX, YY, u_x_inter, u_y_inter, density=0.5, color='k', linewidth=lw)
-	plt.clf()
-	plt.title(r"$T=$"+str(T[i]*omega)[:4] + r"$[\omega^{-1}]$")
-	Z = np.real(np.sqrt((epsilon*flow_field[:,:,i,0]+u_x0[:, :, i])*(epsilon*flow_field[:,:,i,0]+u_x0[:, :, i]) + epsilon*flow_field[:,:,i,1]*epsilon*flow_field[:,:,i,1]))
-	#Z = np.real(np.sqrt((epsilon*flow_field[:,:,i,0])*(epsilon*flow_field[:,:,i,0]) + epsilon*flow_field[:,:,i,1]*epsilon*flow_field[:,:,i,1]))
+	# Interpolate using three different methods and plot
+	print(np.shape(total_flow[:,:, i, 0]), np.shape(total_flow[:,:, i, 1]), np.shape(xi), np.shape(eta), np.shape( total_flow[:,:, i, 0].flatten()))
+	ux = griddata( (x.flatten(),  y.flatten()), total_flow[:,:, i, 0].flatten(), (X, Y), method='nearest')
+	uy = griddata( (x.flatten(),  y.flatten()), total_flow[:,:, i, 1].flatten(), (X, Y), method='nearest')
 
-	cp = plt.contourf(x, y, Z, levels=np.linspace(0, max_vel*1.001, 40))
-	cb = plt.colorbar(cp)
-	plt.quiver(x[1::slicing_x, 1::slicing_y], y[1::slicing_x, 1::slicing_y], np.real(epsilon*flow_field[1::slicing_x,1::slicing_y,i,0]+u_x0[1::slicing_x, 1::slicing_y, i]), np.real(epsilon*flow_field[1::slicing_x,1::slicing_y,i,1]))
-	#streams(ax, x, y, np.real(epsilon*flow_field[:,:,i,0]+u_x0[:, :, i]), np.real(epsilon*flow_field[:,:,i,1]), Z)#, color='k')#, linewidth=lw, density=0.5,)
-
-	plt.axis([min(eta), max(eta), -1 - epsilon*1.2, 1+epsilon*1.2])
-
-	plt.draw()
-	plt.pause(0.01)
+	#plt.figure(2)
+	speed = np.sqrt(np.square(ux) + np.square(uy)) # / speed.max()
+	plt.streamplot(X, Y, ux, uy, density=1.5, color='k')
+	CS = plt.contourf(X, Y, speed, 15)
+	cbar = plt.colorbar(CS)
 	plt.xlabel(r"Horizontal position $\eta$ $[\kappa^{-1}]$", fontsize=12)
 	plt.ylabel(r"Vertical position   $\xi$ ", fontsize=12)
-	plt.savefig("figures/streamplot_scaled_epsilon1_nr"+str(i)+".pdf")
+	plt.draw()
+	plt.pause(0.5)
+	plt.clf()
+	#plt.savefig("figures/streamplot_scaled_epsilon1_nr"+str(i)+".pdf")
+	#plt.savefig("figures/test_"+str(i))
 plt.show()
+
+
+
+
