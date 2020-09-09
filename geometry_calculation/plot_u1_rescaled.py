@@ -26,28 +26,17 @@ gamma = np.sqrt(1j*omega/Sc)
 u_x = np.zeros((len(T), len(xi), len(eta)), dtype="complex")
 u_y = np.zeros((len(T), len(xi), len(eta)), dtype="complex")
 
+
 kappa_prime = np.sqrt(1j*omega/Sc + kappa*kappa)
-psi = (gamma*F0*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_prime*np.tanh(kappa)/(kappa*np.tanh(kappa_prime)))
-Ay = kappa*np.sinh(kappa)*psi/(gamma*gamma*np.sinh(kappa_prime))
-Bx = -kappa_prime*Ay/kappa
+P1 = (gamma*F0*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_prime*np.tanh(kappa)/(kappa*np.tanh(kappa_prime)))
 
 for t in range(len(T)):
 	for x in range(len(xi)):
-		u_x[t, x, :] = -F0*xi[x]*np.sinh(gamma*xi[x])*np.sin(kappa*eta)/(gamma*np.cosh(gamma))
-		u_x[t, x, :] += Sc*kappa*np.cosh(kappa*xi[x])*psi*np.sin(kappa*eta)/(1j*omega)
-		u_x[t, x, :] += np.cosh(kappa_prime*xi[x])*Bx*np.sin(kappa*eta)
+		u_x[t,x,:]    = epsilon*np.sin(kappa*eta)*(  (P1*kappa*np.cosh(kappa)/(gamma*gamma))*(np.cosh(kappa*xi[x])/np.cosh(kappa) - np.cosh(kappa_prime*xi[x])/np.cosh(kappa_prime))   + (F0*np.tanh(gamma)/(gamma))*(np.cosh(kappa_prime*xi[x])/np.cosh(kappa_prime) - xi[x]*np.sinh(gamma*xi[x])/np.sinh(gamma))  )
+		u_x[t,x,:]   += F0*(1-np.cosh(gamma*xi[x])/np.cosh(gamma))/(gamma*gamma)
+		u_x[t,x,:]   *= np.exp(1j*omega*T[t])
 
-		u_x[t,x,:] *= epsilon 
-		u_x[t,x,:] += F0*(1-np.cosh(gamma*xi[x])/np.cosh(gamma))/(gamma*gamma)
-		u_x[t, x, :] *= np.exp(1j*omega*T[t])
-
-for t in range(len(T)):
-	for x in range(len(xi)):
-		u_y[t, x, :] += -Sc*kappa*np.sinh(kappa*xi[x])*psi*np.cos(kappa*eta)/(1j*omega)
-		u_y[t, x, :] += np.sinh(kappa_prime*xi[x])*Ay*np.cos(kappa*eta)
-		u_y[t, x, :] *= np.exp(1j*omega*T[t])
-
-
+		u_y[t, x, :] = (np.exp(1j*omega*T[t])*np.cos(kappa*eta)*kappa*P1*np.sinh(kappa)/(gamma*gamma))*( np.sinh(kappa_prime*xi[x])/np.sinh(kappa_prime) - np.sinh(kappa*xi[x])/np.sinh(kappa))
 
 x2 = eta
 y2 = np.linspace(-1-epsilon, 1+epsilon, 110)
@@ -68,7 +57,7 @@ for i in range(len(T)):
 	ux = griddata( (x.flatten(),  y.flatten()), np.real(u_x[i,:,:].flatten()), (X, Y), method='nearest')
 	uy = griddata( (x.flatten(),  y.flatten()), np.real(u_y[i,:,:].flatten()), (X, Y), method='nearest')
 
-	speed = np.sqrt(np.square(ux) + np.square(uy)) # / speed.max()
+	speed = np.sqrt(np.square(ux) + np.square(uy))
 
 	ux[np.where(np.abs(uy)<1e-5)] = 0
 	uy[np.where(np.abs(uy)<1e-5)] = 0
