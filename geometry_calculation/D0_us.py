@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 Pe = 1
 F0 = 3
 pi = np.pi
-N = int(1000)
-xi = np.linspace(-1, 1, int(1e4))
+N = int(100)
+xi = np.linspace(-1, 1, int(1e3))
 
-Omega   = np.logspace(-4, 4, 81)
-Schmidt = np.logspace(-4, 4, 81)
+Omega   = np.logspace(-3, 3, 60)
+Schmidt = np.logspace(-3, 3, 60)
 #paramters = np.zeros((2, len(Omega)))
 #paramters[0, :] = Omega
 #paramters[1, :] = Schmidt
@@ -73,9 +73,15 @@ for s in range(len(Schmidt)):
 
 		D_eff[o, s] *= 0.5*Pe*Pe
 
+plt.plot(Omega, np.real(D_eff[:, 40]))
+plt.plot(Omega, np.imag(D_eff[:, 40]))
+
+plt.xscale("log")
+#plt.yscale("log")
+plt.show()
+
+
 np.save("data/D_eff", D_eff)
 np.save("data/D_eff_params_Omega_Schmidt", D_eff)
-
-
 
 

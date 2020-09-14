@@ -12,7 +12,7 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 N = int(10)
 epsilon = 0.3
 
-Sc = 1
+Sc = 1/50
 F0 = 1
 pi = np.pi 
 omega = 1
@@ -62,17 +62,19 @@ for i in range(len(T)):
 	ux[np.where(np.abs(uy)<1e-5)] = 0
 	uy[np.where(np.abs(uy)<1e-5)] = 0
 
-	plt.streamplot(X, Y, ux, uy, density=0.4, color='k')
-	CS = plt.contourf(X, Y, speed, 15)
+	plt.streamplot(X, Y, ux, uy, density=0.6, color='k')
+	CS = plt.contourf(X, Y, speed, levels=np.linspace(0, 3.5*1e-2, 40))
 	cbar = plt.colorbar(CS)
 	plt.xlabel(r"Horizontal position $\eta$ $[\kappa^{-1}]$", fontsize=12)
 	plt.ylabel(r"Vertical position   $\xi$ ", fontsize=12)
+	plt.plot(x[0,:], y[0, :], "k", linewidth=3)
+	plt.plot(x[0,:], y[-1,:], "k", linewidth=3)
 	plt.draw()
 	plt.pause(0.5)
 	plt.clf()
 	#plt.savefig("figures/streamplot_scaled_epsilon1_nr"+str(i)+".pdf")
 	#plt.savefig("figures/test_"+str(i))
-plt.show()
+	plt.show()
 
 
 
