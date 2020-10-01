@@ -51,6 +51,8 @@ old_output = RHS
 my_RHS_term1 = -P_1*kappa*kappa*(kappa_p*kappa_p*xi*sinh(kappa*xi)/2 + kappa*cosh(kappa*xi))/(gamma*gamma)
 my_RHS_term2 = P_1*kappa*kappa_p*kappa_p*(cosh(kappa)*cosh(kappa_p*xi)/cosh(kappa_p) - sinh(kappa)*kappa*xi*sinh(kappa_p*xi)/(	2*sinh(kappa_p)))/(gamma*gamma)
 my_RHS_term2 = (kappa_p*kappa_p*tanh(kappa)*tanh(gamma)/((kappa*tanh(kappa_p)-kappa_p*tanh(kappa))*gamma*cosh(kappa_p)))*(kappa*kappa*xi*sinh(kappa_p*xi)/2 + kappa_p*cosh(kappa_p*xi))
+my_RHS_term2 = P_1*sinh(kappa)*kappa_p*kappa_p/(sinh(kappa_p)*gamma*gamma)*(kappa*kappa*xi*sinh(kappa_p*xi)/2 + )
+
 my_RHS_term3 = ((1+kappa*kappa*xi*xi/2)*cosh(gamma*xi)+ xi*sinh(gamma*xi)*(gamma*gamma+kappa*kappa/2)/gamma)/cosh(gamma)
 my_RHS = my_RHS_term1+my_RHS_term2+my_RHS_term3
 
@@ -76,14 +78,12 @@ should_be_zero = ( diff(sol, xi, xi) - gamma*gamma*sol +my_RHS_term1)
 should_be_zero = should_be_zero.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 print("first term gives ", simplify(should_be_zero))
 
-
-
-sol = -(xi*sinh(kappa_p*xi)/(2))
-sol *= kappa_p*kappa_p*tanh(kappa)*tanh(gamma)/(gamma*cosh(kappa_p)*(kappa*tanh(kappa_p)-kappa_p*tanh(kappa)))
-
+#kappa_p term
+sol = -P_1*sinh(kappa)*xi*sinh(kappa_p*xi)*kappa_p*kappa_p/(2*gamma*gamma*sinh(kappa_p))
 should_be_zero = diff(sol, xi,xi) - gamma*gamma*sol + my_RHS_term2
+should_be_zero = should_be_zero.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
 should_be_zero = should_be_zero.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
-print("second term gives ", simplify(should_be_zero))
+print("second term gives ", simplify(expand(should_be_zero)))
 
 #gamma*xi term
 sol = (xi*sinh(gamma*xi)*(1+kappa*kappa*xi*xi/3) + gamma*xi*xi*cosh(gamma*xi))/(-4*gamma*cosh(gamma))
