@@ -93,7 +93,11 @@ should_be_zero = should_be_zero.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 print("third term gives ", simplify(should_be_zero))
 
 
-
+full_H = (P_1*kappa*kappa/(2*gamma*gamma))* (( xi*sinh(kappa*xi)*(kappa**4 - gamma**4) - 4*gamma*gamma*kappa*cosh(kappa*xi))/((gamma*gamma-kappa*kappa)**2)) -(xi*sinh(kappa_p*xi)/(2))*kappa_p*kappa_p*tanh(kappa)*tanh(gamma)/(gamma*cosh(kappa_p)*(kappa*tanh(kappa_p)-kappa_p*tanh(kappa))) + (xi*sinh(gamma*xi)*(1+kappa*kappa*xi*xi/3) + gamma*xi*xi*cosh(gamma*xi))/(-4*gamma*cosh(gamma))
+answer = diff(full_H, xi, xi) - gamma*gamma*full_H + my_RHS
+answer = answer.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+answer = answer.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+print("Test full H solution: ", simplify(answer))
 
 
 
