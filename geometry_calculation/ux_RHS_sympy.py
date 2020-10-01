@@ -7,6 +7,7 @@ A, B, C, D, P_1 = symbols("A B C D P_1")
 i = symbols("i")
 
 #define known quantities
+"""
 u0  = A*(1-cosh(gamma*xi)/cosh(gamma))
 ux1 = sin(kappa*eta)*(B*(cosh(kappa*xi)/cosh(kappa) - cosh(kappa_p *xi)/cosh(kappa_p)) + C*(cosh(kappa_p*xi)/cosh(kappa_p) - xi*sinh(gamma*xi)/sinh(gamma)))
 uy1 = D*cos(kappa*eta)*(sinh(kappa_p*xi)/sinh(kappa_p) - sinh(kappa*xi)/sinh(kappa))
@@ -29,10 +30,9 @@ RHS = RHS.subs(A, 1/(gamma*gamma))
 RHS = RHS.subs(B, P_1*kappa*cosh(kappa)/(gamma*gamma))
 RHS = RHS.subs(C, tanh(gamma)/gamma)
 RHS = RHS.subs(D, kappa*P_1*sinh(kappa)/(gamma*gamma))
-#RHS = RHS.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+RHS = RHS.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
 RHS = RHS.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 RHS = RHS.subs(gamma, sqrt(i*omega/Sc))
-RHS = RHS.subs(eta, pi/(2*kappa))
 
 print("added them together \n")
 print("RHS: ", RHS)
@@ -42,10 +42,60 @@ print("\n \n Simplifty RHS: ", simplify(RHS))
 SIMP = simplify(expanded_RHS)
 print("\n \n Simplifty expanded RHS: ", expand(SIMP))
 print("\n \n Simplifty expanded RHS: ", latex(expand(SIMP)))
+"""
 
- # + 2*kappa**2*xi*sinh(gamma*xi)/(gamma*cosh(gamma)) - 2*kappa_p**2*sin(eta*kappa)**2*cosh(kappa_p*xi)*tanh(gamma)/(gamma*cosh(kappa_p))
+#TEST IF RHS IS CORRECT
+print("TEST IF THE RHS I HAVE USED IS CORRECT")
+old_output = P_1*kappa**2*xi*sin(eta*kappa)**2*sinh(kappa*xi)/3 - 2*P_1*kappa**2*xi*sinh(kappa*xi)/3 - 4*P_1*kappa*sin(eta*kappa)**2*cosh(kappa*xi)/9 + 2*P_1*kappa*cosh(kappa*xi)/9 + 3*P_1*kappa**4*xi*sin(eta*kappa)**2*sinh(kappa*xi)/gamma**2 - 2*P_1*kappa**4*xi*sinh(kappa*xi)/gamma**2 - 3*P_1*kappa**3*kappa_p*xi*sin(eta*kappa)**2*sinh(kappa_p*xi)*cosh(kappa)/(gamma**2*cosh(kappa_p)) + 2*P_1*kappa**3*kappa_p*xi*sinh(kappa_p*xi)*cosh(kappa)/(gamma**2*cosh(kappa_p)) - 2*P_1*kappa**3*sin(eta*kappa)**2*cosh(kappa*xi)/gamma**2 + 2*P_1*kappa*kappa_p**2*sin(eta*kappa)**2*cosh(kappa)*cosh(kappa_p*xi)/(gamma**2*cosh(kappa_p)) + 2*gamma*xi*sin(eta*kappa)**2*sinh(gamma*xi)/cosh(gamma) - 3*kappa**2*xi**2*sin(eta*kappa)**2*cosh(gamma*xi)/cosh(gamma) + 2*kappa**2*xi**2*cosh(gamma*xi)/cosh(gamma) + 4*sin(eta*kappa)**2*cosh(gamma*xi)/cosh(gamma) - cosh(gamma*xi)/cosh(gamma) + 3*kappa**2*kappa_p*xi*sin(eta*kappa)**2*sinh(kappa_p*xi)*tanh(gamma)/(gamma*cosh(kappa_p)) - 2*kappa**2*kappa_p*xi*sinh(kappa_p*xi)*tanh(gamma)/(gamma*cosh(kappa_p)) - 3*kappa**2*xi*sin(eta*kappa)**2*sinh(gamma*xi)/(gamma*cosh(gamma)) + 2*kappa**2*xi*sinh(gamma*xi)/(gamma*cosh(gamma)) - 2*kappa_p**2*sin(eta*kappa)**2*cosh(kappa_p*xi)*tanh(gamma)/(gamma*cosh(kappa_p))
 
- #Simplifty expanded RHS:  P_1*kappa**2*xi*sin(eta*kappa)**2*sinh(kappa*xi)/3 - 2*P_1*kappa**2*xi*sinh(kappa*xi)/3 - 4*P_1*kappa*sin(eta*kappa)**2*cosh(kappa*xi)/9 + 2*P_1*kappa*cosh(kappa*xi)/9 + 3*P_1*kappa**4*xi*sin(eta*kappa)**2*sinh(kappa*xi)/gamma**2 - 2*P_1*kappa**4*xi*sinh(kappa*xi)/gamma**2 - 3*P_1*kappa**3*kappa_p*xi*sin(eta*kappa)**2*sinh(kappa_p*xi)*cosh(kappa)/(gamma**2*cosh(kappa_p)) + 2*P_1*kappa**3*kappa_p*xi*sinh(kappa_p*xi)*cosh(kappa)/(gamma**2*cosh(kappa_p)) - 2*P_1*kappa**3*sin(eta*kappa)**2*cosh(kappa*xi)/gamma**2 + 2*P_1*kappa*kappa_p**2*sin(eta*kappa)**2*cosh(kappa)*cosh(kappa_p*xi)/(gamma**2*cosh(kappa_p)) + 2*gamma*xi*sin(eta*kappa)**2*sinh(gamma*xi)/cosh(gamma) - 3*kappa**2*xi**2*sin(eta*kappa)**2*cosh(gamma*xi)/cosh(gamma) + 2*kappa**2*xi**2*cosh(gamma*xi)/cosh(gamma) + 4*sin(eta*kappa)**2*cosh(gamma*xi)/cosh(gamma) - cosh(gamma*xi)/cosh(gamma) + 3*kappa**2*kappa_p*xi*sin(eta*kappa)**2*sinh(kappa_p*xi)*tanh(gamma)/(gamma*cosh(kappa_p)) - 2*kappa**2*kappa_p*xi*sinh(kappa_p*xi)*tanh(gamma)/(gamma*cosh(kappa_p)) - 3*kappa**2*xi*sin(eta*kappa)**2*sinh(gamma*xi)/(gamma*cosh(gamma)) + 2*kappa**2*xi*sinh(gamma*xi)/(gamma*cosh(gamma)) - 2*kappa_p**2*sin(eta*kappa)**2*cosh(kappa_p*xi)*tanh(gamma)/(gamma*cosh(kappa_p))
+my_RHS_term1 = -P_1*kappa*kappa*(kappa_p*kappa_p*xi*sinh(kappa*xi)/2 + kappa*cosh(kappa*xi))/(gamma*gamma)
+my_RHS_term2 = P_1*kappa*kappa_p*kappa_p*(cosh(kappa)*cosh(kappa_p*xi)/cosh(kappa_p) - sinh(kappa)*kappa*xi*sinh(kappa_p*xi)/(	2*sinh(kappa_p)))/(gamma*gamma)
+my_RHS_term2 = (kappa_p*kappa_p*tanh(kappa)*tanh(gamma)/((kappa*tanh(kappa_p)-kappa_p*tanh(kappa))*gamma*cosh(kappa_p)))*(kappa*kappa*xi*sinh(kappa_p*xi)/2 + kappa_p*cosh(kappa_p*xi))
+my_RHS_term3 = ((1+kappa*kappa*xi*xi/2)*cosh(gamma*xi)+ xi*sinh(gamma*xi)*(gamma*gamma+kappa*kappa/2)/gamma)/cosh(gamma)
+my_RHS = my_RHS_term1+my_RHS_term2+my_RHS_term3
+
+old_output = old_output.subs(eta, pi/(4*kappa))
+#print("Old output: ", old_output)
+old_output = old_output.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+
+sol = old_output-my_RHS
+sol = sol.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+sol = sol.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+sol = simplify(sol)
+print("Eta independent terms add to: ", simplify(expand(sol)))
+
+
+
+
+
+### CHECK IF SOLUTION IS CORRECT
+
+print("\n\n\n THE FOLLOWING TEST SOLUTION OF H(xi), ALL SHOULD GIVE ZERO\n")
+#kappa*xi term:
+sol = (P_1*kappa*kappa/(2*gamma*gamma))* (( xi*sinh(kappa*xi)*(kappa**4 - gamma**4) - 4*gamma*gamma*kappa*cosh(kappa*xi))/((gamma*gamma-kappa*kappa)**2))
+should_be_zero = ( diff(sol, xi, xi) - gamma*gamma*sol +my_RHS_term1)
+should_be_zero = should_be_zero.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+print("first term gives ", simplify(should_be_zero))
+
+
+
+sol = -(xi*sinh(kappa_p*xi)/(2))
+sol *= kappa_p*kappa_p*tanh(kappa)*tanh(gamma)/(gamma*cosh(kappa_p)*(kappa*tanh(kappa_p)-kappa_p*tanh(kappa)))
+
+should_be_zero = diff(sol, xi,xi) - gamma*gamma*sol + my_RHS_term2
+should_be_zero = should_be_zero.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+print("second term gives ", simplify(should_be_zero))
+
+#gamma*xi term
+sol = (xi*sinh(gamma*xi)*(1+kappa*kappa*xi*xi/3) + gamma*xi*xi*cosh(gamma*xi))/(-4*gamma*cosh(gamma))
+should_be_zero = diff(sol, xi,xi) - gamma*gamma*sol + my_RHS_term3
+should_be_zero = should_be_zero.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+print("third term gives ", simplify(should_be_zero))
+
+
+
+
+
 
 
 

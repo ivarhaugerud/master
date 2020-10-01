@@ -31,7 +31,7 @@ RHS = RHS.subs(D, kappa*P_1*sinh(kappa)/(gamma*gamma))
 #RHS = RHS.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
 #RHS = RHS.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 #RHS = RHS.subs(gamma, sqrt(i*omega/Sc))
-
+"""
 print("added them together \n")
 print("RHS: ", RHS)
 expanded_RHS = expand(RHS)
@@ -40,7 +40,14 @@ print("\n \n Simplifty RHS: ", simplify(RHS))
 SIMP = simplify(expanded_RHS)
 print("\n \n Simplifty expanded RHS: ", expand(SIMP))
 print("\n \n Simplifty expanded RHS: ", latex(expand(SIMP)))
+"""
 
+my_RHS = kappa*xi*cosh(kappa*xi)*(gamma*gamma-9*kappa*kappa)/6 +sinh(kappa*xi)*(kappa*kappa-2*gamma*gamma/9) + sinh(kappa)*(3*kappa*kappa*kappa_p*xi*cosh(kappa_p*xi)/2-kappa_p*kappa_p*sinh(kappa_p*xi))/sinh(kappa_p)
+my_RHS *= sin(2*kappa*eta)*P_1*kappa/(gamma*gamma)
+difference = RHS - my_RHS
 
-
-
+difference = difference.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+print(difference)
+print(expand(difference))
+print("\n\n\n simplified", simplify(expand(difference)))
+ #Simplifty RHS:  P_1*kappa*(- 18*kappa_p**2*sinh(kappa)*sinh(kappa_p*xi)/sinh(kappa_p))*sin(2*eta*kappa)/(18*gamma**2)
