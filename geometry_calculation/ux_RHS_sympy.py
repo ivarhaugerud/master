@@ -46,8 +46,7 @@ print("\n \n Simplifty expanded RHS: ", latex(expand(SIMP)))
 
 #TEST IF RHS IS CORRECT
 print("TEST IF THE RHS I HAVE USED IS CORRECT")
-old_output = P_1*kappa**2*xi*sin(eta*kappa)**2*sinh(kappa*xi)/3 - 2*P_1*kappa**2*xi*sinh(kappa*xi)/3 - 4*P_1*kappa*sin(eta*kappa)**2*cosh(kappa*xi)/9 + 2*P_1*kappa*cosh(kappa*xi)/9 + 3*P_1*kappa**4*xi*sin(eta*kappa)**2*sinh(kappa*xi)/gamma**2 - 2*P_1*kappa**4*xi*sinh(kappa*xi)/gamma**2 - 3*P_1*kappa**3*kappa_p*xi*sin(eta*kappa)**2*sinh(kappa_p*xi)*cosh(kappa)/(gamma**2*cosh(kappa_p)) + 2*P_1*kappa**3*kappa_p*xi*sinh(kappa_p*xi)*cosh(kappa)/(gamma**2*cosh(kappa_p)) - 2*P_1*kappa**3*sin(eta*kappa)**2*cosh(kappa*xi)/gamma**2 + 2*P_1*kappa*kappa_p**2*sin(eta*kappa)**2*cosh(kappa)*cosh(kappa_p*xi)/(gamma**2*cosh(kappa_p)) + 2*gamma*xi*sin(eta*kappa)**2*sinh(gamma*xi)/cosh(gamma) - 3*kappa**2*xi**2*sin(eta*kappa)**2*cosh(gamma*xi)/cosh(gamma) + 2*kappa**2*xi**2*cosh(gamma*xi)/cosh(gamma) + 4*sin(eta*kappa)**2*cosh(gamma*xi)/cosh(gamma) - cosh(gamma*xi)/cosh(gamma) + 3*kappa**2*kappa_p*xi*sin(eta*kappa)**2*sinh(kappa_p*xi)*tanh(gamma)/(gamma*cosh(kappa_p)) - 2*kappa**2*kappa_p*xi*sinh(kappa_p*xi)*tanh(gamma)/(gamma*cosh(kappa_p)) - 3*kappa**2*xi*sin(eta*kappa)**2*sinh(gamma*xi)/(gamma*cosh(gamma)) + 2*kappa**2*xi*sinh(gamma*xi)/(gamma*cosh(gamma)) - 2*kappa_p**2*sin(eta*kappa)**2*cosh(kappa_p*xi)*tanh(gamma)/(gamma*cosh(kappa_p))
-#old_output = RHS 
+old_output = RHS 
 
 my_RHS_term1 = -P_1*kappa*kappa*(kappa_p*kappa_p*xi*sinh(kappa*xi)/2 + kappa*cosh(kappa*xi))/(gamma*gamma)
 my_RHS_term2 = P_1*kappa*kappa_p*kappa_p*(cosh(kappa)*cosh(kappa_p*xi)/cosh(kappa_p) - sinh(kappa)*kappa*xi*sinh(kappa_p*xi)/(	2*sinh(kappa_p)))/(gamma*gamma)
