@@ -49,10 +49,7 @@ print("TEST IF THE RHS I HAVE USED IS CORRECT")
 old_output = RHS 
 
 my_RHS_term1 = -P_1*kappa*kappa*(kappa_p*kappa_p*xi*sinh(kappa*xi)/2 + kappa*cosh(kappa*xi))/(gamma*gamma)
-my_RHS_term2 = P_1*kappa*kappa_p*kappa_p*(cosh(kappa)*cosh(kappa_p*xi)/cosh(kappa_p) - sinh(kappa)*kappa*xi*sinh(kappa_p*xi)/(	2*sinh(kappa_p)))/(gamma*gamma)
-my_RHS_term2 = (kappa_p*kappa_p*tanh(kappa)*tanh(gamma)/((kappa*tanh(kappa_p)-kappa_p*tanh(kappa))*gamma*cosh(kappa_p)))*(kappa*kappa*xi*sinh(kappa_p*xi)/2 + kappa_p*cosh(kappa_p*xi))
-my_RHS_term2 = P_1*sinh(kappa)*kappa_p*kappa_p/(sinh(kappa_p)*gamma*gamma)*(kappa*kappa*xi*sinh(kappa_p*xi)/2 + )
-
+my_RHS_term2 = P_1*sinh(kappa)*kappa_p*kappa_p/(sinh(kappa_p)*gamma*gamma)*(kappa*kappa*xi*sinh(kappa_p*xi)/2 + kappa_p*cosh(kappa_p*xi))
 my_RHS_term3 = ((1+kappa*kappa*xi*xi/2)*cosh(gamma*xi)+ xi*sinh(gamma*xi)*(gamma*gamma+kappa*kappa/2)/gamma)/cosh(gamma)
 my_RHS = my_RHS_term1+my_RHS_term2+my_RHS_term3
 
