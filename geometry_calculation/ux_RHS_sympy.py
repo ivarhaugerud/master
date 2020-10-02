@@ -45,18 +45,17 @@ print("\n \n Simplifty expanded RHS: ", latex(expand(SIMP)))
 """
 
 #TEST IF RHS IS CORRECT
-print("TEST IF THE RHS I HAVE USED IS CORRECT")
-old_output = RHS 
 
+print("TEST IF THE RHS I HAVE USED IS CORRECT")
 my_RHS_term1 = -P_1*kappa*kappa*(kappa_p*kappa_p*xi*sinh(kappa*xi)/2 + kappa*cosh(kappa*xi))/(gamma*gamma)
 my_RHS_term2 = P_1*sinh(kappa)*kappa_p*kappa_p/(sinh(kappa_p)*gamma*gamma)*(kappa*kappa*xi*sinh(kappa_p*xi)/2 + kappa_p*cosh(kappa_p*xi))
 my_RHS_term3 = ((1+kappa*kappa*xi*xi/2)*cosh(gamma*xi)+ xi*sinh(gamma*xi)*(gamma*gamma+kappa*kappa/2)/gamma)/cosh(gamma)
 my_RHS = my_RHS_term1+my_RHS_term2+my_RHS_term3
 
-old_output = old_output.subs(eta, pi/(4*kappa))
-old_output = old_output.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+RHS = RHS.subs(eta, pi/(4*kappa))
+RHS = RHS.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 
-sol = old_output-my_RHS
+sol = RHS-my_RHS
 sol = sol.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
 sol = sol.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 sol = simplify(sol)
@@ -67,7 +66,6 @@ print("Eta independent terms add to: ", sol)
 
 
 ### CHECK IF SOLUTION IS CORRECT
-
 print("\n\n\n THE FOLLOWING TEST SOLUTION OF H(xi), ALL SHOULD GIVE ZERO\n")
 #kappa*xi term:
 sol = (P_1*kappa*kappa/(2*gamma*gamma))* (( xi*sinh(kappa*xi)*(kappa**4 - gamma**4) - 4*gamma*gamma*kappa*cosh(kappa*xi))/((gamma*gamma-kappa*kappa)**2))
