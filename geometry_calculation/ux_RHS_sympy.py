@@ -45,24 +45,21 @@ print("\n \n Simplifty expanded RHS: ", latex(expand(SIMP)))
 """
 
 #TEST IF RHS IS CORRECT
-
+"""
 print("TEST IF THE RHS I HAVE USED IS CORRECT")
 my_RHS_term1 = -P_1*kappa*kappa*(kappa_p*kappa_p*xi*sinh(kappa*xi)/2 + kappa*cosh(kappa*xi))/(gamma*gamma)
 my_RHS_term2 = P_1*sinh(kappa)*kappa_p*kappa_p/(sinh(kappa_p)*gamma*gamma)*(kappa*kappa*xi*sinh(kappa_p*xi)/2 + kappa_p*cosh(kappa_p*xi))
 my_RHS_term3 = ((1+kappa*kappa*xi*xi/2)*cosh(gamma*xi)+ xi*sinh(gamma*xi)*(gamma*gamma+kappa*kappa/2)/gamma)/cosh(gamma)
 my_RHS = my_RHS_term1+my_RHS_term2+my_RHS_term3
 
-RHS = RHS.subs(eta, pi/(4*kappa))
-RHS = RHS.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+RHS_non_eta = RHS.subs(eta, pi/(4*kappa))
+RHS_non_eta = RHS_non_eta.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 
-sol = RHS-my_RHS
+sol = RHS_non_eta-my_RHS
 sol = sol.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
 sol = sol.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 sol = simplify(sol)
 print("Eta independent terms add to: ", sol)
-
-
-
 
 
 ### CHECK IF SOLUTION IS CORRECT
@@ -92,9 +89,30 @@ answer = diff(full_H, xi, xi) - gamma*gamma*full_H + my_RHS
 answer = answer.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
 answer = answer.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 print("Test full H solution: ", simplify(answer))
+"""
+
+RHS_non_eta = RHS.subs(eta, pi/(4*kappa))
+RHS_eta    = RHS - RHS_non_eta
+RHS = simplify(RHS_eta/cos(2*kappa*eta))
+print(RHS)
+
+my_RHS_1 = P_1*kappa*((2/9+kappa*kappa/(gamma*gamma))*cosh(kappa*xi)-(1/6+3*kappa*kappa/(2*gamma*gamma))*kappa*xi*sinh(kappa*xi))
+my_RHS_2 = P_1*sinh(kappa)*kappa_p*kappa_p*(3*kappa*kappa*xi*sinh(kappa_p*xi)/2 - kappa_p*cosh(kappa_p*xi))/(sinh(kappa_p)*gamma*gamma) #kappa_p*kappa_p*kappa_p*cosh(kappa)*P_1*(cosh(kappa_p*xi)-3*kappa*xi*sinh(kappa_p*xi)/2)/(gamma*gamma*sinh(kappa_p))
+my_RHS_3 = 3*((kappa*kappa*xi*xi-4/3)*cosh(gamma*xi) + (kappa*kappa/(gamma*gamma)-2/3)*gamma*xi*sinh(gamma*xi))/(2*cosh(gamma))
+#my_F_1 = P_1*kappa*((2*kappa*kappa + gamma*gamma/6 + 9*kappa*kappa*kappa*kappa/(2*gamma*gamma))*kappa*xi*sinh(kappa)*xi - 2*(2*kappa*kappa + gamma*gamma/3)*cosh(kappa*xi)/3)/((gamma*gamma+3*kappa*kappa)**2)
+#my_F_2 = -(gamma*xi*sinh(gamma*xi)*(kappa_p*kappa_p+4*gamma*gamma*kappa*kappa*xi*xi) + xi*xi*cosh(gamma*xi)*(3*gamma*gamma-kappa*kappa))
+
+my_RHS = my_RHS_1 + my_RHS_2 + my_RHS_3
+#my_RHS = my_RHS.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+my_RHS = my_RHS.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+
+total = RHS-my_RHS
+#total = total + my_RHS_2 + my_RHS_3
+total = total.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+total = total.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+
+print("\n\n Simplifaction of difference between my RHS and output RHS", simplify(total))
 
 
-
-
-
-
+#-(  - gamma*kappa**2*cosh(xi*sqrt(gamma**2 + kappa**2))*tanh(gamma))/(gamma**2*cosh(sqrt(gamma**2 + kappa**2)))
+# ( - 2*kappa**2*sqrt(gamma**2 + kappa**2)*cosh(xi*sqrt(gamma**2 + kappa**2)))*tanh(gamma)*tanh(kappa)/(2*gamma*(kappa*sinh(sqrt(gamma**2 + kappa**2)) - sqrt(gamma**2 + kappa**2)*cosh(sqrt(gamma**2 + kappa**2))*tanh(kappa)))
