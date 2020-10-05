@@ -101,9 +101,7 @@ my_RHS_2 = P_1*sinh(kappa)*kappa_p*kappa_p*(3*kappa*kappa*xi*sinh(kappa_p*xi)/2 
 my_RHS_3 = 3*((kappa*kappa*xi*xi-4/3)*cosh(gamma*xi) + (kappa*kappa/(gamma*gamma)-2/3)*gamma*xi*sinh(gamma*xi))/(2*cosh(gamma))
 
 my_F_1 = P_1*kappa*((2*kappa*kappa + gamma*gamma/6 + 9*kappa*kappa*kappa*kappa/(2*gamma*gamma))*kappa*xi*sinh(kappa*xi) - 2*(2*kappa*kappa + gamma*gamma/3)*cosh(kappa*xi)/3)/((gamma*gamma+3*kappa*kappa)**2)
-#my_F_2 = -(gamma*xi*sinh(gamma*xi)*(kappa_p*kappa_p+4*gamma*gamma*kappa*kappa*xi*xi) + xi*xi*cosh(gamma*xi)*(3*gamma*gamma-kappa*kappa))
-my_F_3 = -(gamma*xi*sinh(gamma*xi)*(kappa_p*kappa_p+4*gamma*gamma*kappa*kappa*xi*xi) + xi*xi*cosh(gamma*xi)*(3*gamma*gamma-kappa*kappa))/(8*gamma*gamma*cosh(gamma))
-my_F_3 = 3*(cosh(gamma*xi)*(kappa*kappa*xi*xi + 4/3)/(gamma*gamma+4*kappa*kappa) + gamma*xi*sinh(gamma*xi)*(kappa*kappa/(gamma*gamma)-2/3)/(4*kappa*kappa))/(2*cosh(gamma))
+my_F_2 = P_1*(gamma*gamma+kappa*kappa)*sinh(kappa)*xi*sinh(sqrt(gamma*gamma+kappa*kappa)*xi)/(2*gamma*gamma*sinh(sqrt(kappa*kappa+gamma*gamma)))
 my_F_3 = 3*(cosh(gamma*xi)*(2*xi*xi*kappa**4 - 2*kappa*kappa/3 + gamma*gamma/3)/(8*kappa**4) + gamma*xi*sinh(gamma*xi)*(kappa*kappa/(gamma*gamma)+1/3)/(4*kappa*kappa))/(2*cosh(gamma))
 
 
@@ -122,6 +120,4 @@ print("\n\n Simplifaction of difference between my RHS and output RHS", simplify
 print("\n\n Test solution F(xi)")
 print("first term: ", simplify(diff(my_F_1, xi, xi) - (gamma*gamma+4*kappa*kappa)*my_F_1 - my_RHS_1))
 print("third term: ", simplify( (diff(my_F_3, xi, xi) - (gamma*gamma+4*kappa*kappa)*my_F_3 + my_RHS_3)))
-
-#-(  - gamma*kappa**2*cosh(xi*sqrt(gamma**2 + kappa**2))*tanh(gamma))/(gamma**2*cosh(sqrt(gamma**2 + kappa**2)))
-# ( - 2*kappa**2*sqrt(gamma**2 + kappa**2)*cosh(xi*sqrt(gamma**2 + kappa**2)))*tanh(gamma)*tanh(kappa)/(2*gamma*(kappa*sinh(sqrt(gamma**2 + kappa**2)) - sqrt(gamma**2 + kappa**2)*cosh(sqrt(gamma**2 + kappa**2))*tanh(kappa)))
+print("second term: ", simplify( ((diff(my_F_2, xi, xi) - (gamma*gamma+4*kappa*kappa)*my_F_2 + my_RHS_2)).subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))))
