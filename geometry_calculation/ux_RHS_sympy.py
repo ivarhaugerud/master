@@ -29,20 +29,7 @@ RHS = RHS.subs(A, 1/(gamma*gamma))
 RHS = RHS.subs(B, P_1*kappa*cosh(kappa)/(gamma*gamma))
 RHS = RHS.subs(C, tanh(gamma)/gamma)
 RHS = RHS.subs(D, kappa*P_1*sinh(kappa)/(gamma*gamma))
-#RHS = RHS.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
 RHS = RHS.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
-#RHS = RHS.subs(gamma, sqrt(i*omega/Sc))
-
-"""
-print("added them together \n")
-print("RHS: ", RHS)
-expanded_RHS = expand(RHS)
-print("\n \n Expanded RHS: ", expanded_RHS)
-print("\n \n Simplifty RHS: ", simplify(RHS))
-SIMP = simplify(expanded_RHS)
-print("\n \n Simplifty expanded RHS: ", expand(SIMP))
-print("\n \n Simplifty expanded RHS: ", latex(expand(SIMP)))
-"""
 
 #TEST IF RHS IS CORRECT
 """
@@ -90,7 +77,6 @@ answer = answer.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tan
 answer = answer.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 print("Test full H solution: ", simplify(answer))
 """
-
 RHS_non_eta = RHS.subs(eta, pi/(4*kappa))
 RHS_eta    = RHS - RHS_non_eta
 RHS = simplify(RHS_eta/cos(2*kappa*eta))
@@ -114,7 +100,7 @@ print("\n\n Simplifaction of difference between my RHS and output RHS", simplify
 
 
 print("\n\n Test solution F(xi)")
-print("first term: ", simplify(diff(my_F_1, xi, xi) - (gamma*gamma+4*kappa*kappa)*my_F_1 + my_RHS_1))
+print("first term: ", simplify(diff(my_F_1, xi, xi) - (gamma*gamma+4*kappa*kappa)*my_F_1 + my_RHS_1), "even though it does not exactly cancell, it does in fact cancel when doing it by hand")
 print("third term: ", simplify( (diff(my_F_3, xi, xi) - (gamma*gamma+4*kappa*kappa)*my_F_3 + my_RHS_3)))
 print("second term: ", simplify( ((diff(my_F_2, xi, xi) - (gamma*gamma+4*kappa*kappa)*my_F_2 + my_RHS_2)).subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))))
 
@@ -138,10 +124,10 @@ LHS_2 = P_1*kappa*diff(fy,xi)/(gamma*gamma)
 LHS = LHS_1 + LHS_2
 
 
-difference = (LHS-RHS)
+difference = (RHS-LHS)
 difference = difference.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 difference = difference.subs(eta, pi/(4*kappa))
-difference = difference.subs(xi, 1)
+#difference = difference.subs(xi, 1)
 
 #LHS = LHS.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
 print(simplify(difference))
