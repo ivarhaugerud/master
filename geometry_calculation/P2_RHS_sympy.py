@@ -33,34 +33,22 @@ RHS = RHS.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kapp
 RHS = RHS.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 RHS = RHS.subs(gamma, sqrt(i*omega/Sc))
 
-print("added them together \n")
-print("RHS: ", RHS)
-expanded_RHS = expand(RHS)
-print("\n \n Expanded RHS: ", expanded_RHS)
-print("\n \n Simplifty RHS: ", simplify(RHS))
-SIMP = simplify(expanded_RHS)
-print("\n \n Simplifty expanded RHS: ", expand(SIMP))
-print("\n \n Simplifty expanded RHS: ", latex(expand(SIMP)))
-"""
-print("added them together \n")
-print("RHS: ", latex(RHS))
-expanded_RHS = expand(RHS)
-print("\n \n Expanded RHS: ", expanded_RHS)
-print("\n \n Simplifty RHS: ", simplify(RHS))
-SIMP = simplify(expanded_RHS)
-print("\n \n Simplifty expanded RHS: ", simplify(SIMP))
-print("\n \n Simplifty expanded RHS: ", latex(simplify(SIMP)))
-"""
-"""
-Simplified expanded RHS
-(-A*Sc*gamma**3*kappa*xi*sinh(gamma*xi)/cosh(gamma) - 2*A*Sc*gamma**2*kappa**3*xi**2*cosh(gamma*xi)/cosh(gamma) + 4*A*Sc*gamma**2*kappa*cosh(gamma*xi)/cosh(gamma) - 2*A*Sc*gamma*kappa**3*xi*sinh(gamma*xi)/cosh(gamma) + A*gamma*i*kappa*omega*xi*sinh(gamma*xi)/cosh(gamma) + B*Sc*gamma**2*kappa*xi*sqrt(gamma**2 + kappa**2)*sinh(xi*sqrt(gamma**2 + kappa**2))/cosh(sqrt(gamma**2 + kappa**2)) - 2*B*Sc*gamma**2*kappa*cosh(xi*sqrt(gamma**2 + kappa**2))/cosh(sqrt(gamma**2 + kappa**2)) - 3*B*Sc*kappa**4*xi*sinh(kappa*xi)/cosh(kappa) + 3*B*Sc*kappa**3*xi*sqrt(gamma**2 + kappa**2)*sinh(xi*sqrt(gamma**2 + kappa**2))/cosh(sqrt(gamma**2 + kappa**2)) - 2*B*Sc*kappa**3*cosh(xi*sqrt(gamma**2 + kappa**2))/cosh(sqrt(gamma**2 + kappa**2)) + 2*B*Sc*kappa**3*cosh(kappa*xi)/cosh(kappa) + B*i*kappa**2*omega*xi*sinh(kappa*xi)/cosh(kappa) - B*i*kappa*omega*xi*sqrt(gamma**2 + kappa**2)*sinh(xi*sqrt(gamma**2 + kappa**2))/cosh(sqrt(gamma**2 + kappa**2)) + C*Sc*gamma**3*kappa*xi**2*cosh(gamma*xi)/sinh(gamma) - C*Sc*gamma**2*kappa*xi*sqrt(gamma**2 + kappa**2)*sinh(xi*sqrt(gamma**2 + kappa**2))/cosh(sqrt(gamma**2 + kappa**2)) + C*Sc*gamma**2*kappa*xi*sinh(gamma*xi)/sinh(gamma) + 2*C*Sc*gamma**2*kappa*cosh(xi*sqrt(gamma**2 + kappa**2))/cosh(sqrt(gamma**2 + kappa**2)) + 2*C*Sc*gamma*kappa**3*xi**2*cosh(gamma*xi)/sinh(gamma) - 4*C*Sc*gamma*kappa*cosh(gamma*xi)/sinh(gamma) - 3*C*Sc*kappa**3*xi*sqrt(gamma**2 + kappa**2)*sinh(xi*sqrt(gamma**2 + kappa**2))/cosh(sqrt(gamma**2 + kappa**2)) + 2*C*Sc*kappa**3*xi*sinh(gamma*xi)/sinh(gamma) + 2*C*Sc*kappa**3*cosh(xi*sqrt(gamma**2 + kappa**2))/cosh(sqrt(gamma**2 + kappa**2)) - C*gamma*i*kappa*omega*xi**2*cosh(gamma*xi)/sinh(gamma) + C*i*kappa*omega*xi*sqrt(gamma**2 + kappa**2)*sinh(xi*sqrt(gamma**2 + kappa**2))/cosh(sqrt(gamma**2 + kappa**2)) - C*i*kappa*omega*xi*sinh(gamma*xi)/sinh(gamma) - 3*D*Sc*gamma**2*kappa**2*xi*sinh(xi*sqrt(gamma**2 + kappa**2))/sinh(sqrt(gamma**2 + kappa**2)) + D*Sc*gamma**2*sqrt(gamma**2 + kappa**2)*cosh(xi*sqrt(gamma**2 + kappa**2))/sinh(sqrt(gamma**2 + kappa**2)) - 3*D*Sc*kappa**4*xi*sinh(xi*sqrt(gamma**2 + kappa**2))/sinh(sqrt(gamma**2 + kappa**2)) + 3*D*Sc*kappa**4*xi*sinh(kappa*xi)/sinh(kappa) - 2*D*Sc*kappa**3*cosh(kappa*xi)/sinh(kappa) + 2*D*Sc*kappa**2*sqrt(gamma**2 + kappa**2)*cosh(xi*sqrt(gamma**2 + kappa**2))/sinh(sqrt(gamma**2 + kappa**2)) - D*i*kappa*omega*cosh(kappa*xi)/sinh(kappa) + D*i*omega*sqrt(gamma**2 + kappa**2)*cosh(xi*sqrt(gamma**2 + kappa**2))/sinh(sqrt(gamma**2 + kappa**2)) - 2*P_1*Sc*kappa**3*xi*sinh(kappa*xi) + P_1*Sc*kappa**2*cosh(kappa*xi))*sin(2*eta*kappa)/(2*Sc)
-
-#after inserting for A,B,C,...
-alternativly:
- Simplifty expanded RHS:  kappa*(Sc*gamma**4*xi*sinh(gamma)*sinh(kappa)*sinh(xi*sqrt(gamma**2 + kappa**2)) + Sc*gamma**3*kappa*xi**2*sinh(sqrt(gamma**2 + kappa**2))*cosh(kappa)*cosh(gamma*xi) - Sc*gamma**3*xi**2*sqrt(gamma**2 + kappa**2)*sinh(kappa)*cosh(gamma*xi)*cosh(sqrt(gamma**2 + kappa**2)) + Sc*gamma**2*kappa**2*xi*sinh(gamma)*sinh(kappa)*sinh(xi*sqrt(gamma**2 + kappa**2)) - 2*Sc*gamma**2*kappa**2*xi*sinh(gamma)*sinh(kappa*xi)*sinh(sqrt(gamma**2 + kappa**2)) + Sc*gamma**2*kappa*sinh(gamma)*sinh(sqrt(gamma**2 + kappa**2))*cosh(kappa*xi) - Sc*gamma**2*sqrt(gamma**2 + kappa**2)*sinh(gamma)*sinh(kappa)*cosh(xi*sqrt(gamma**2 + kappa**2)) - gamma**2*i*omega*xi*sinh(gamma)*sinh(kappa)*sinh(xi*sqrt(gamma**2 + kappa**2)) - gamma*i*kappa*omega*xi**2*sinh(sqrt(gamma**2 + kappa**2))*cosh(kappa)*cosh(gamma*xi) + gamma*i*omega*xi**2*sqrt(gamma**2 + kappa**2)*sinh(kappa)*cosh(gamma*xi)*cosh(sqrt(gamma**2 + kappa**2)) - i*kappa**2*omega*xi*sinh(gamma)*sinh(kappa)*sinh(xi*sqrt(gamma**2 + kappa**2)) + i*kappa**2*omega*xi*sinh(gamma)*sinh(kappa*xi)*sinh(sqrt(gamma**2 + kappa**2)) - i*kappa*omega*sinh(gamma)*sinh(sqrt(gamma**2 + kappa**2))*cosh(kappa*xi) + i*omega*sqrt(gamma**2 + kappa**2)*sinh(gamma)*sinh(kappa)*cosh(xi*sqrt(gamma**2 + kappa**2)))*sin(2*eta*kappa)/(2*Sc*gamma*(kappa*sinh(sqrt(gamma**2 + kappa**2))*cosh(kappa) - sqrt(gamma**2 + kappa**2)*sinh(kappa)*cosh(sqrt(gamma**2 + kappa**2)))*cosh(gamma))
+RHS = simplify(RHS)
+print("\n \n Simplified RHS: ", RHS)
 
 
-alternativly:
--kappa**3*xi*sqrt(i*omega/Sc)*sin(2*eta*kappa)*sinh(kappa*xi)*tanh(sqrt(i*omega/Sc))*tanh(sqrt(kappa**2 + i*omega/Sc))/(2*kappa*cosh(kappa)*tanh(sqrt(kappa**2 + i*omega/Sc)) - 2*sqrt(kappa**2 + i*omega/Sc)*sinh(kappa))
+my_RHS = -P_1*kappa*kappa*kappa*xi*sinh(kappa*xi)*sin(2*kappa*eta)/2
+difference = RHS-my_RHS
+difference = difference.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+difference = difference.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+difference = difference.subs(gamma, sqrt(i*omega/Sc))
+print("\n\n Difference my RHS and proper RHS: ", simplify(difference))
 
-"""
+
+g = sin(2*kappa*eta)*(P_1*kappa*xi*sinh(kappa*xi)/6 + P_1*cosh(kappa*xi)/9)
+my_sol_diff = diff(g, xi, xi) - 4*kappa*kappa*g - RHS
+
+my_sol_diff = my_sol_diff.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+my_sol_diff = my_sol_diff.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+my_sol_diff = my_sol_diff.subs(gamma, sqrt(i*omega/Sc))
+print("\n\nTest my solution g(xi): ", simplify(my_sol_diff))
