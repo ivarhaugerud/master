@@ -16,9 +16,11 @@ P2_partic = (P_1*sin(2*kappa*eta)/3)*(kappa*xi*sinh(kappa*xi)/2 + cosh(kappa*xi)
 #define operators acting on known quantities
 laplas1_u1x = -2*kappa*xi*cos(kappa*eta)*diff(ux1, xi, eta) + kappa*kappa*xi*sin(kappa*eta)*diff(ux1, xi) - 2*sin(kappa*eta)*diff(ux1, xi, xi)
 grad1x_P1 = -kappa*xi*cos(kappa*eta)*diff(P1, xi)
+laplas2_u0x = xi*kappa*kappa*(3*cos(kappa*eta)*cos(kappa*eta)-1)*diff(u0, xi) + (3*sin(kappa*eta)*sin(kappa*eta) + xi*xi*kappa*kappa*cos(kappa*eta)*cos(kappa*eta))*diff(u0, xi, xi)
 
 #define all the terms
-term1 = diff(u0, xi, xi) + diff(u0, eta, eta)
+# I HAVE FOUND A MISSTAKE!
+term1 = laplas2_u0x#diff(u0, xi, xi) + diff(u0, eta, eta)
 term2 = laplas1_u1x
 term3 = grad1x_P1
 term4 = diff(P2_partic, eta)
@@ -32,7 +34,6 @@ RHS = RHS.subs(D, kappa*P_1*sinh(kappa)/(gamma*gamma))
 RHS = RHS.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 
 #TEST IF RHS IS CORRECT
-"""
 print("TEST IF THE RHS I HAVE USED IS CORRECT")
 my_RHS_term1 = -P_1*kappa*kappa*(kappa_p*kappa_p*xi*sinh(kappa*xi)/2 + kappa*cosh(kappa*xi))/(gamma*gamma)
 my_RHS_term2 = P_1*sinh(kappa)*kappa_p*kappa_p/(sinh(kappa_p)*gamma*gamma)*(kappa*kappa*xi*sinh(kappa_p*xi)/2 + kappa_p*cosh(kappa_p*xi))
@@ -76,7 +77,8 @@ answer = diff(full_H, xi, xi) - gamma*gamma*full_H + my_RHS
 answer = answer.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
 answer = answer.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 print("Test full H solution: ", simplify(answer))
-"""
+
+
 RHS_non_eta = RHS.subs(eta, pi/(4*kappa))
 RHS_eta    = RHS - RHS_non_eta
 RHS = simplify(RHS_eta/cos(2*kappa*eta))
@@ -105,7 +107,7 @@ print("third term: ", simplify( (diff(my_F_3, xi, xi) - (gamma*gamma+4*kappa*kap
 print("second term: ", simplify( ((diff(my_F_2, xi, xi) - (gamma*gamma+4*kappa*kappa)*my_F_2 + my_RHS_2)).subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))))
 
 
-
+"""
 print("\n\n Continuity equation calculation")
 grad_1_u_1 = -kappa*xi*cos(kappa*eta)*diff(ux1, xi) -sin(kappa*eta)*diff(uy1, xi)
 grad_2_u0  = sin(kappa*eta)*kappa*xi*cos(kappa*eta)*diff(u0, xi)
@@ -122,12 +124,16 @@ LHS_1 = -2*kappa*(my_F_1+my_F_2+my_F_3)
 fy = 2*sinh(kappa*xi)*kappa*kappa*gamma*gamma*(1-gamma*gamma/(3*kappa*kappa))/(3*(gamma*gamma+3*kappa*kappa)**2) + kappa*xi*cosh(kappa*xi)*(gamma*gamma*gamma*gamma/6 - 9*kappa*kappa*kappa*kappa/2 - gamma*gamma*kappa*kappa)/((gamma*gamma+3*kappa*kappa)**2) + sinh(kappa)*kappa_p*xi*cosh(kappa_p*xi)/(2*sinh(kappa_p))
 LHS_2 = P_1*kappa*diff(fy,xi)/(gamma*gamma)
 LHS = LHS_1 + LHS_2
-
+LHS = LHS.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+print("LHS: ", simplify(LHS))
 
 difference = (RHS-LHS)
 difference = difference.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 difference = difference.subs(eta, pi/(4*kappa))
+difference = difference.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+
 #difference = difference.subs(xi, 1)
 
 #LHS = LHS.subs(P_1, (gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
 print(simplify(difference))
+"""
