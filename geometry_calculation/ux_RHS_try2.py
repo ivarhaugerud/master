@@ -20,10 +20,10 @@ grad1x_P1 = -kappa*xi*cos(kappa*eta)*diff(P1, xi)
 laplas2_u0x = xi*kappa*kappa*(3*cos(kappa*eta)*cos(kappa*eta)-1)*diff(u0, xi) + (3*sin(kappa*eta)*sin(kappa*eta) + xi*xi*kappa*kappa*cos(kappa*eta)*cos(kappa*eta))*diff(u0, xi, xi)
 
 #define all the terms
-term1 = laplas2_u0x - diff(u0, xi, xi) - diff(u0, eta, eta)
-term2 = 0#laplas1_u1x
-term3 = 0#-grad1x_P1
-term4 = 0#-diff(P2, eta)
+term1 = laplas2_u0x# - diff(u0, xi, xi) - diff(u0, eta, eta)
+term2 = laplas1_u1x
+term3 = -grad1x_P1
+term4 = -diff(P2, eta)
 
 #add together, the substitute back and simplify
 RHS = term1 + term2 + term3 + term4
@@ -39,7 +39,7 @@ RHS_no_eta = RHS.subs(eta, pi/(4*kappa))
 RHS_no_eta   = simplify(RHS_no_eta)
 RHS_with_eta = simplify((RHS - RHS_no_eta)/(cos(2*kappa*eta)))
 print("\n\n", RHS_no_eta)
-print("\n\n", RHS_with_eta)
+print("\n\n", RHS_with_eta.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma)))
 
 
 my_RHS1 = cos(2*kappa*eta)*((3-kappa*kappa*xi*xi)*cosh(gamma*xi)/(2*cosh(gamma)) - 3*kappa*kappa*xi*sinh(gamma*xi)/(2*gamma*cosh(gamma)))

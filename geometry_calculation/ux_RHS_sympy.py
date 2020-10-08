@@ -20,10 +20,10 @@ laplas2_u0x = xi*kappa*kappa*(3*cos(kappa*eta)*cos(kappa*eta)-1)*diff(u0, xi) + 
 
 #define all the terms
 # I HAVE FOUND A MISSTAKE!
-term1 = laplas2_u0x#diff(u0, xi, xi) + diff(u0, eta, eta)
+term1 = 0#-diff(u0, xi, xi) - diff(u0, eta, eta)
 term2 = laplas1_u1x
-term3 = grad1x_P1
-term4 = diff(P2_partic, eta)
+term3 = 0#-grad1x_P1
+term4 = 0#-diff(P2_partic, eta)
 
 #add together, the substitute back and simplify
 RHS = term1 + term2 + term3 + term4
