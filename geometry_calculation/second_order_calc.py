@@ -147,3 +147,8 @@ difference = difference.subs(kappa_p, sqrt(gamma*gamma+kappa*kappa))
 
 difference = simplify(expand(difference))
 print(difference)
+
+kappa_pp = sqrt(gamma*gamma+4*kappa*kappa)
+Ax, Ay = symbols("Ax Ay")
+system = [my_sol_y.subs(xi, 1) + Ay*sinh(kappa_pp), my_sol_eta.subs(xi, 1) + Ax*cosh(kappa_pp), kappa_pp*Ay-2*kappa*Ax]
+print(linsolve(system, [Ax, Ay, psi_2]))
