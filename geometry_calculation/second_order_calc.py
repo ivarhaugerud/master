@@ -152,3 +152,15 @@ kappa_pp = sqrt(gamma*gamma+4*kappa*kappa)
 Ax, Ay = symbols("Ax Ay")
 system = [my_sol_y.subs(xi, 1) + Ay*sinh(kappa_pp), my_sol_eta.subs(xi, 1) + Ax*cosh(kappa_pp), kappa_pp*Ay-2*kappa*Ax]
 print(linsolve(system, [Ax, Ay, psi_2]))
+
+
+BCy = -kappa*F0*tanh(gamma)/(2*gamma) -2*kappa*psi_2*sinh(2*kappa)/(gamma*gamma)+Ay*sinh(kappa_pp)
+BCy = -P_1*kappa*kappa*cosh(kappa)/(2*gamma*gamma) + P_1*kappa*kappa_p*sinh(kappa)/(2*gamma*gamma*tanh(kappa_p)) - 2*kappa*psi_2*sinh(2*kappa)/(gamma*gamma) + Ay*sinh(kappa_pp)
+BCx = F0/4 + P_1*sinh(kappa)/2 + Ax*cosh(kappa_pp) - 2*kappa*psi_2*cosh(2*kappa)/(gamma*gamma)
+divergence_condition = Ay*kappa_pp -2*kappa*Ax 
+system = [BCy, BCx, divergence_condition]
+print(linsolve(system, [Ax, Ay, psi_2]))
+
+
+print(simplify(BCy-my_sol_y.subs(xi, 1)-Ay*sinh(kappa_pp)))
+print(simplify(BCx-my_sol_eta.subs(xi, 1)-Ax*cosh(kappa_pp)))
