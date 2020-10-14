@@ -11,13 +11,13 @@ matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-epsilon = 0.3
+epsilon = 0.2
 
-Sc = 1000
+Sc = 1
 F0 = 1
 pi = np.pi 
 omega = 1
-kappa = 1
+kappa = 2
 Nt = 10
 T = np.linspace(0, np.pi/omega, Nt)
 eta = np.linspace(-np.pi/(2*kappa), 3*np.pi/kappa+np.pi/(2*kappa), 100)
@@ -39,7 +39,7 @@ for t in range(len(T)):
 		u_x[t,x,:]   += F0*(1-np.cosh(gamma*xi[x])/np.cosh(gamma))/(gamma*gamma)
 		u_x[t,x,:]   *= np.exp(1j*omega*T[t])
 
-		u_y[t, x, :] = (np.exp(1j*omega*T[t])*np.cos(kappa*eta)*kappa*P1*np.sinh(kappa)/(gamma*gamma))*( np.sinh(kappa_prime*xi[x])/np.sinh(kappa_prime) - np.sinh(kappa*xi[x])/np.sinh(kappa))
+		u_y[t, x, :] = epsilon*(np.exp(1j*omega*T[t])*np.cos(kappa*eta)*kappa*P1*np.sinh(kappa)/(gamma*gamma))*( np.sinh(kappa_prime*xi[x])/np.sinh(kappa_prime) - np.sinh(kappa*xi[x])/np.sinh(kappa))
 
 u_x = np.real(u_x)
 u_y = np.real(u_y)
@@ -83,7 +83,7 @@ for i in range(len(T)):
 	uy[np.where(np.abs(uy)<1e-5)] = 0
 
 	plt.streamplot(X, Y, ux, uy, density=1.0, color='k')
-	CS = plt.contourf(X, Y, speed, levels=np.linspace(0, 0.55, 15))
+	CS = plt.contourf(X, Y, speed, levels=np.linspace(0, 0.6, 15))
 	cbar = plt.colorbar(CS)
 	cbar.set_label(r"Velocity $[U]$", fontsize=12)
 	cbar.ax.yaxis.set_major_formatter(tick.FormatStrFormatter("%.1f"))
@@ -94,7 +94,8 @@ for i in range(len(T)):
 	plt.fill_between(x[0,:], (-1-epsilon)*np.ones(len(x[0,:]))-0.05, y[0,:], color="k")
 	plt.fill_between(x[0,:], ( 1+epsilon)*np.ones(len(x[0,:]))+0.05, -y[0,:], color="k")
 	plt.axis([min(eta), max(eta), -1-epsilon-0.05, 1+epsilon+0.05])
-
+	#plt.axis([-0.5, 2, -1-epsilon, -0.5])
+	#plt.axis("equal")
 	plt.draw()
 	plt.pause(0.5)
 	filename = "figures/streamplot_nr"+str(i)+".pdf"

@@ -10,7 +10,7 @@ Nt = 10
 epsilon = 0.3
 omega = 1	
 Sc = 1
-kappa = 1+1e-4
+kappa = 1e-3
 gamma = 1j*omega/Sc 
 F0 = 3
 
