@@ -77,7 +77,6 @@ for i in range(len(T)):
 	# Interpolate using three different methods and plot
 	ux = griddata( (x.flatten(),  y.flatten()), u_x[i,:,:].flatten(), (X, Y), method='nearest')
 	uy = griddata( (x.flatten(),  y.flatten()), u_y[i,:,:].flatten(), (X, Y), method='nearest')
-
 	speed = np.sqrt(np.square(ux) + np.square(uy))
 
 	ux[np.where(np.abs(uy)<1e-5)] = 0
