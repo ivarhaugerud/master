@@ -151,6 +151,22 @@ print("Divergence of particular solution: ", difference)
 print("\n\n\n")
 print("-----------------------------------------------------------------")
 print("CALCULATE divergence")
+RHS = -grad1_u1- grad2_u0
+LHS = diff(my_sol_y, xi)*sin(2*kappa*eta) + diff(my_sol_eta*cos(2*kappa*eta), eta)
+difference = LHS - RHS 
+difference = difference.subs(B, P_1*kappa*cosh(kappa)/(gamma*gamma))
+difference = difference.subs(C, F0*tanh(gamma)/gamma)
+difference = difference.subs(D, kappa*P_1*sinh(kappa)/(gamma*gamma))
+difference = difference.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+difference = difference.subs(kappa_p, sqrt(gamma*gamma+kappa*kappa))
+
+difference = simplify(expand(difference))
+print("Divergence of particular solution: ", difference)
+
+
+print("\n\n\n")
+print("-----------------------------------------------------------------")
+print("CALCULATE undetermined coeffs")
 
 kappa_pp = sqrt(gamma*gamma+4*kappa*kappa)
 Ax, Ay = symbols("Ax Ay")
@@ -162,12 +178,15 @@ system = [BCy, BCx, divergence_condition]
 
 print("[Ax, Ay, psi_2] = ", linsolve(system, [Ax, Ay, psi_2]))
 
+print("\n\n\n")
+print("-----------------------------------------------------------------")
+print("Check solution with BCs")
 sol_x_no_eta_BC = P_1*sinh(kappa)*(kappa*kappa*xi*sinh(kappa*xi)/sinh(kappa) - kappa_p*kappa_p*xi*sinh(kappa_p*xi)/sinh(kappa_p) + gamma*gamma*cosh(gamma*xi)/cosh(gamma))/(2*gamma*gamma) + cosh(gamma*xi)*F0*(1-xi*xi)/(4*cosh(gamma))
 answ = expand(gamma*gamma*sol_x_no_eta_BC - diff(sol_x_no_eta_BC, xi, xi) - RHS_no_eta)
 answ = expand(answ.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p)))))
 answ = answ.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 print("\n\n\n")
-print("eta indep sol:", simplify(answ))
+print("x eta-indep sol:", simplify(answ))
 
 
 psi_2_insert = (P_1*sqrt(gamma**2 + 4*kappa**2)*(kappa*cosh(kappa)*tanh(kappa_p) - kappa_p*sinh(kappa))*cosh(sqrt(gamma**2 + 4*kappa**2)) + gamma**2*(F0 + 2*P_1*sinh(kappa))*sinh(sqrt(gamma**2 + 4*kappa**2))*tanh(kappa_p))/(4*(2*kappa*sinh(sqrt(gamma**2 + 4*kappa**2))*cosh(2*kappa) - sqrt(gamma**2 + 4*kappa**2)*sinh(2*kappa)*cosh(sqrt(gamma**2 + 4*kappa**2)))*tanh(kappa_p))
@@ -178,7 +197,7 @@ answ = expand(kappa_pp*kappa_pp*sol_x_eta - diff(sol_x_eta, xi, xi) - RHS_just_e
 answ = expand(answ.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p)))))
 answ = answ.subs(kappa_p,    sqrt(kappa*kappa+gamma*gamma))
 answ = answ.subs(P_2, psi_2*2*kappa/(gamma*gamma))
-print("\n\n eta dep sol:", simplify(answ))
+print("\n\n x eta-dep sol:", simplify(answ))
 
 sol_y = (P_1*kappa*sinh(kappa)/(2*gamma*gamma*tanh(kappa_p)))*(kappa_p*xi*cosh(kappa_p*xi)/cosh(kappa_p) - kappa_p*sinh(kappa_pp*xi)/sinh(kappa_pp) -kappa*(tanh(kappa_p)/tanh(kappa))*(xi*cosh(kappa*xi)/cosh(kappa) - sinh(kappa_pp*xi)/sinh(kappa_pp))) - P_2*sinh(2*kappa)*(sinh(2*kappa*xi)/sinh(2*kappa) - sinh(kappa_pp*xi)/sinh(kappa_pp))
 answ = expand(kappa_pp*kappa_pp*sol_y - diff(sol_y, xi, xi) - my_RHS/sin(2*kappa*eta))
@@ -186,11 +205,12 @@ answ = expand(answ.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa
 answ = answ.subs(kappa_p,    sqrt(kappa*kappa+gamma*gamma))
 answ = answ.subs(P_2, psi_2*2*kappa/(gamma*gamma))
 print("\n\n y sol:", simplify(answ))
-"""
-FiniteSet((sqrt(gamma**2 + 4*kappa**2)*(F0*gamma**2*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*gamma**2*sinh(kappa)*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*kappa**2*cosh(kappa)*cosh(2*kappa)*tanh(kappa_p) - 2*P_1*kappa*kappa_p*sinh(kappa)*cosh(2*kappa))/(4*gamma**2*(2*kappa*sinh(sqrt(gamma**2 + 4*kappa**2))*cosh(2*kappa) - sqrt(gamma**2 + 4*kappa**2)*sinh(2*kappa)*cosh(sqrt(gamma**2 + 4*kappa**2)))*tanh(kappa_p)), kappa*(F0*gamma**2*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*gamma**2*sinh(kappa)*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*kappa**2*cosh(kappa)*cosh(2*kappa)*tanh(kappa_p) - 2*P_1*kappa*kappa_p*sinh(kappa)*cosh(2*kappa))/(2*gamma**2*(2*kappa*sinh(sqrt(gamma**2 + 4*kappa**2))*cosh(2*kappa) - sqrt(gamma**2 + 4*kappa**2)*sinh(2*kappa)*cosh(sqrt(gamma**2 + 4*kappa**2)))*tanh(kappa_p)),
 
 
+print("\n\n\n")
+print("-----------------------------------------------------------------")
+print("series expansion in kappa")
+series_eta_indep = series(sol_x_no_eta_BC, kappa)
+print(simplify(series_eta_indep))
 
-
-	(P_1*sqrt(gamma**2 + 4*kappa**2)*(kappa*cosh(kappa)*tanh(kappa_p) - kappa_p*sinh(kappa))*cosh(sqrt(gamma**2 + 4*kappa**2)) + gamma**2*(F0 + 2*P_1*sinh(kappa))*sinh(sqrt(gamma**2 + 4*kappa**2))*tanh(kappa_p))/(4*(2*kappa*sinh(sqrt(gamma**2 + 4*kappa**2))*cosh(2*kappa) - sqrt(gamma**2 + 4*kappa**2)*sinh(2*kappa)*cosh(sqrt(gamma**2 + 4*kappa**2)))*tanh(kappa_p))))
-"""
+print(simplify(series((F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))), kappa)))
