@@ -28,7 +28,7 @@ T = np.linspace(0, 2*np.pi/omega, Nt)
 eta = np.linspace(0, 4*np.pi/kappa, Nx)
 xi = np.linspace(-1, 1, Ny)
 u = np.zeros((2, Ny, Nx, Nt))
-
+"""
 uy = (-P_1*kappa**2*xi*np.cosh(kappa*xi)/(2*gamma**2) + P_1*kappa*kappa_p*xi*np.sinh(kappa)*np.cosh(kappa_p*xi)/(2*gamma**2*np.sinh(kappa_p)) - 2*kappa*psi_2*np.sinh(2*kappa*xi)/gamma**2) + Ay*np.sinh(kappa_pp*xi)
 ux = F0*xi**2*np.cosh(gamma*xi)/(4*np.cosh(gamma)) - P_1*kappa**2*xi*np.sinh(kappa*xi)/(2*gamma**2) + P_1*kappa_p*kappa_p*np.sinh(kappa)*xi*np.sinh(kappa_p*xi)/(2*gamma**2*np.sinh(kappa_p)) - 2*kappa*psi_2*np.cosh(2*kappa*xi)/gamma**2 + Ax*np.cosh(kappa_pp*xi)
 ux_no_eta   = P_1*kappa*kappa*xi*np.sinh(kappa*xi)/(2*gamma*gamma) - F0*xi*xi*np.cosh(gamma*xi)/(4*np.cosh(gamma)) - P_1*kappa_p*kappa_p*np.sinh(kappa)*xi*np.sinh(kappa_p*xi)/(2*gamma*gamma*np.sinh(kappa_p)) + (P_1*np.sinh(kappa)/2 + F0/4)*np.cosh(gamma*xi)/np.cosh(gamma)
@@ -38,7 +38,7 @@ for i in range(Nt):
 	for x in range(Nx):
 		u[0, :, x, i] = np.real(np.exp(1j*omega*T[i])*ux*np.cos(2*kappa*eta[x])) + np.real(np.exp(1j*omega*T[i])*ux_no_eta)
 		u[1, :, x, i] = np.real(np.exp(1j*omega*T[i])*uy*np.sin(2*kappa*eta[x]))
-
+"""
 x2 = eta
 y2 = np.linspace(-1-epsilon, 1+epsilon, 110)
 X, Y = np.meshgrid(x2, y2)
