@@ -27,6 +27,8 @@ xi = np.linspace(-1, 1, 150)
 u_x = np.zeros((len(T), len(xi), len(eta)), dtype="complex")
 u_y = np.zeros((len(T), len(xi), len(eta)), dtype="complex")
 
+Nr_fig = 10
+
 for f in range(len(Fs)):
 	F0 = Fs[f]
 	omega = Omegas[f]
@@ -96,7 +98,7 @@ for i in range(len(T)):
 	#plt.axis("equal")
 	plt.draw()
 	plt.pause(0.5)
-	if i % 10 == 0:
+	if i % int(Nt/Nr_fig) == 0:
 		filename = "figures/streamplot_manyfreq_nr"+str(i)+".pdf"
 		plt.savefig(filename, bbox_inches="tight")
 		os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
