@@ -53,9 +53,10 @@ class Walls(df.SubDomain):
 def inlet(x, on_bnd):
     return on_bnd and df.near(x[0], 0)
 
+#arguments from command-line
+parser = argparse.ArgumentParser(description="Time-dependent Taylor dispersion")
 
-parser = argparse.ArgumentParser(
-    description="Time-dependent Taylor dispersion")
+#physical parameters
 parser.add_argument("-Lx",   type=float, default=2.0,   help="Length of cell")
 parser.add_argument("-res",  type=int,   default=32,    help="Resolution")
 parser.add_argument("-dt",   type=float, default=0.02,  help="Time step")
@@ -66,13 +67,18 @@ parser.add_argument("-D",    type=float, default=0.1,   help="Molecular diffusiv
 parser.add_argument("-f0",   type=float, default=0.0,   help="Base force")
 parser.add_argument("-f1",   type=float, default=1.0,   help="Oscillatory force")
 
+#numericla parameters
 parser.add_argument("-tol", "--tolerance", type=float, default=1e-5, help="Convergence tolerance")
 parser.add_argument("-eps", "--epsilon",   type=float, default=0.2,  help="Roughness amplitude")
 
+#additional options
 parser.add_argument("--disable_inertia", action="store_true", help="Disable inertia")
 parser.add_argument("--onlyflow",        action="store_true", help="only flow")
+
+#collect arguments
 args = parser.parse_args()
 
+#define parameters for this program
 Ny = args.res
 D = df.Constant(args.D)
 nu = df.Constant(args.nu)
@@ -88,7 +94,7 @@ eps = args.epsilon
 
 dt = args.dt
 dx = Ly / Ny
-Nx = 4*args.res#int(Lx / dx)
+Nx = 10#2*args.res#int(Lx / dx)
 tol = args.tolerance
 
 folder = os.path.join(

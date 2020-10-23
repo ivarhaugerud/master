@@ -34,6 +34,9 @@
 *.gif
 *.dat
 
+*.h5
+*.xdmf
+*.dat
 # Logs and databases #
 ######################
 *.log
