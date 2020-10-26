@@ -7,54 +7,66 @@ import scipy.interpolate as sci
 from scipy.interpolate import griddata
 import matplotlib.ticker as tick 
 
-name1 = "results_oscwavychannel/Lx0.05_tau5.0_eps0.0_nu100.0_D0.3_fzero0.0_fone1.0_res100_dt0.01/u.h5" #results_oscwavychannel/Lx452.19_tau5.0_eps0.032_nu1.0_D0.3_fzero0.0_fone3.0_res106_dt0.02/u.h5"
-name2 = "results_oscwavychannel/Lx0.05_tau2.5_eps0.0_nu100.0_D0.3_fzero0.0_fone1.0_res100_dt0.01/u.h5" #results_oscwavychannel/Lx452.19_tau5.0_eps0.032_nu1.0_D0.3_fzero0.0_fone3.0_res106_dt0.02/u.h5"
+name1 = "results_oscwavychannel/Lx0.1_tau100.0_eps0.0_nu1.0_D0.3_fzero0.0_fone3.0_res150_dt0.5/u.h5" #results_oscwavychannel/Lx452.19_tau5.0_eps0.032_nu1.0_D0.3_fzero0.0_fone3.0_res106_dt0.02/u.h5"
 
 f = h5py.File(name1, 'r')
-g = h5py.File(name2, 'r')
 
-dt1 = 0.02 
-dt2 = 0.01
-tau1 = 5
-tau2 = 2.5
-
-skipp = 2
-timesteps = int((5/0.02)/skipp)
-
+dt1 = 0.5 
+tau1 = 100
+timesteps = int((tau1/0.02))
 speed = np.zeros((timesteps+1, 2))
 
 
 max_index = len(list(f["VisualisationVector"]))
-timesteps = 5
-F0 = 1
-omega = 1e-1#2*np.pi/tau2
-nu = 100
+geometry = np.array(list(f["Mesh"]["0"]["mesh"]["geometry"]))
+eta = geometry[::11, 0]
+xi  = geometry[::11, 1]
+
+F0 = 3
+omega = 2*np.pi/tau1
+nu = 1
 D = 0.3
 Sc = nu/D
-gamma = -np.sqrt(1j*omega/Sc)
-T = np.linspace(0, 3*2*np.pi/omega, max_index)
+gamma = np.sqrt(1j*omega/Sc)
+T = np.linspace(3*2*np.pi/omega, 0, max_index+1)
+index_1_p = np.argmin(abs(T-2*2*np.pi/omega))
+spatial_avg = np.zeros((index_1_p, 2))
 
+from scipy import integrate
 for i in range(max_index-1):
-	plt.clf()
-	u = np.array(list(f["VisualisationVector"][str(int((max_index-skipp*(i*0.5)-1)))]))
-	#speed[i, 0] = np.mean(np.sqrt(np.square(u[:,0]) + np.square(u[:,1])))
-	plt.plot(u[::11,0])
+	if i < index_1_p:
+		plt.clf()
+		u = np.array(list(f["VisualisationVector"][str(int((max_index-i-1)))]))
 
-	u1 = np.array(list(g["VisualisationVector"][str((int(max_index/2)-skipp*i-1))]))
-	speed[i, 1] = np.mean(np.sqrt(np.square(u1[:,0]) + np.square(u1[:,1])))
-	plt.plot(u1[::11,0])
-	x = np.linspace(-1, 1, len(u1[::11,0]))
-	#plt.axis([0, len(u1[::11,0]), -0.4, 0.4])
+		x = np.linspace(-1, 1, len(u[::11,0]))
+		spatial_avg[i, 0] = integrate.trapz(u[::11,0]*u[::11,0], xi)
+		u_ana = np.real(F0*((1-np.cosh(gamma*x)/np.cosh(gamma))/(gamma*gamma))*np.exp(1j*omega*T[max_index-i-1]))
 
-	plt.plot(np.real(F0*((1-np.cosh(gamma*x)/np.cosh(gamma))/(gamma*gamma))*np.exp(1j*omega*T[max_index-skipp*i-1])), "--")
-	plt.draw()
-	plt.pause(0.01)
+		spatial_avg[i, 1] = integrate.trapz(u_ana*u_ana, x)
+		plt.plot(xi, u[::11,0])
+		plt.plot(x, np.real(F0*((1-np.cosh(gamma*x)/np.cosh(gamma))/(gamma*gamma))*np.exp(1j*omega*T[max_index-i-1])), "--")
+		plt.draw()
+		plt.pause(0.01)
 #plt.show()
 
+plt.plot(spatial_avg[:,0])
+plt.plot(spatial_avg[:,1])
+plt.show()	
+
+plt.plot(spatial_avg[:,0]-spatial_avg[:,1])
+plt.show()	
+
+plt.plot(abs(spatial_avg[:,0]-spatial_avg[:,1]/spatial_avg[:,1]))
+plt.show()	
+
+
+time_avg_num = integrate.trapz(spatial_avg[:,0], np.flip(T[:index_1_p]))
+time_avg_ana = integrate.trapz(spatial_avg[:,1], np.flip(T[:index_1_p]))
+print(time_avg_ana, time_avg_num)
 	#plt.plot(u[:,0]/u1[:,0])
 	#plt.show()
-"""
 
+"""
 plt.plot(speed[:,0])
 plt.plot(speed[:,1]*4/3)
 plt.show()
