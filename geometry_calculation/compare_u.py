@@ -32,6 +32,11 @@ T = np.linspace(3*2*np.pi/omega, 0, max_index+1)
 index_1_p = np.argmin(abs(T-2*2*np.pi/omega))
 spatial_avg = np.zeros((index_1_p, 2))
 
+
+tdat = np.loadtxt("results_oscwavychannel/Lx0.1_tau100.0_eps0.0_nu1.0_D0.3_fzero0.0_fone3.0_res150_dt0.5/tdata.dat")
+stop_index = np.argmin(abs(tdat[:,0]-2*2*np.pi/omega))
+# x = [time, <ux>, <ux/U>, <uy>, <u*u>, ...]
+
 from scipy import integrate
 for i in range(max_index-1):
 	if i < index_1_p:
@@ -39,18 +44,19 @@ for i in range(max_index-1):
 		u = np.array(list(f["VisualisationVector"][str(int((max_index-i-1)))]))
 
 		x = np.linspace(-1, 1, len(u[::11,0]))
-		spatial_avg[i, 0] = integrate.trapz(u[::11,0]*u[::11,0], xi)
+		spatial_avg[i, 0] = integrate.trapz(u[::11,0]*u[::11,0], xi)/2
 		u_ana = np.real(F0*((1-np.cosh(gamma*x)/np.cosh(gamma))/(gamma*gamma))*np.exp(1j*omega*T[max_index-i-1]))
 
-		spatial_avg[i, 1] = integrate.trapz(u_ana*u_ana, x)
-		plt.plot(xi, u[::11,0])
-		plt.plot(x, np.real(F0*((1-np.cosh(gamma*x)/np.cosh(gamma))/(gamma*gamma))*np.exp(1j*omega*T[max_index-i-1])), "--")
-		plt.draw()
-		plt.pause(0.01)
+		spatial_avg[i, 1] = integrate.trapz(u_ana*u_ana, x)/2
+		#plt.plot(xi, u[::11,0])
+		#plt.plot(x, np.real(F0*((1-np.cosh(gamma*x)/np.cosh(gamma))/(gamma*gamma))*np.exp(1j*omega*T[max_index-i-1])), "--")
+		#plt.draw()
+		#plt.pause(0.01)
 #plt.show()
 
 plt.plot(spatial_avg[:,0])
 plt.plot(spatial_avg[:,1])
+plt.plot(tdat[stop_index:, 4])
 plt.show()	
 
 plt.plot(spatial_avg[:,0]-spatial_avg[:,1])
@@ -65,7 +71,7 @@ time_avg_ana = integrate.trapz(spatial_avg[:,1], np.flip(T[:index_1_p]))
 print(time_avg_ana, time_avg_num)
 	#plt.plot(u[:,0]/u1[:,0])
 	#plt.show()
-
+"""
 """
 plt.plot(speed[:,0])
 plt.plot(speed[:,1]*4/3)
@@ -115,4 +121,3 @@ plt.plot(x-x[cut_nu], nume[:]/max(nume), "--")
 plt.show()
 print("mean analytic kinetic:", max(avg_kinetic)/max(speed))
 print("mean numerical: ", max(speed))
-"""

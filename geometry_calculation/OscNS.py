@@ -94,7 +94,7 @@ eps = args.epsilon
 
 dt = args.dt
 dx = Ly / Ny
-Nx = 10#2*args.res#int(Lx / dx)
+Nx = args.res#int(Lx / dx)
 tol = args.tolerance
 
 folder = os.path.join(
@@ -210,7 +210,7 @@ solver_B.parameters["krylov_solver"]["absolute_tolerance"] = 1e-14
 t = 0
 
 one = df.interpolate(df.Constant(1.), S)
-V_Omega = df.assemble(one * df.dx)
+V_Omega = df.assemble(one * df.dx) #unit cell volume
 r = df.SpatialCoordinate(mesh)
 
 xdmf_u = df.XDMFFile(mesh.mpi_comm(), "{}/u.xdmf".format(folder))
