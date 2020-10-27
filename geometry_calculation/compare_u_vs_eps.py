@@ -9,52 +9,66 @@ import matplotlib.ticker as tick
 from scipy import integrate
 
 dirr = "results_oscwavychannel/"
-name1 = "Lx0.1_tau100.0_eps0.0_nu1.0_D0.3_fzero0.0_fone3.0_res150_dt0.5/u.h5" #results_oscwavychannel/Lx452.19_tau5.0_eps0.032_nu1.0_D0.3_fzero0.0_fone3.0_res106_dt0.02/u.h5"
 
 #simulation paramters
 dt = 0.02
-tau = 5
+tau = 5.0
 timesteps = int((tau/0.02))
 
 
 F0 = 3
 omega = 2*np.pi/tau
 nu = 1
-D = 0.3
+D = 1#0.3
 Sc = nu/D
 gamma = np.sqrt(1j*omega/Sc)
 
 epsilon = np.logspace(-2, np.log10(0.6), 8)
+epsilon = [0.01, 0.01794823, 0.03221389, 0.05781823, 0.10377349, 0.185]
+
 kappa = 0.5
 Lx = 2*np.pi/kappa
 exp_u2 = np.zeros(len(epsilon))
-periods = 5 
-"""
+periods = 4 
+
 for i in range(len(epsilon)):
 	eps = epsilon[i]
-	res = int(150*(1+2*float(eps)))
-	filename = "Lx"+str(Lx)[:6]+"_tau"+str(tau)+"_eps"+str(eps)[:5]+"_nu1.0_D0.3_fzero0.0_fone3.0_res"+str(res)+"_dt0.02/tdata.dat"
+	res = int(100*(1+2*float(eps)))
+	filename = "Lx"+str(Lx)[:6]+"_tau"+str(tau)+"_eps"+str(str(eps)[:5])+"_nu1.0_D0.3_fzero0.0_fone3.0_res"+str(res)+"_dt0.02/tdata.dat"
 
 	tdat = np.loadtxt(dirr + filename)
+	print(eps, np.shape(tdat))
 
-	t = tdat[0,:]
-	u2 = tdat[4,:]
-	cut_index = np.argmin(abs(t -(periods-2)*tau))
+	t = tdat[:,0]
+	u2 = tdat[:,4]
+	start_index = np.argmin(abs(t -(periods-2.25)*tau))
+	end_index   = np.argmin(abs(t -(periods-0.25)*tau))
+	#plt.plot(t, u2, "--")
+	#plt.plot(t[start_index:end_index], u2[start_index:end_index])
+	#plt.show()
+	exp_u2[i] = integrate.trapz(u2[start_index:end_index], t[start_index:end_index])/(2*tau)
+  
 
-	exp_u2[i] = integrate.trapz(u2[cut_index:], t[cut_index:])/(2*tau)
+x = np.linspace(-1, 1, int(1e4))
+T = np.linspace(0, 2*np.pi/omega, int(1e3))
 
+u_x = (F0/(gamma*gamma))*(1-np.cosh(gamma*x)/np.cosh(gamma))
+u2_t = np.zeros(len(T))
 
-plt.plot(epsilon, exp_u2)
-plt.show()
-"""
+for i in range(len(T)):
+	u2_t[i] = integrate.trapz(np.real(u_x*np.exp(1j*omega*T[i]))*np.real(u_x*np.exp(1j*omega*T[i])), x)/2
 
+u2_zero_eps = integrate.trapz(u2_t, T)/(2*np.pi/omega)
+
+plt.plot(epsilon, exp_u2, "-")
+plt.plot(0, 0.4725333244354646, "o")
+#plt.xscale("log")
 
 pi = np.pi 
 Nt = 120
 T = np.linspace(0, 2*np.pi/omega, Nt)
-eta = np.linspace(-np.pi/(2*kappa), 3*np.pi/kappa+np.pi/(2*kappa), 100)
+eta = np.linspace(0, 2*np.pi/kappa, 100)
 xi = np.linspace(-1, 1, 350)
-gamma = np.sqrt(1j*omega/Sc)
 
 u_x = np.zeros((len(T), len(xi), len(eta), 3))
 u_y = np.zeros((len(T), len(xi), len(eta), 3))
@@ -94,10 +108,35 @@ first_int  = np.zeros((len(T), len(eta)))
 second_int = np.zeros(len(T))
 u_squared_ana = np.zeros(len(epsilon))
 
+after_xi_integral = np.zeros((len(T),len(eta)))
+after_xi_eta_integral = np.zeros(len(T))
+
 for e in range(len(epsilon)):
 	eps = epsilon[e]
+	for i in range(len(T)):
+		#plt.clf()
+		u[i, :, :, 0] = u_x[i, :, :, 0] + eps*u_x[i, :, :, 1] + eps*eps*u_x[i, :, :, 2]
+		u[i, :, :, 1] =                   eps*u_y[i, :, :, 1] + eps*eps*u_y[i, :, :, 2]
+
+		u[i, :, :, 2] = u[i,:,:,0]*u[i,:,:,0] + u[i,:,:,1]*u[i,:,:,1]
+
+		for k in range(len(eta)):
+			after_xi_integral[i,k] = integrate.trapz(u[i,:,k,2]*(1+eps*np.sin(kappa*eta[k])), xi)/2
+
+		after_xi_eta_integral[i] = integrate.trapz(after_xi_integral[i,:], eta)/(2*np.pi/kappa)
+
+	u_squared_ana[e] = integrate.trapz(after_xi_eta_integral, T)/(2*pi/omega)
+print(u_squared_ana)
+plt.plot(epsilon, u_squared_ana, "--")
+plt.show()
 
 
+plt.plot(epsilon, 100*abs((u_squared_ana-exp_u2)/u_squared_ana))
+plt.show()
+#plt.show()
+"""
+for e in range(len(epsilon)):
+	eps = epsilon[e]
 	x2 = eta
 	y2 = np.linspace(-1-eps, 1+eps, len(xi))
 	X, Y = np.meshgrid(x2, y2)
@@ -127,12 +166,14 @@ for e in range(len(epsilon)):
 
 		second_int[i] = integrate.trapz(first_int[i, :], x[0, :])/(2*pi/kappa)
 
+
 		#CS = plt.contourf(X, Y, U)
 		#plt.pause(0.01)
 
 	#plt.plot(T, second_int)
 	#plt.show()
 	u_squared_ana[e] = integrate.trapz(second_int, T)/(2*pi/omega)
-plt.plot(epsilon, "o")
-plt.xscale("log")
+plt.plot(epsilon, u_squared_ana, ".--")
+#plt.xscale("log")
 plt.show()
+"""
