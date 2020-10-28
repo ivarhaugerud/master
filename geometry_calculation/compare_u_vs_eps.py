@@ -7,6 +7,17 @@ import scipy.interpolate as sci
 from scipy.interpolate import griddata
 import matplotlib.ticker as tick 
 from scipy import integrate
+import seaborn as sns
+import matplotlib
+import os
+
+plt.style.use("bmh")
+sns.color_palette("hls", 1)
+
+matplotlib.rc('xtick', labelsize=14)
+matplotlib.rc('ytick', labelsize=14)
+matplotlib.rcParams['mathtext.fontset'] = 'stix'
+matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
 dirr = "results_oscwavychannel/"
 
@@ -24,31 +35,29 @@ Sc = nu/D
 gamma = np.sqrt(1j*omega/Sc)
 
 epsilon = np.logspace(-2, np.log10(0.6), 8)
-epsilon = [0.01, 0.01794823, 0.03221389, 0.05781823, 0.10377349, 0.185]
-
-kappa = 0.5
+epsilon = np.linspace(0, 0.8, 17)#[0.01, 0.01794823, 0.03221389, 0.05781823, 0.10377349, 0.185]
+print(epsilon)
+kappa = 1
 Lx = 2*np.pi/kappa
 exp_u2 = np.zeros(len(epsilon))
 periods = 4 
 
-for i in range(len(epsilon)):
+for i in range(len(epsilon)-1):
+	i += 1
 	eps = epsilon[i]
 	res = int(100*(1+2*float(eps)))
-	filename = "Lx"+str(Lx)[:6]+"_tau"+str(tau)+"_eps"+str(str(eps)[:5])+"_nu1.0_D0.3_fzero0.0_fone3.0_res"+str(res)+"_dt0.02/tdata.dat"
-
-	tdat = np.loadtxt(dirr + filename)
-	print(eps, np.shape(tdat))
-
-	t = tdat[:,0]
-	u2 = tdat[:,4]
-	start_index = np.argmin(abs(t -(periods-2.25)*tau))
-	end_index   = np.argmin(abs(t -(periods-0.25)*tau))
-	#plt.plot(t, u2, "--")
-	#plt.plot(t[start_index:end_index], u2[start_index:end_index])
-	#plt.show()
-	exp_u2[i] = integrate.trapz(u2[start_index:end_index], t[start_index:end_index])/(2*tau)
+	try:
+		filename = "Lx"+str(Lx)[:6]+"_tau"+str(tau)+"_eps"+str(str(eps)[:4])+"_nu1.0_D0.3_fzero0.0_fone3.0_res"+str(res)+"_dt0.02/tdata.dat"
+		tdat = np.loadtxt(dirr + filename)
+		t = tdat[:,0]
+		u2 = tdat[:,4]
+		start_index = np.argmin(abs(t -(periods-2.25)*tau))
+		end_index   = np.argmin(abs(t -(periods-0.25)*tau))
+		exp_u2[i] = integrate.trapz(u2[start_index:end_index], t[start_index:end_index])/(2*tau)
+	except:
+		print("did not work for epsilon = ", eps)
   
-
+#calculate analytic for epsilon=0
 x = np.linspace(-1, 1, int(1e4))
 T = np.linspace(0, 2*np.pi/omega, int(1e3))
 
@@ -58,11 +67,13 @@ u2_t = np.zeros(len(T))
 for i in range(len(T)):
 	u2_t[i] = integrate.trapz(np.real(u_x*np.exp(1j*omega*T[i]))*np.real(u_x*np.exp(1j*omega*T[i])), x)/2
 
-u2_zero_eps = integrate.trapz(u2_t, T)/(2*np.pi/omega)
+exp_u2[0] = integrate.trapz(u2_t, T)/(2*np.pi/omega)
 
-plt.plot(epsilon, exp_u2, "-")
-plt.plot(0, 0.4725333244354646, "o")
-#plt.xscale("log")
+
+
+###
+#ANALYTIC RESULTS
+###
 
 pi = np.pi 
 Nt = 120
@@ -126,54 +137,23 @@ for e in range(len(epsilon)):
 		after_xi_eta_integral[i] = integrate.trapz(after_xi_integral[i,:], eta)/(2*np.pi/kappa)
 
 	u_squared_ana[e] = integrate.trapz(after_xi_eta_integral, T)/(2*pi/omega)
-print(u_squared_ana)
-plt.plot(epsilon, u_squared_ana, "--")
+
+plt.plot(epsilon, u_squared_ana, "-", label="Analytic")
+for i in range(len(epsilon)):
+	if abs(exp_u2[i])>0.01:
+		plt.plot(epsilon[i], exp_u2[i], "ko")
+plt.plot(epsilon[0], exp_u2[0], "ko", label="Numerical")
+plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=14)
+plt.ylabel(r"Kinetic energy of fluid $\langle u^2 \rangle/2$", fontsize=14)
+plt.legend(loc="best", fontsize=12)
 plt.show()
 
-
-plt.plot(epsilon, 100*abs((u_squared_ana-exp_u2)/u_squared_ana))
+for i in range(len(epsilon)):
+	if abs(exp_u2[i])>0.01:
+		plt.plot(epsilon[i], abs((u_squared_ana[i]-exp_u2[i])/exp_u2[i]), "ko")
+plt.plot(epsilon[:12], epsilon[:12]**4)
+plt.yscale("log")
+plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=14)
+plt.ylabel(r"Relative difference analytic and numerical kinetic energy $\langle u^2 \rangle/2$", fontsize=14)
+plt.legend(loc="best", fontsize=12)
 plt.show()
-#plt.show()
-"""
-for e in range(len(epsilon)):
-	eps = epsilon[e]
-	x2 = eta
-	y2 = np.linspace(-1-eps, 1+eps, len(xi))
-	X, Y = np.meshgrid(x2, y2)
-
-	a = 1
-	x = np.zeros((len(xi), len(eta)))
-	y = np.zeros((len(xi), len(eta)))
-
-	for i in range(len(eta)):
-		y[:, i] = xi*a*(1+eps*np.sin(kappa*eta[i]))
-
-	for i in range(len(x)):
-		x[i, :] = a*eta
-
-	for i in range(len(T)):
-		#plt.clf()
-		u[i, :, :, 0] = u_x[i, :, :, 0] + eps*u_x[i, :, :, 1] + eps*eps*u_x[i, :, :, 2]
-		u[i, :, :, 1] = u_y[i, :, :, 0] + eps*u_y[i, :, :, 1] + eps*eps*u_y[i, :, :, 2]
-
-		u[i, :, :, 2] = u[i,:,:,0]*u[i,:,:,0] + u[i,:,:,1]*u[i,:,:,1]
-
-		U = griddata( (x.flatten(),  y.flatten()), u[i,:,:,2].flatten(), (X, Y), method='nearest')
-		U[np.where(np.abs(uy)<1e-5)] = 0
-
-		for j in range(len(eta)):
-			first_int[i, j] = integrate.trapz(U[:, j], y[:, j])/2
-
-		second_int[i] = integrate.trapz(first_int[i, :], x[0, :])/(2*pi/kappa)
-
-
-		#CS = plt.contourf(X, Y, U)
-		#plt.pause(0.01)
-
-	#plt.plot(T, second_int)
-	#plt.show()
-	u_squared_ana[e] = integrate.trapz(second_int, T)/(2*pi/omega)
-plt.plot(epsilon, u_squared_ana, ".--")
-#plt.xscale("log")
-plt.show()
-"""
