@@ -57,21 +57,7 @@ for i in range(len(epsilon)):
 		#plt.plot(t[start_index:end_index], u2[start_index:end_index], "--")
 		exp_u2[i, j] = integrate.trapz(u2[start_index:end_index], t[start_index:end_index])/(tau)
 	#plt.show()
-#calculate analytic for epsilon=0
-print(exp_u2[:, 0])
-"""
-x = np.linspace(-1, 1, int(1e4))
-T = np.linspace(0, 2*np.pi/omega, int(1e3))
-#kappas  = np.logspace(-2.5, 1, 8)[6:]#/(2*np.pi)
 
-u_x = (F0/(gamma*gamma))*(1-np.cosh(gamma*x)/np.cosh(gamma))
-u2_t = np.zeros(len(T))
-
-for i in range(len(T)):
-	u2_t[i] = integrate.trapz(np.real(u_x*np.exp(1j*omega*T[i]))*np.real(u_x*np.exp(1j*omega*T[i])), x)/2
-
-exp_u2[0, :] = integrate.trapz(u2_t, T)/(2*np.pi/omega)
-"""
 ###
 #ANALYTIC RESULTS
 ###
@@ -84,8 +70,8 @@ xi = np.linspace(-1, 1, 240)
 
 u_x = np.zeros((len(T), len(xi), N_eta, 3))
 u_y = np.zeros((len(T), len(xi), N_eta, 3))
-plt_eps = np.linspace(0, max(epsilon), len(epsilon))
-u_squared_ana = np.zeros((len(plt_eps),len(kappas)))
+new_eps = np.linspace(0, 0.5, 45)
+u_squared_ana = np.zeros((len(new_eps),len(kappas)))
 
 for j in range(len(kappas)):
 	kappa = kappas[j]
@@ -127,8 +113,8 @@ for j in range(len(kappas)):
 	after_xi_integral = np.zeros((len(T),len(eta)))
 	after_xi_eta_integral = np.zeros(len(T))
 
-	for e in range(len(plt_eps)):
-		eps = plt_eps[e]
+	for e in range(len(new_eps)):
+		eps = new_eps[e]
 		for i in range(len(T)):
 			#plt.clf()
 			u[i, :, :, 0] = u_x[i, :, :, 0] + eps*u_x[i, :, :, 1] + eps*eps*u_x[i, :, :, 2]
@@ -144,8 +130,8 @@ for j in range(len(kappas)):
 		u_squared_ana[e, j] = integrate.trapz(after_xi_eta_integral, T)/(2*pi/omega)
 
 for j in range(len(kappas)):
-	plt.plot(plt_eps, u_squared_ana[:,j], "-", label="Analytic $\kappa=$"+str(kappas[j])[:5], color=sns.color_palette()[j])
-	plt.plot(plt_eps, exp_u2[:, j], "o", color=sns.color_palette()[j])
+	plt.plot(new_eps, u_squared_ana[:,j], "-", label="$\kappa=$"+str(kappas[j])[:5], color=sns.color_palette()[j])
+	plt.plot(new_eps, exp_u2[:, j], "o", color=sns.color_palette()[j])
 
 plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=14)
 plt.ylabel(r"Kinetic energy of fluid $\langle u^2 \rangle/2$", fontsize=14)
@@ -153,8 +139,8 @@ plt.legend(loc="best", fontsize=12)
 plt.show()
 
 for i in range(len(kappas)):
-	plt.plot(plt_eps[:-1], abs((u_squared_ana[:-1,i]-exp_u2[:-1,i])/exp_u2[:-1,i]), "o", label="Analytic $\kappa=$"+str(kappas[i])[:5])
-plt.plot(plt_eps, plt_eps**4)
+	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])/exp_u2[:,i]), "o", label="$\kappa=$"+str(kappas[i])[:5])
+plt.plot(epsilon, epsilon**4)
 plt.yscale("log")
 plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=14)
 plt.ylabel(r"Relative difference analytic and numerical kinetic energy $\langle u^2 \rangle/2$", fontsize=14)
