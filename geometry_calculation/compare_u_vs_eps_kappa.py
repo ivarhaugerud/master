@@ -26,10 +26,10 @@ dt = 0.02
 tau = 5.0 
 timesteps = int((tau/0.02))
 
-epsilon_non_zero = np.linspace(0.05, 0.45, 9)
+epsilon_non_zero = np.linspace(0.05, 0.50, 10)
 epsilon = np.zeros(len(epsilon_non_zero)+1)
 epsilon[1:] = epsilon_non_zero
-kappas  = np.logspace(-2.5, 1, 8)[5:]
+kappas  = np.logspace(-2.5, 1, 8)[3:]
 Lx = 2*np.pi/kappas
 
 omega = 2*np.pi/tau
@@ -48,7 +48,6 @@ for i in range(len(epsilon)):
 	for j in range(len(kappas)):
 		res = int(100*(1+float(eps)))
 		filename = "Lx"+str(Lx[j])[:6]+"_tau"+str(tau)+"_eps"+str(str(eps)[:4])+"_nu1.2_D0.3_fzero0.0_fone3.0_res"+str(res)+"_dt0.02/tdata.dat"
-		print(filename)
 		tdat = np.loadtxt(dirr + filename)
 		t = tdat[:,0]
 		u2 = tdat[:,4]
@@ -78,10 +77,10 @@ exp_u2[0, :] = integrate.trapz(u2_t, T)/(2*np.pi/omega)
 ###
 
 pi = np.pi 
-Nt = 100
+Nt = 200
 T = np.linspace(0, 2*np.pi/omega, Nt)
-N_eta = 110
-xi = np.linspace(-1, 1, 120)
+N_eta = 220
+xi = np.linspace(-1, 1, 240)
 
 u_x = np.zeros((len(T), len(xi), N_eta, 3))
 u_y = np.zeros((len(T), len(xi), N_eta, 3))
@@ -154,9 +153,8 @@ plt.legend(loc="best", fontsize=12)
 plt.show()
 
 for i in range(len(kappas)):
-	plt.plot(plt_eps[:-1], abs((u_squared_ana[:-1,i]-exp_u2[:-1,i])/exp_u2[:-1,i]), "ko")
+	plt.plot(plt_eps[:-1], abs((u_squared_ana[:-1,i]-exp_u2[:-1,i])/exp_u2[:-1,i]), "o", label="Analytic $\kappa=$"+str(kappas[i])[:5])
 plt.plot(plt_eps, plt_eps**4)
-plt.plot(plt_eps, plt_eps)
 plt.yscale("log")
 plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=14)
 plt.ylabel(r"Relative difference analytic and numerical kinetic energy $\langle u^2 \rangle/2$", fontsize=14)
