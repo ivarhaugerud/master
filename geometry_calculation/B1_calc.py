@@ -29,9 +29,13 @@ boundary_value = simplify(expand(boundary_value.subs(rho_p, sqrt(rho*rho+kappa*k
 
 print("\n Test boundary condition particular solution: ", boundary_value)
 
-derivative = simplify(diff(B1_homo, xi))
+
+
+g0 = -boundary_value/(rho_p*sinh(rho_p))#-(Pe*F0*tanh(gamma)/(rho_p*sinh(rho_p)*gamma*gamma*gamma*(Sc-1)))*(1 + rho/tanh(rho) + (kappa*kappa/(gamma*gamma-rho_p*rho_p))*(1+gamma/tanh(gamma)) + 2*gamma*gamma*(rho*rho-gamma*gamma)/((gamma*gamma-rho_p*rho_p)*(gamma*gamma-rho_p*rho_p)))
+
+B1_homo = g0*cosh(rho_p*xi)
+derivative = simplify(diff(B1_homo+B1, xi))
 boundary_value = simplify(derivative.subs(xi, 1))
 boundary_value = simplify(expand(boundary_value.subs(rho_p, sqrt(rho*rho+kappa*kappa))))
 #boundary_value = simplify(expand(boundary_value.subs(rho, gamma*sqrt(Sc))))
-
 print("\n Test boundary condition: ", boundary_value)
