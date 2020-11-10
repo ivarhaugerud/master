@@ -35,7 +35,7 @@ Sc = nu/D
 gamma = np.sqrt(1j*omega/Sc)
 
 epsilon = np.logspace(-2, np.log10(0.6), 8)
-epsilon = np.linspace(0, 0.8, 17)#[0.01, 0.01794823, 0.03221389, 0.05781823, 0.10377349, 0.185]
+epsilon = np.arange(0, 0.6, 0.05)#[0.01, 0.01794823, 0.03221389, 0.05781823, 0.10377349, 0.185]
 print(epsilon)
 kappa = 1
 Lx = 2*np.pi/kappa
