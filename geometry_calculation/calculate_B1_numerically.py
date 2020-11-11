@@ -43,9 +43,13 @@ for x in range(1, int(len(xi)-1)):
 			b_k[i, 1]  = -kappa*dx
 	
 		b_k[i, x+1] = 2*b_k[i, x] - b_k[i, x-1] + dx*dx*(b_k[i,x] - q[i, x])
-		if i != len(k)-1:
-			if i != 0:
-				b_k[i, x+1]	+= dx*dx*(- ux0[x]*b_k[i-1, x]/2 - np.conj(ux0[x])*b_k[i+1, x]/2)
+		
+		if i == len(k)-1:
+			b_k[i, x+1]	+= (-1)**i * dx*dx*(- ux0[x]*b_k[i-1, x]/2)
+		elif i == 0:
+			b_k[i, x+1]	+= (-1)**i * dx*dx*(- np.conj(ux0[x])*b_k[i+1, x]/2)
+		else:
+			b_k[i, x+1]	+=  (-1)**i * dx*dx*(- ux0[x]*b_k[i-1, x]/2 - np.conj(ux0[x])*b_k[i+1, x]/2)
 
 total_sin = np.zeros((len(xi)), dtype="complex")
 total_cos = np.zeros((len(xi)), dtype="complex")
@@ -59,12 +63,12 @@ for i in range(len(k)):
 	else:
 		total_sin += b_k[i,:]
 
-	#plt.show()
+plt.show()
 
 plt.title("real part of sin and cos")
 plt.plot(xi, np.real(total_cos))
 plt.plot(xi, np.real(total_sin))
-#plt.show()
+plt.show()
 
 #plt.plot(xi, np.gradient(b_k[10, :], xi))
 #plt.show()
@@ -75,4 +79,4 @@ plt.plot(xi, np.real(q[np.argmin(abs(k-0)),:]), label=r"$0\omega$")
 plt.legend(loc="best")
 plt.ylabel(r"Source term $q$")
 plt.xlabel(r"Vertical position $\xi$")
-plt.show()
+#plt.show()

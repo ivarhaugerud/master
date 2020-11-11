@@ -19,23 +19,21 @@ matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-dirr = "results_oscwavychannel/run_01_11/"
+dirr = "results_oscwavychannel/run_10_11/"
 
 #simulation paramters
-dt = 0.02
+dt = 0.01
 tau = 5.0 
 timesteps = int((tau/0.02))
 
-epsilon_non_zero = np.linspace(0.05, 0.50, 10)
-epsilon = np.zeros(len(epsilon_non_zero)+1)
-epsilon[1:] = epsilon_non_zero
-kappas  = np.logspace(-2.5, 1, 8)[3:]
+epsilon = np.arange(0.1, 0.41, 0.1)
+kappas  = np.array([0.1, 0.4, 0.7])#, 1.0, 1.5])#, 3, 5, 8])
 Lx = 2*np.pi/kappas
 
 omega = 2*np.pi/tau
-nu = 1.2
+nu = 12
 D = 1
-f1 = 3
+f1 = 5
 F0 = f1/nu
 Sc = nu
 gamma = np.sqrt(1j*omega/Sc)
@@ -47,8 +45,11 @@ for i in range(len(epsilon)):
 	eps = epsilon[i]
 	for j in range(len(kappas)):
 		res = int(100*(1+float(eps)))
-		filename = "Lx"+str(Lx[j])[:6]+"_tau"+str(tau)+"_eps"+str(str(eps)[:4])+"_nu1.2_D0.3_fzero0.0_fone3.0_res"+str(res)+"_dt0.02/tdata.dat"
-		tdat = np.loadtxt(dirr + filename)
+		filename = "Lx"+str(Lx[j])[:4]+"_tau"+str(tau)+"_eps"+str(str(eps)[:5])+"_nu12.0_D0.3_fzero0.0_fone5.0_res"+str(res)+"_dt0.01/tdata.dat"
+		try:
+			tdat = np.loadtxt(dirr + filename)
+		except:
+			print("no file for kappa="+str(kappas[j]) + " epsilon =" + str(eps))
 		t = tdat[:,0]
 		u2 = tdat[:,4]
 		start_index = np.argmin(abs(t -(periods-1.25)*tau))
@@ -70,7 +71,7 @@ xi = np.linspace(-1, 1, 240)
 
 u_x = np.zeros((len(T), len(xi), N_eta, 3))
 u_y = np.zeros((len(T), len(xi), N_eta, 3))
-new_eps = np.linspace(0, 0.5, 45)
+new_eps = epsilon#np.linspace(0, 0.5, 45)
 u_squared_ana = np.zeros((len(new_eps),len(kappas)))
 
 for j in range(len(kappas)):
