@@ -11,29 +11,46 @@ B, C, D, P_1 = symbols("B C D P_1")
 B0 = Pe*F0*tanh(gamma)/(gamma*gamma*gamma*rho*rho) + Pe*F0*tanh(gamma)/(gamma*gamma*gamma*(Sc-1))*(cosh(rho*xi)/(rho*sinh(rho)) - cosh(gamma*xi)/(gamma*sinh(gamma)))
 u0  = F0*(1-cosh(gamma*xi)/cosh(gamma))/(gamma*gamma)
 ux1 = (B*(cosh(kappa*xi)/cosh(kappa) - cosh(kappa_p *xi)/cosh(kappa_p)) + C*(cosh(kappa_p*xi)/cosh(kappa_p) - xi*sinh(gamma*xi)/sinh(gamma)))
-uy1 = D*cos(kappa*eta)*(sinh(kappa_p*xi)/sinh(kappa_p) - sinh(kappa*xi)/sinh(kappa))
+uy1 = D*(sinh(kappa_p*xi)/sinh(kappa_p) - sinh(kappa*xi)/sinh(kappa))
 
 ux1 = ux1.subs(B, P_1*kappa*cosh(kappa)/(gamma*gamma))
 ux1 = simplify(ux1.subs(C, F0*tanh(gamma)/gamma))
-uy1 = simplify(uy1.subs(D, kappa*P_1*sinh(kappa)/(gamma*gamma)))
+ux1 = ux1.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+ux1 = ux1.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 
+uy1 = simplify(uy1.subs(D, kappa*P_1*sinh(kappa)/(gamma*gamma)))
+uy1 = uy1.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+
+
+print(simplify((kappa*xi*u0-uy1).subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))))
+
+
+#-F0*(sinh(kappa)*sinh(xi*sqrt(gamma**2 + kappa**2))/sinh(sqrt(gamma**2 + kappa**2)) - sinh(kappa*xi))*tanh(gamma)/(gamma*(1 - sqrt(gamma**2 + kappa**2)*tanh(kappa)/(kappa*tanh(sqrt(gamma**2 + kappa**2))))*cosh(kappa)) + F0*kappa*xi*(1 - cosh(gamma*xi)/cosh(gamma))/gamma**2
+
+"""
+print(simplify(series(ux1, kappa, x0=0)), "\n\n")
+print(simplify(series(uy1, kappa, x0=0)))
+"""
+"""
 print("\n-----------------------------------------------------------------")
 print("CALCULATE B1")
 
-#sin_RHS = kappa*kappa*xi*diff(B0, xi) - 2*diff(B0, xi, xi) + Pe*ux1
-#print(simplify(expand(sin_RHS)))
+sin_RHS = simplify(kappa*kappa*xi*diff(B0, xi) - 2*diff(B0, xi, xi) + Pe*ux1)
+#cos_RHS = simplify(simplify((u0*kappa*xi - Pe*uy1*diff(B0, xi)))*diff(B0, xi))
 
-RHS_no_Pe = kappa*kappa*xi*diff(B0, xi) - 2*diff(B0, xi, xi)
-RHS_with_Pe = ux1 - uy1*diff(B0, xi) + u0*kappa*xi*cos(kappa*eta)*diff(B0, xi)
-RHS_with_Pe = simplify(expand(RHS_with_Pe))
-RHS_with_Pe = simplify(expand(RHS_no_Pe))
-print(RHS_with_Pe, "whole thing times sin(kappa*eta)\n")
+sin_RHS = sin_RHS.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+sin_RHS = sin_RHS.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+sin_RHS = simplify(expand(sin_RHS))
+print(sin_RHS, "whole thing\n")
+"""
 
-RHS_with_Pe_no_sin = simplify(RHS_with_Pe.subs(eta, 0))
-RHS_with_Pe_no_cos = simplify(RHS_with_Pe.subs(eta, pi/(2*kappa)))
+"""
+RHS_with_Pe_no_sin = simplify(RHS.subs(eta, 0))
+RHS_with_Pe_no_cos = simplify(RHS.subs(eta, pi/(2*kappa)))
 
-print(simplify(RHS_with_Pe_no_cos-RHS_no_Pe), " whole thing times Pe*sin(kappa*eta)\n")
+print(RHS_with_Pe_no_cos, " whole thing times Pe*sin(kappa*eta)\n")
 print(RHS_with_Pe_no_sin, " whole thing times Pe*cos(kappa*eta)\n")
+"""
 
 #calculate RHS
 """
