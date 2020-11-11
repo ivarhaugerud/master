@@ -26,8 +26,8 @@ dt = 0.01
 tau = 5.0 
 timesteps = int((tau/0.02))
 
-epsilon = np.arange(0.1, 0.41, 0.1)
-kappas  = np.array([0.1, 0.4, 0.7])#, 1.0, 1.5])#, 3, 5, 8])
+epsilon = np.arange(0.0, 0.51, 0.1)
+kappas  = np.array([0.1, 1.0, 1.5, 3, 5, 8])
 Lx = 2*np.pi/kappas
 
 omega = 2*np.pi/tau
@@ -52,11 +52,11 @@ for i in range(len(epsilon)):
 			print("no file for kappa="+str(kappas[j]) + " epsilon =" + str(eps))
 		t = tdat[:,0]
 		u2 = tdat[:,4]
-		start_index = np.argmin(abs(t -(periods-1.25)*tau))
+		start_index = np.argmin(abs(t -(periods-2.25)*tau))
 		end_index   = np.argmin(abs(t -(periods-0.25)*tau))
 		#plt.plot(t, u2)
 		#plt.plot(t[start_index:end_index], u2[start_index:end_index], "--")
-		exp_u2[i, j] = integrate.trapz(u2[start_index:end_index], t[start_index:end_index])/(tau)
+		exp_u2[i, j] = integrate.trapz(u2[start_index:end_index], t[start_index:end_index])/(2*tau)
 	#plt.show()
 
 ###
@@ -140,8 +140,10 @@ plt.legend(loc="best", fontsize=12)
 plt.show()
 
 for i in range(len(kappas)):
-	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])/exp_u2[:,i]), "o", label="$\kappa=$"+str(kappas[i])[:5])
-plt.plot(epsilon, epsilon**4)
+	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])/exp_u2[:,i]), "o", label="$\kappa=$"+str(kappas[i])[:5], color=sns.color_palette()[i])
+	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])/exp_u2[:,i]), "--", linewidth=1, color=sns.color_palette()[i])
+
+plt.plot(epsilon, epsilon**3/(1-epsilon))
 plt.yscale("log")
 plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=14)
 plt.ylabel(r"Relative difference analytic and numerical kinetic energy $\langle u^2 \rangle/2$", fontsize=14)
