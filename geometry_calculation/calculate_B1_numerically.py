@@ -1,11 +1,11 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-k = np.arange(-10, 10, 1)
+k = np.arange(-5, 5, 1)
 xi = np.linspace(-1, 1, int(1e3))
-b_k = np.zeros((len(k), len(xi)))
-dx = xi[1]-xi[0]
+b_k = np.zeros((len(k), len(xi)), dtype="complex")
 q = np.zeros((len(k), len(xi)), dtype="complex")
+dx = xi[1]-xi[0]
 
 kappa = 2
 Sc = 1.2 
@@ -35,33 +35,44 @@ q[np.argmin(abs(k-0)), :] = kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_de
 q[np.argmin(abs(k-1)), :] = kappa*kappa*xi*B0_deriv/2 - 2*B0_deriv_deriv/2 + Pe*ux1/2
 q[np.argmin(abs(k-2)), :] = kappa*xi*ux0*B0_deriv/4 - uy1*B0_deriv/4
 
-
 for x in range(1, int(len(xi)-1)):
 	for i in range(len(k)):
 		rho_kp_2 = k[i]*1j*omega + kappa*kappa
 		if k[i] == 0: #then it's cosine, with boundary = +- kappa
 			b_k[i, 0]  = 0
 			b_k[i, 1]  = -kappa*dx
-			b_k[i, -1] = 0
-			b_k[i, -2] = kappa*dx		
-
-		b_k[i, x+1] = 2*b_k[i, x] - b_k[i, x-1] + np.real(dx*dx*(rho_kp_2*b_k[i, x] - q[i, x]))
+	
+		b_k[i, x+1] = 2*b_k[i, x] - b_k[i, x-1] + dx*dx*(b_k[i,x] - q[i, x])
 		if i != len(k)-1:
 			if i != 0:
-				b_k[i, x+1]	+= dx*dx*np.real(- ux0[x]*b_k[i-1, x]/2 - np.conj(ux0[x])*b_k[i+1, x]/2)
+				b_k[i, x+1]	+= dx*dx*(- ux0[x]*b_k[i-1, x]/2 - np.conj(ux0[x])*b_k[i+1, x]/2)
+
+total_sin = np.zeros((len(xi)), dtype="complex")
+total_cos = np.zeros((len(xi)), dtype="complex")
 
 for i in range(len(k)):
-	plt.plot(xi, b_k[i,:])
-#plt.axis([-1, 1, -5, 5])
-plt.show()
+	plt.title("frequency = " + str(k[i]))
+	plt.plot(xi, np.real(b_k[i,:]))
+	plt.plot(xi, np.imag(b_k[i,:]), "--")
+	if i % 2 == 0:
+		total_cos += b_k[i,:]
+	else:
+		total_sin += b_k[i,:]
 
-plt.plot(xi, np.gradient(b_k[10, :], xi))
-plt.show()
+	#plt.show()
 
-plt.plot(xi, np.real(q[8,:]+q[12,:]), label=r"$2\omega$")
-plt.plot(xi, np.real(q[9,:]+q[11,:]), label=r"$1\omega$")
-plt.plot(xi, np.real(q[10,:]), label=r"$0\omega$")
+plt.title("real part of sin and cos")
+plt.plot(xi, np.real(total_cos))
+plt.plot(xi, np.real(total_sin))
+#plt.show()
+
+#plt.plot(xi, np.gradient(b_k[10, :], xi))
+#plt.show()
+plt.show()
+plt.plot(xi, np.real(q[np.argmin(abs(k+2)),:]+q[np.argmin(abs(k-2)),:]), label=r"$2\omega$")
+plt.plot(xi, np.real(q[np.argmin(abs(k+1)),:]+q[np.argmin(abs(k-1)),:]), label=r"$1\omega$")
+plt.plot(xi, np.real(q[np.argmin(abs(k-0)),:]), label=r"$0\omega$")
 plt.legend(loc="best")
 plt.ylabel(r"Source term $q$")
 plt.xlabel(r"Vertical position $\xi$")
-#plt.show()
+plt.show()
