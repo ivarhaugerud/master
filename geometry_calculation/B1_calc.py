@@ -27,7 +27,6 @@ print(simplify((kappa*xi*u0-uy1).subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))))
 
 #-F0*(sinh(kappa)*sinh(xi*sqrt(gamma**2 + kappa**2))/sinh(sqrt(gamma**2 + kappa**2)) - sinh(kappa*xi))*tanh(gamma)/(gamma*(1 - sqrt(gamma**2 + kappa**2)*tanh(kappa)/(kappa*tanh(sqrt(gamma**2 + kappa**2))))*cosh(kappa)) + F0*kappa*xi*(1 - cosh(gamma*xi)/cosh(gamma))/gamma**2
 
-"""
 print(simplify(series(ux1, kappa, x0=0)), "\n\n")
 print(simplify(series(uy1, kappa, x0=0)))
 """
@@ -36,13 +35,18 @@ print("\n-----------------------------------------------------------------")
 print("CALCULATE B1")
 
 sin_RHS = simplify(kappa*kappa*xi*diff(B0, xi) - 2*diff(B0, xi, xi) + Pe*ux1)
-#cos_RHS = simplify(simplify((u0*kappa*xi - Pe*uy1*diff(B0, xi)))*diff(B0, xi))
+cos_RHS = simplify((u0*kappa*xi - Pe*uy1)*diff(B0, xi))
 
 sin_RHS = sin_RHS.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
 sin_RHS = sin_RHS.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 sin_RHS = simplify(expand(sin_RHS))
 print(sin_RHS, "whole thing\n")
-"""
+
+
+cos_RHS = cos_RHS.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+cos_RHS = cos_RHS.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+cos_RHS = simplify(expand(cos_RHS))
+print(cos_RHS, "whole thing\n")
 
 """
 RHS_with_Pe_no_sin = simplify(RHS.subs(eta, 0))

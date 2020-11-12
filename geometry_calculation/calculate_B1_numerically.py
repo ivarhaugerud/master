@@ -1,15 +1,15 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-k = np.arange(-5, 5, 1)
+k = np.arange(-30, 30, 1)
 xi = np.linspace(-1, 1, int(1e3))
 b_k = np.zeros((len(k), len(xi)), dtype="complex")
 q = np.zeros((len(k), len(xi)), dtype="complex")
 dx = xi[1]-xi[0]
 
-kappa = 2
+kappa = 0.1
 Sc = 1.2 
-omega = 5
+omega = 1.3
 F0 = 3
 Pe = F0/Sc 
 
@@ -35,6 +35,46 @@ q[np.argmin(abs(k-0)), :] = kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_de
 q[np.argmin(abs(k-1)), :] = kappa*kappa*xi*B0_deriv/2 - 2*B0_deriv_deriv/2 + Pe*ux1/2
 q[np.argmin(abs(k-2)), :] = kappa*xi*ux0*B0_deriv/4 - uy1*B0_deriv/4
 
+neg_freq_indx = np.argmin(abs(k+1))
+pos_freq_indx = np.argmin(abs(k-1))
+
+sol1 = np.zeros((len(k),len(xi)), dtype="complex")
+sol2 = np.zeros((len(k),len(xi)), dtype="complex")
+
+"""
+plt.plot(xi, np.real(ux0))
+plt.plot(xi, np.imag(ux0))
+plt.show()
+
+plt.plot(xi, np.real(q[pos_freq_indx, :]))
+plt.plot(xi, np.imag(q[pos_freq_indx, :]))
+plt.show()
+
+plt.plot(xi, np.real(q[neg_freq_indx, :]))
+plt.plot(xi, np.imag(q[neg_freq_indx, :]))
+plt.show()
+"""
+p_np2 = 1j*omega*k + kappa*kappa
+dxdx = dx*dx
+
+for j in range(1, len(xi)-1):
+	for i in range(len(k)):
+		sol1[i, j+1] = 2*sol1[i, j] - sol1[i, j-1]# + dxdx*p_np2[i]*sol1[i, j]
+		
+		if i == pos_freq_indx:
+			sol1[i, j+1] -= dxdx*q[pos_freq_indx, j]
+
+		if i == neg_freq_indx:
+			sol1[i, j+1] -= dxdx*q[neg_freq_indx, j]
+
+		if i == 0:
+			sol1[i, j+1] -= dxdx*(sol1[i+1, j]*kappa*np.conj(ux0[j])/2)
+		elif i == len(k)-1:
+			sol1[i, j+1] -= dxdx*(sol1[i-1, j]*kappa*ux0[j+1]/2)
+		else:
+			sol1[i, j+1] -= dxdx*(sol1[i+1, j]*kappa*np.conj(ux0[j+1])/2 + sol1[i-1, j]*kappa*ux0[j+1]/2)
+		
+"""
 for x in range(1, int(len(xi)-1)):
 	for i in range(len(k)):
 		rho_kp_2 = k[i]*1j*omega + kappa*kappa
@@ -50,28 +90,25 @@ for x in range(1, int(len(xi)-1)):
 			b_k[i, x+1]	+= (-1)**i * dx*dx*(- np.conj(ux0[x])*b_k[i+1, x]/2)
 		else:
 			b_k[i, x+1]	+=  (-1)**i * dx*dx*(- ux0[x]*b_k[i-1, x]/2 - np.conj(ux0[x])*b_k[i+1, x]/2)
-
-total_sin = np.zeros((len(xi)), dtype="complex")
-total_cos = np.zeros((len(xi)), dtype="complex")
+"""
+total_sol_1 = np.zeros((len(xi)), dtype="complex")
+total_sol_2 = np.zeros((len(xi)), dtype="complex")
 
 for i in range(len(k)):
-	plt.title("frequency = " + str(k[i]))
-	plt.plot(xi, np.real(b_k[i,:]))
-	plt.plot(xi, np.imag(b_k[i,:]), "--")
+	#plt.title("frequency = " + str(k[i]))
+	plt.plot(xi, np.real(sol1[i,:]))
+	plt.plot(xi, np.imag(sol1[i,:]), "--")
 	if i % 2 == 0:
-		total_cos += b_k[i,:]
-	else:
-		total_sin += b_k[i,:]
+		total_sol_1 += np.imag(sol1[i,:])
+		total_sol_2 += np.real(sol1[i,:])
 
+	#plt.show()
 plt.show()
-
 plt.title("real part of sin and cos")
-plt.plot(xi, np.real(total_cos))
-plt.plot(xi, np.real(total_sin))
+plt.plot(xi, np.real(total_sol_2))
+plt.plot(xi, np.real(total_sol_1))
 plt.show()
 
-#plt.plot(xi, np.gradient(b_k[10, :], xi))
-#plt.show()
 plt.show()
 plt.plot(xi, np.real(q[np.argmin(abs(k+2)),:]+q[np.argmin(abs(k-2)),:]), label=r"$2\omega$")
 plt.plot(xi, np.real(q[np.argmin(abs(k+1)),:]+q[np.argmin(abs(k-1)),:]), label=r"$1\omega$")

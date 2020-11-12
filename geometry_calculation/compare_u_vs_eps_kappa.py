@@ -24,9 +24,8 @@ dirr = "results_oscwavychannel/run_10_11/"
 #simulation paramters
 dt = 0.01
 tau = 5.0 
-timesteps = int((tau/0.02))
 
-epsilon = np.arange(0.0, 0.51, 0.1)
+epsilon = np.arange(0.0, 0.61, 0.1)
 kappas  = np.array([0.1, 1.0, 1.5, 3, 5, 8])
 Lx = 2*np.pi/kappas
 
@@ -39,17 +38,17 @@ Sc = nu
 gamma = np.sqrt(1j*omega/Sc)
 
 exp_u2 = np.zeros((len(epsilon), len(kappas)))
-periods = 3 
+periods = 3
 
 for i in range(len(epsilon)):
 	eps = epsilon[i]
 	for j in range(len(kappas)):
 		res = int(100*(1+float(eps)))
-		filename = "Lx"+str(Lx[j])[:4]+"_tau"+str(tau)+"_eps"+str(str(eps)[:5])+"_nu12.0_D0.3_fzero0.0_fone5.0_res"+str(res)+"_dt0.01/tdata.dat"
+		filename = "Lx"+str(Lx[j])[:4]+"_tau"+str(tau)+"_eps"+str(str(eps)[:3])+"_nu12.0_D0.3_fzero0.0_fone5.0_res"+str(res)+"_dt0.01/tdata.dat"
 		try:
 			tdat = np.loadtxt(dirr + filename)
 		except:
-			print("no file for kappa="+str(kappas[j]) + " epsilon =" + str(eps))
+			print("no file for kappa="+str(kappas[j]) + " epsilon =" + str(eps), filename)
 		t = tdat[:,0]
 		u2 = tdat[:,4]
 		start_index = np.argmin(abs(t -(periods-2.25)*tau))
@@ -143,7 +142,8 @@ for i in range(len(kappas)):
 	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])/exp_u2[:,i]), "o", label="$\kappa=$"+str(kappas[i])[:5], color=sns.color_palette()[i])
 	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])/exp_u2[:,i]), "--", linewidth=1, color=sns.color_palette()[i])
 
-plt.plot(epsilon, epsilon**3/(1-epsilon))
+epsilon = np.linspace(0.01, max(epsilon), int(1e3))
+plt.plot(epsilon, epsilon**4/(1-epsilon))
 plt.yscale("log")
 plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=14)
 plt.ylabel(r"Relative difference analytic and numerical kinetic energy $\langle u^2 \rangle/2$", fontsize=14)
