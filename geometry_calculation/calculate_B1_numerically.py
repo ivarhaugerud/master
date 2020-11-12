@@ -1,7 +1,7 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-k = np.arange(-30, 30, 1)
+k = np.arange(-5, 5, 1)
 xi = np.linspace(-1, 1, int(1e3))
 b_k = np.zeros((len(k), len(xi)), dtype="complex")
 q = np.zeros((len(k), len(xi)), dtype="complex")
@@ -57,9 +57,9 @@ plt.show()
 p_np2 = 1j*omega*k + kappa*kappa
 dxdx = dx*dx
 
-for j in range(1, len(xi)-1):
+for j in range(1, len(xi)-2):
 	for i in range(len(k)):
-		sol1[i, j+1] = 2*sol1[i, j] - sol1[i, j-1]# + dxdx*p_np2[i]*sol1[i, j]
+		sol1[i, j+1] = 2*sol1[i, j] - sol1[i, j-1] + dxdx*p_np2[i]*sol1[i, j]
 		
 		if i == pos_freq_indx:
 			sol1[i, j+1] -= dxdx*q[pos_freq_indx, j]
@@ -73,6 +73,33 @@ for j in range(1, len(xi)-1):
 			sol1[i, j+1] -= dxdx*(sol1[i-1, j]*kappa*ux0[j+1]/2)
 		else:
 			sol1[i, j+1] -= dxdx*(sol1[i+1, j]*kappa*np.conj(ux0[j+1])/2 + sol1[i-1, j]*kappa*ux0[j+1]/2)
+	sol1[:, -1] = sol1[:, -2]
+
+
+neg_freq_indx = np.argmin(abs(k+2))
+nul_freq_indx = np.argmin(abs(k-0))
+pos_freq_indx = np.argmin(abs(k-2))
+
+for j in range(1, len(xi)-2):
+	for i in range(len(k)):
+		sol2[i, j+1] = 2*sol2[i, j] - sol2[i, j-1] + dxdx*p_np2[i]*sol2[i, j]
+		
+		if i == neg_freq_indx:
+			sol2[i, j+1] -= dxdx*q[neg_freq_indx, j]
+
+		if i == nul_freq_indx:
+			sol2[i, j+1] -= dxdx*q[nul_freq_indx, j]
+
+		if i == pos_freq_indx:
+			sol2[i, j+1] -= dxdx*q[pos_freq_indx, j]
+
+		if i == 0:
+			sol2[i, j+1] = dxdx*(sol2[i+1, j]*kappa*np.conj(ux0[j])/2)
+		elif i == len(k)-1:
+			sol2[i, j+1] = dxdx*(sol2[i-1, j]*kappa*ux0[j+1]/2)
+		else:
+			sol2[i, j+1] = dxdx*(sol2[i+1, j]*kappa*np.conj(ux0[j+1])/2 + sol1[i-1, j]*kappa*ux0[j+1]/2)
+	sol1[:, -1] = sol1[:, -2]
 		
 """
 for x in range(1, int(len(xi)-1)):
@@ -102,7 +129,7 @@ for i in range(len(k)):
 		total_sol_1 += np.imag(sol1[i,:])
 		total_sol_2 += np.real(sol1[i,:])
 
-	#plt.show()
+	plt.show()
 plt.show()
 plt.title("real part of sin and cos")
 plt.plot(xi, np.real(total_sol_2))
