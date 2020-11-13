@@ -19,20 +19,21 @@ matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-dirr = "results_oscwavychannel/run_10_11/"
+dirr = "results_oscwavychannel/run_12_11/"
 
 #simulation paramters
 dt = 0.01
 tau = 5.0 
 
 epsilon = np.arange(0.0, 0.61, 0.1)
-kappas  = np.array([0.1, 1.0, 1.5, 3, 5, 8])
+kappas  = np.array([0.1, 1.0, 1.5, 3, 5])
+kappas = np.array([0.1,  0.7, 1.5, 3, 5])
 Lx = 2*np.pi/kappas
 
 omega = 2*np.pi/tau
-nu = 12
+nu = 1.2
 D = 1
-f1 = 5
+f1 = 3
 F0 = f1/nu
 Sc = nu
 gamma = np.sqrt(1j*omega/Sc)
@@ -44,11 +45,11 @@ for i in range(len(epsilon)):
 	eps = epsilon[i]
 	for j in range(len(kappas)):
 		res = int(100*(1+float(eps)))
-		filename = "Lx"+str(Lx[j])[:4]+"_tau"+str(tau)+"_eps"+str(str(eps)[:3])+"_nu12.0_D0.3_fzero0.0_fone5.0_res"+str(res)+"_dt0.01/tdata.dat"
-		try:
-			tdat = np.loadtxt(dirr + filename)
-		except:
-			print("no file for kappa="+str(kappas[j]) + " epsilon =" + str(eps), filename)
+		filename = "Lx"+str(Lx[j])[:4]+"_tau"+str(tau)+"_eps"+str(str(eps)[:3])+"_nu1.2_D0.3_fzero0.0_fone3.0_res"+str(res)+"_dt0.01/tdata.dat"
+		#try:
+		tdat = np.loadtxt(dirr + filename)
+		#except:
+		#	print("no file for kappa="+str(kappas[j]) + " epsilon =" + str(eps), filename)
 		t = tdat[:,0]
 		u2 = tdat[:,4]
 		start_index = np.argmin(abs(t -(periods-2.25)*tau))
@@ -70,7 +71,7 @@ xi = np.linspace(-1, 1, 240)
 
 u_x = np.zeros((len(T), len(xi), N_eta, 3))
 u_y = np.zeros((len(T), len(xi), N_eta, 3))
-new_eps = epsilon#np.linspace(0, 0.5, 45)
+new_eps = epsilon#	np.linspace(0, max(epsilon), 20)
 u_squared_ana = np.zeros((len(new_eps),len(kappas)))
 
 for j in range(len(kappas)):
@@ -131,11 +132,15 @@ for j in range(len(kappas)):
 
 for j in range(len(kappas)):
 	plt.plot(new_eps, u_squared_ana[:,j], "-", label="$\kappa=$"+str(kappas[j])[:5], color=sns.color_palette()[j])
-	plt.plot(new_eps, exp_u2[:, j], "o", color=sns.color_palette()[j])
+	plt.plot(epsilon, exp_u2[:, j], "o", color=sns.color_palette()[j])
 
 plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=14)
 plt.ylabel(r"Kinetic energy of fluid $\langle u^2 \rangle/2$", fontsize=14)
 plt.legend(loc="best", fontsize=12)
+
+filename = "figures/comparison_numeric_analytic.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
 for i in range(len(kappas)):
@@ -148,4 +153,9 @@ plt.yscale("log")
 plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=14)
 plt.ylabel(r"Relative difference analytic and numerical kinetic energy $\langle u^2 \rangle/2$", fontsize=14)
 plt.legend(loc="best", fontsize=12)
+
+filename = "figures/comparison_numeric_analytic_difference.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+plt.show()
 plt.show()

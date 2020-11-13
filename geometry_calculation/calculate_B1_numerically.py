@@ -41,19 +41,6 @@ pos_freq_indx = np.argmin(abs(k-1))
 sol1 = np.zeros((len(k),len(xi)), dtype="complex")
 sol2 = np.zeros((len(k),len(xi)), dtype="complex")
 
-"""
-plt.plot(xi, np.real(ux0))
-plt.plot(xi, np.imag(ux0))
-plt.show()
-
-plt.plot(xi, np.real(q[pos_freq_indx, :]))
-plt.plot(xi, np.imag(q[pos_freq_indx, :]))
-plt.show()
-
-plt.plot(xi, np.real(q[neg_freq_indx, :]))
-plt.plot(xi, np.imag(q[neg_freq_indx, :]))
-plt.show()
-"""
 p_np2 = 1j*omega*k + kappa*kappa
 dxdx = dx*dx
 
@@ -101,39 +88,25 @@ for j in range(1, len(xi)-2):
 			sol2[i, j+1] = dxdx*(sol2[i+1, j]*kappa*np.conj(ux0[j+1])/2 + sol1[i-1, j]*kappa*ux0[j+1]/2)
 	sol1[:, -1] = sol1[:, -2]
 		
-"""
-for x in range(1, int(len(xi)-1)):
-	for i in range(len(k)):
-		rho_kp_2 = k[i]*1j*omega + kappa*kappa
-		if k[i] == 0: #then it's cosine, with boundary = +- kappa
-			b_k[i, 0]  = 0
-			b_k[i, 1]  = -kappa*dx
-	
-		b_k[i, x+1] = 2*b_k[i, x] - b_k[i, x-1] + dx*dx*(b_k[i,x] - q[i, x])
-		
-		if i == len(k)-1:
-			b_k[i, x+1]	+= (-1)**i * dx*dx*(- ux0[x]*b_k[i-1, x]/2)
-		elif i == 0:
-			b_k[i, x+1]	+= (-1)**i * dx*dx*(- np.conj(ux0[x])*b_k[i+1, x]/2)
-		else:
-			b_k[i, x+1]	+=  (-1)**i * dx*dx*(- ux0[x]*b_k[i-1, x]/2 - np.conj(ux0[x])*b_k[i+1, x]/2)
-"""
-total_sol_1 = np.zeros((len(xi)), dtype="complex")
-total_sol_2 = np.zeros((len(xi)), dtype="complex")
+
+total_sol_cos = np.zeros((len(xi), len(k)), dtype="complex")
+total_sol_sin = np.zeros((len(xi), len(k)), dtype="complex")
 
 for i in range(len(k)):
 	#plt.title("frequency = " + str(k[i]))
-	plt.plot(xi, np.real(sol1[i,:]))
-	plt.plot(xi, np.imag(sol1[i,:]), "--")
+	#plt.plot(xi, np.real(sol1[i,:]))
+	#plt.plot(xi, np.imag(sol1[i,:]), "--")
 	if i % 2 == 0:
-		total_sol_1 += np.imag(sol1[i,:])
-		total_sol_2 += np.real(sol1[i,:])
+		total_sol_cos[:, i] = sol1[i, :]
+		total_sol_sin[:, i] = sol2[i, :]
+	else:
+		total_sol_cos[:, i] = sol2[i, :]
+		total_sol_sin[:, i] = sol1[i, :]
 
-	plt.show()
-plt.show()
-plt.title("real part of sin and cos")
-plt.plot(xi, np.real(total_sol_2))
-plt.plot(xi, np.real(total_sol_1))
+	#plt.show()
+
+plt.plot(xi, np.sum(total_sol_cos, axis=1))
+plt.plot(xi, np.sum(total_sol_sin, axis=1))
 plt.show()
 
 plt.show()
