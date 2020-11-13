@@ -64,10 +64,10 @@ for i in range(len(epsilon)):
 ###
 
 pi = np.pi 
-Nt = 200
+Nt = 400
 T = np.linspace(0, 2*np.pi/omega, Nt)
-N_eta = 220
-xi = np.linspace(-1, 1, 240)
+N_eta = 420
+xi = np.linspace(-1, 1, 440)
 
 u_x = np.zeros((len(T), len(xi), N_eta, 3))
 u_y = np.zeros((len(T), len(xi), N_eta, 3))

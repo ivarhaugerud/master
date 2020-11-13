@@ -1,15 +1,14 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-k = np.arange(-5, 5, 1)
-xi = np.linspace(-1, 1, int(1e3))
-b_k = np.zeros((len(k), len(xi)), dtype="complex")
+k = np.arange(-2, 2, 1)
+xi = np.linspace(-1, 1, int(1e5))
 q = np.zeros((len(k), len(xi)), dtype="complex")
 dx = xi[1]-xi[0]
 
-kappa = 0.1
+kappa = 0.5
 Sc = 1.2 
-omega = 1.3
+omega = 1.35
 F0 = 3
 Pe = F0/Sc 
 
@@ -44,25 +43,34 @@ sol2 = np.zeros((len(k),len(xi)), dtype="complex")
 p_np2 = 1j*omega*k + kappa*kappa
 dxdx = dx*dx
 
-for j in range(1, len(xi)-2):
+plt.plot(xi, np.imag(q[1, :]))
+plt.plot(xi, np.real(q[1, :]), "--")
+plt.show()
+plt.plot(xi, np.imag(q[3, :]))
+plt.plot(xi, np.real(q[3, :]), "--")
+#plt.plot(xi, q[neg_freq_indx, :]+q[pos_freq_indx, :])
+plt.show()
+
+
+for j in range(1, len(xi)-1):
 	for i in range(len(k)):
-		sol1[i, j+1] = 2*sol1[i, j] - sol1[i, j-1] + dxdx*p_np2[i]*sol1[i, j]
+		sol1[i, j+1] = 2*sol1[i, j] - sol1[i, j-1] -  dxdx*(p_np2[i]*sol1[i, j])
 		
 		if i == pos_freq_indx:
-			sol1[i, j+1] -= dxdx*q[pos_freq_indx, j]
+			sol1[pos_freq_indx, j+1] += -dxdx*q[pos_freq_indx, j]
 
 		if i == neg_freq_indx:
-			sol1[i, j+1] -= dxdx*q[neg_freq_indx, j]
+			sol1[neg_freq_indx, j+1] += -dxdx*q[neg_freq_indx, j]
+		
+		#if i == 0:
+		#	sol1[i, j+1] -= dxdx*(sol1[i+1, j]*kappa*np.conj(ux0[j])/2)
+		#elif i == len(k)-1:
+		#	sol1[i, j+1] -= dxdx*(sol1[i-1, j]*kappa*ux0[j]/2)
+		#else:
+		#	sol1[i, j+1] -= dxdx*(sol1[i+1, j]*kappa*np.conj(ux0[j])/2 + sol1[i-1, j]*kappa*ux0[j]/2)
 
-		if i == 0:
-			sol1[i, j+1] -= dxdx*(sol1[i+1, j]*kappa*np.conj(ux0[j])/2)
-		elif i == len(k)-1:
-			sol1[i, j+1] -= dxdx*(sol1[i-1, j]*kappa*ux0[j+1]/2)
-		else:
-			sol1[i, j+1] -= dxdx*(sol1[i+1, j]*kappa*np.conj(ux0[j+1])/2 + sol1[i-1, j]*kappa*ux0[j+1]/2)
-	sol1[:, -1] = sol1[:, -2]
 
-
+"""
 neg_freq_indx = np.argmin(abs(k+2))
 nul_freq_indx = np.argmin(abs(k-0))
 pos_freq_indx = np.argmin(abs(k-2))
@@ -79,23 +87,27 @@ for j in range(1, len(xi)-2):
 
 		if i == pos_freq_indx:
 			sol2[i, j+1] -= dxdx*q[pos_freq_indx, j]
-
 		if i == 0:
 			sol2[i, j+1] = dxdx*(sol2[i+1, j]*kappa*np.conj(ux0[j])/2)
 		elif i == len(k)-1:
 			sol2[i, j+1] = dxdx*(sol2[i-1, j]*kappa*ux0[j+1]/2)
 		else:
 			sol2[i, j+1] = dxdx*(sol2[i+1, j]*kappa*np.conj(ux0[j+1])/2 + sol1[i-1, j]*kappa*ux0[j+1]/2)
-	sol1[:, -1] = sol1[:, -2]
-		
+			sol1[:, -1] = sol1[:, -2]
+
+"""	
+
+plt.plot(xi, np.real(sol1[neg_freq_indx, :]))#+sol1[pos_freq_indx, :]))
+plt.plot(xi, np.real(sol1[neg_freq_indx, :]))#+sol1[pos_freq_indx, :]))
+plt.show()
 
 total_sol_cos = np.zeros((len(xi), len(k)), dtype="complex")
 total_sol_sin = np.zeros((len(xi), len(k)), dtype="complex")
 
 for i in range(len(k)):
-	#plt.title("frequency = " + str(k[i]))
-	#plt.plot(xi, np.real(sol1[i,:]))
-	#plt.plot(xi, np.imag(sol1[i,:]), "--")
+	plt.title("frequency = " + str(k[i]))
+	plt.plot(xi, np.real(sol1[i,:]))
+	plt.plot(xi, np.imag(sol1[i,:]), "--")
 	if i % 2 == 0:
 		total_sol_cos[:, i] = sol1[i, :]
 		total_sol_sin[:, i] = sol2[i, :]
@@ -106,9 +118,7 @@ for i in range(len(k)):
 	#plt.show()
 
 plt.plot(xi, np.sum(total_sol_cos, axis=1))
-plt.plot(xi, np.sum(total_sol_sin, axis=1))
-plt.show()
-
+plt.plot(xi, np.sum(total_sol_sin, axis=1), "--")
 plt.show()
 plt.plot(xi, np.real(q[np.argmin(abs(k+2)),:]+q[np.argmin(abs(k-2)),:]), label=r"$2\omega$")
 plt.plot(xi, np.real(q[np.argmin(abs(k+1)),:]+q[np.argmin(abs(k-1)),:]), label=r"$1\omega$")
