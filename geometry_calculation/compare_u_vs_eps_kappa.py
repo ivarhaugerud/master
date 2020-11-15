@@ -25,7 +25,7 @@ dirr = "results_oscwavychannel/run_12_11/"
 dt = 0.01
 tau = 5.0 
 
-epsilon = np.arange(0.0, 0.61, 0.1)
+epsilon = np.arange(0.0, 0.61, 0.05)
 kappas  = np.array([0.1, 1.0, 1.5, 3, 5])
 kappas = np.array([0.1,  0.7, 1.5, 3, 5])
 Lx = 2*np.pi/kappas
@@ -45,9 +45,13 @@ for i in range(len(epsilon)):
 	eps = epsilon[i]
 	for j in range(len(kappas)):
 		res = int(100*(1+float(eps)))
-		filename = "Lx"+str(Lx[j])[:4]+"_tau"+str(tau)+"_eps"+str(str(eps)[:3])+"_nu1.2_D0.3_fzero0.0_fone3.0_res"+str(res)+"_dt0.01/tdata.dat"
+		try:
+			filename = "Lx"+str(Lx[j])[:4]+"_tau"+str(tau)+"_eps"+str(str(eps)[:4])+"_nu1.2_D0.3_fzero0.0_fone3.0_res"+str(res)+"_dt0.01/tdata.dat"
+			tdat = np.loadtxt(dirr + filename)
 		#try:
-		tdat = np.loadtxt(dirr + filename)
+		except:
+			filename = "Lx"+str(Lx[j])[:4]+"_tau"+str(tau)+"_eps"+str(str(eps)[:3])+"_nu1.2_D0.3_fzero0.0_fone3.0_res"+str(res)+"_dt0.01/tdata.dat"
+			tdat = np.loadtxt(dirr + filename)
 		#except:
 		#	print("no file for kappa="+str(kappas[j]) + " epsilon =" + str(eps), filename)
 		t = tdat[:,0]
