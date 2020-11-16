@@ -1,6 +1,54 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
+import scipy.integrate as scp 
 
+x = np.linspace(0, 1, int(pow(2, 10)))
+N = 100
+phi = np.zeros((N, len(x)))
+phi_p = np.zeros((N, len(x)))
+N_pos = np.linspace(min(x), max(x), N)
+Delta_x = N_pos[1]-N_pos[0]
+
+for i in range(N):
+	sta_index = np.argmin(abs(x-(N_pos[i]-Delta_x)))
+	top_index = np.argmin(abs(x-(N_pos[i]        )))
+	end_index = np.argmin(abs(x-(N_pos[i]+Delta_x)))
+
+	phi[i, sta_index:top_index] = np.linspace(0, 1, top_index-sta_index)
+	phi[i, top_index:end_index+1] = np.linspace(1, 0, end_index+1-top_index)
+
+	phi_p[i, :] =  np.gradient(phi[i, :], x)
+
+
+A   = np.zeros((N, N))
+A_p = np.zeros((N, N))
+
+f = (1+np.pi*np.pi)*np.sin(np.pi*x)
+b = np.zeros(N)
+
+BC_cond_0 = 0
+BC_cond_1 = 0
+
+
+psi = BC_cond_0*phi[0, :] + BC_cond_1*phi[-1, :]
+
+for i in range(N):
+	for j in range(N):
+		if abs(i-j)-0.1 < 1:
+			A[i,j]    = 0#scp.trapz(phi[i,:] *    phi[j,:], x)
+			A_p[i, j] = scp.trapz(phi_p[i,:] * phi_p[j,:], x)
+	b[i] = scp.trapz(f*phi[i,:], x)
+
+
+sol = np.linalg.solve(A+A_p, b)
+u = np.zeros(len(x))
+for i in range(N):
+	u += sol[i]*phi[i, :]
+
+plt.plot(x, u)
+plt.plot(x, np.sin(np.pi*x))
+plt.show()
+"""
 k = np.arange(-3, 3, 1)
 xi = np.linspace(-1, 1, int(1e5))
 q = np.zeros((len(k), len(xi)), dtype="complex")
@@ -61,27 +109,4 @@ for j in range(1, len(xi)-1):
 		#else:
 		#	sol1[i, j+1] -= dxdx*(sol1[i+1, j]*kappa*np.conj(ux0[j])/2 + sol1[i-1, j]*kappa*ux0[j]/2)
 
-total_sol_cos = np.zeros((len(xi), len(k)), dtype="complex")
-total_sol_sin = np.zeros((len(xi), len(k)), dtype="complex")
-
-for i in range(len(k)):
-	if i % 2 == 0:
-		total_sol_cos[:, i] = sol1[i, :]
-		total_sol_sin[:, i] = sol2[i, :]
-	else:
-		total_sol_cos[:, i] = sol2[i, :]
-		total_sol_sin[:, i] = sol1[i, :]
-
-plt.plot(xi, np.imag(np.sum(total_sol_cos, axis=1)))
-plt.plot(xi, np.real(np.sum(total_sol_cos, axis=1)))
-plt.show()
-plt.plot(xi, np.imag(np.sum(total_sol_sin, axis=1)), "--")
-plt.plot(xi, np.real(np.sum(total_sol_sin, axis=1)), "--")
-plt.show()
-plt.plot(xi, np.real(q[np.argmin(abs(k+2)),:]+q[np.argmin(abs(k-2)),:]), label=r"$2\omega$")
-plt.plot(xi, np.real(q[np.argmin(abs(k+1)),:]+q[np.argmin(abs(k-1)),:]), label=r"$1\omega$")
-plt.plot(xi, np.real(q[np.argmin(abs(k-0)),:]), label=r"$0\omega$")
-plt.legend(loc="best")
-plt.ylabel(r"Source term $q$")
-plt.xlabel(r"Vertical position $\xi$")
-#plt.show()
+"""
