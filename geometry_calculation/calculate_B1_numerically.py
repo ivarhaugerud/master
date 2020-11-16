@@ -3,51 +3,72 @@ import matplotlib.pyplot as plt
 import scipy.integrate as scp 
 
 x = np.linspace(0, 1, int(pow(2, 10)))
-N = 100
+delta_x = x[1]-x[0]
+N = 4
+
 phi = np.zeros((N, len(x)))
 phi_p = np.zeros((N, len(x)))
+
 N_pos = np.linspace(min(x), max(x), N)
 Delta_x = N_pos[1]-N_pos[0]
-
-for i in range(N):
-	sta_index = np.argmin(abs(x-(N_pos[i]-Delta_x)))
-	top_index = np.argmin(abs(x-(N_pos[i]        )))
-	end_index = np.argmin(abs(x-(N_pos[i]+Delta_x)))
-
-	phi[i, sta_index:top_index] = np.linspace(0, 1, top_index-sta_index)
-	phi[i, top_index:end_index+1] = np.linspace(1, 0, end_index+1-top_index)
-
-	phi_p[i, :] =  np.gradient(phi[i, :], x)
-
 
 A   = np.zeros((N, N))
 A_p = np.zeros((N, N))
 
+
+for i in range(N):
+	sta_index = np.argmin(abs(x-(N_pos[i]-Delta_x)))
+	top_index = np.argmin(abs(x-(N_pos[i]        )))
+	end_index = np.argmin(abs(x-(N_pos[i]+Delta_x)))+1
+
+	phi[i, sta_index:top_index]   = np.linspace(0, 1, top_index-sta_index)
+	phi[i, top_index:end_index]   = np.linspace(1, 0, end_index-top_index)
+	#plt.plot(x, phi[i, :])
+	#plt.show()
+	
+phi[:, -1] = phi[:, -2] + (phi[:,-2]-phi[:,-3])
+
 f = (1+np.pi*np.pi)*np.sin(np.pi*x)
 b = np.zeros(N)
+a = 1
 
 BC_cond_0 = 0
 BC_cond_1 = 0
+psi       = BC_cond_0*phi[0, :] + BC_cond_1*phi[-1, :]
 
+for i in range(N-1):
+	A_p[i, i] += 1/Delta_x
+	A_p[i+1, i] -= 1/Delta_x
+	A_p[i, i+1] -= 1/Delta_x
+	A_p[i+1, i+1] += 1/Delta_x
 
-psi = BC_cond_0*phi[0, :] + BC_cond_1*phi[-1, :]
+	A[i, i] += Delta_x/3
+	A[i+1, i] += Delta_x/6
+	A[i, i+1] += Delta_x/6
+	A[i+1, i+1] += Delta_x/3
 
-for i in range(N):
-	for j in range(N):
-		if abs(i-j)-0.1 < 1:
-			A[i,j]    = 0#scp.trapz(phi[i,:] *    phi[j,:], x)
-			A_p[i, j] = scp.trapz(phi_p[i,:] * phi_p[j,:], x)
-	b[i] = scp.trapz(f*phi[i,:], x)
+	b[i] = scp.trapz(-f*phi[i,:], x)
 
+b[-1] = scp.trapz(-f*phi[-1,:], x)
 
-sol = np.linalg.solve(A+A_p, b)
+b_p = np.zeros(len(b))
+for i in range(len(b)):
+	b_p[i] = (1+np.pi*np.pi)*(np.sin(np.pi*(N_pos[i]-Delta_x))+np.sin(np.pi*(N_pos[i]+Delta_x)))*Delta_x/2
+
+print(b)
+print(b_p)
+A *= a
+
+sol = np.linalg.solve(A+A_p, -b_p)
 u = np.zeros(len(x))
+
 for i in range(N):
 	u += sol[i]*phi[i, :]
 
-plt.plot(x, u)
-plt.plot(x, np.sin(np.pi*x))
+plt.plot(x, u+3)
+plt.plot(x, -np.sin(np.pi*x))
 plt.show()
+
 """
 k = np.arange(-3, 3, 1)
 xi = np.linspace(-1, 1, int(1e5))
