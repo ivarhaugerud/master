@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import scipy.integrate as scp 
 
-x = np.linspace(0, 1, int(pow(2, 10)))
+x = np.linspace(0, 1, int(pow(10, 3)))
 delta_x = x[1]-x[0]
-N = 4
+N = 100
 
 phi = np.zeros((N, len(x)))
 phi_p = np.zeros((N, len(x)))
@@ -19,18 +19,13 @@ A_p = np.zeros((N, N))
 for i in range(N):
 	sta_index = np.argmin(abs(x-(N_pos[i]-Delta_x)))
 	top_index = np.argmin(abs(x-(N_pos[i]        )))
-	end_index = np.argmin(abs(x-(N_pos[i]+Delta_x)))+1
-
+	end_index = np.argmin(abs(x-(N_pos[i]+Delta_x)))
 	phi[i, sta_index:top_index]   = np.linspace(0, 1, top_index-sta_index)
 	phi[i, top_index:end_index]   = np.linspace(1, 0, end_index-top_index)
-	#plt.plot(x, phi[i, :])
-	#plt.show()
-	
-phi[:, -1] = phi[:, -2] + (phi[:,-2]-phi[:,-3])
 
-f = (1+np.pi*np.pi)*np.sin(np.pi*x)
+f = np.sin(np.pi*x)
 b = np.zeros(N)
-a = 1
+a = -1
 
 BC_cond_0 = 0
 BC_cond_1 = 0
@@ -50,23 +45,21 @@ for i in range(N-1):
 	b[i] = scp.trapz(-f*phi[i,:], x)
 
 b[-1] = scp.trapz(-f*phi[-1,:], x)
+A *= a
 
 b_p = np.zeros(len(b))
 for i in range(len(b)):
-	b_p[i] = (1+np.pi*np.pi)*(np.sin(np.pi*(N_pos[i]-Delta_x))+np.sin(np.pi*(N_pos[i]+Delta_x)))*Delta_x/2
+	b_p[i] = -(1+np.pi*np.pi)*(np.sin(np.pi*(N_pos[i]-Delta_x))+np.sin(np.pi*(N_pos[i]+Delta_x)))*Delta_x/2
 
-print(b)
-print(b_p)
-A *= a
-
-sol = np.linalg.solve(A+A_p, -b_p)
+sol = np.linalg.solve(A+A_p, b)
 u = np.zeros(len(x))
 
 for i in range(N):
 	u += sol[i]*phi[i, :]
 
-plt.plot(x, u+3)
-plt.plot(x, -np.sin(np.pi*x))
+plt.show()
+plt.plot(x[:-1], u[:-1])
+plt.plot(x, -np.sin(np.pi*x)/(1+np.pi*np.pi))
 plt.show()
 
 """
