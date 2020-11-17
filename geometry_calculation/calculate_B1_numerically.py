@@ -3,11 +3,9 @@ import matplotlib.pyplot as plt
 import scipy.integrate as scp 
 
 x = np.linspace(0, 1, int(pow(10, 3)))
-delta_x = x[1]-x[0]
-N = 100
+N = 15
 
 phi = np.zeros((N, len(x)))
-phi_p = np.zeros((N, len(x)))
 
 N_pos = np.linspace(min(x), max(x), N)
 Delta_x = N_pos[1]-N_pos[0]
@@ -23,9 +21,9 @@ for i in range(N):
 	phi[i, sta_index:top_index]   = np.linspace(0, 1, top_index-sta_index)
 	phi[i, top_index:end_index]   = np.linspace(1, 0, end_index-top_index)
 
-f = np.sin(np.pi*x)
+f = x
 b = np.zeros(N)
-a = -1
+a = 1
 
 BC_cond_0 = 0
 BC_cond_1 = 0
@@ -49,9 +47,22 @@ A *= a
 
 b_p = np.zeros(len(b))
 for i in range(len(b)):
-	b_p[i] = -(1+np.pi*np.pi)*(np.sin(np.pi*(N_pos[i]-Delta_x))+np.sin(np.pi*(N_pos[i]+Delta_x)))*Delta_x/2
+	b_p[i] = Delta_x*(N_pos[i]+Delta_x/2 + N_pos[i]-Delta_x/2)/2
 
-sol = np.linalg.solve(A+A_p, b)
+b_p[0] = Delta_x*(N_pos[0] + Delta_x)/2
+b_p[-1] = Delta_x*(N_pos[-1]-Delta_x)/2
+
+print(b)
+print(b_p)
+
+
+for i in range(len(b)):
+	b_p[i] = Delta_x*(f[np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + f[np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/2
+
+b_p[0]  = Delta_x*(f[np.argmin(abs(x-(N_pos[0] + Delta_x)))])/2
+b_p[-1] = Delta_x*(f[np.argmin(abs(x-(N_pos[-1]- Delta_x)))])/2
+print(b_p)
+sol = np.linalg.solve(A+A_p, -b_p)
 u = np.zeros(len(x))
 
 for i in range(N):
@@ -59,7 +70,7 @@ for i in range(N):
 
 plt.show()
 plt.plot(x[:-1], u[:-1])
-plt.plot(x, -np.sin(np.pi*x)/(1+np.pi*np.pi))
+#plt.plot(x, -np.sin(np.pi*x)/(1+np.pi*np.pi))
 plt.show()
 
 """
