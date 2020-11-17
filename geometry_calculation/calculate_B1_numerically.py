@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 
 #define general parameters
-N = 50
+N = 500
 x = np.linspace(0, 1, int(pow(10, 3)))
 
 phi = np.zeros((N, len(x)))
@@ -69,6 +69,10 @@ plt.plot(x[:-1], u[:-1], label="my sol")
 plt.plot(x, -np.cos(np.pi*x), label="ana sol")
 plt.legend(loc="best")
 plt.show()
+
+
+
+
 
 """
 k = np.arange(-3, 3, 1)
