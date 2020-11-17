@@ -1,9 +1,9 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
-import scipy.integrate as scp 
 
+#define general parameters
+N = 50
 x = np.linspace(0, 1, int(pow(10, 3)))
-N = 15
 
 phi = np.zeros((N, len(x)))
 
@@ -12,8 +12,10 @@ Delta_x = N_pos[1]-N_pos[0]
 
 A   = np.zeros((N, N))
 A_p = np.zeros((N, N))
+u = np.zeros(len(x))
+b = np.zeros(N)
 
-
+#find form of phi's given our interval
 for i in range(N):
 	sta_index = np.argmin(abs(x-(N_pos[i]-Delta_x)))
 	top_index = np.argmin(abs(x-(N_pos[i]        )))
@@ -21,56 +23,51 @@ for i in range(N):
 	phi[i, sta_index:top_index]   = np.linspace(0, 1, top_index-sta_index)
 	phi[i, top_index:end_index]   = np.linspace(1, 0, end_index-top_index)
 
-f = x
-b = np.zeros(N)
-a = 1
+#define differential equation
+f = (1+np.pi*np.pi)*np.cos(np.pi*x) #source term
+a = -1
 
+#define boundary conditions
 BC_cond_0 = 0
 BC_cond_1 = 0
 psi       = BC_cond_0*phi[0, :] + BC_cond_1*phi[-1, :]
 
+#calculate matrix elements using analytical results
+# A   = phi_i  * phi_j  matrix 
+# A_p = phi_i' * phi_j' matrix 
+
 for i in range(N-1):
-	A_p[i, i] += 1/Delta_x
-	A_p[i+1, i] -= 1/Delta_x
-	A_p[i, i+1] -= 1/Delta_x
+	A_p[i, i]     += 1/Delta_x
+	A_p[i+1, i]   -= 1/Delta_x
+	A_p[i, i+1]   -= 1/Delta_x
 	A_p[i+1, i+1] += 1/Delta_x
 
-	A[i, i] += Delta_x/3
-	A[i+1, i] += Delta_x/6
-	A[i, i+1] += Delta_x/6
+	A[i, i]     += Delta_x/3
+	A[i+1, i]   += Delta_x/6
+	A[i, i+1]   += Delta_x/6
 	A[i+1, i+1] += Delta_x/3
 
-	b[i] = scp.trapz(-f*phi[i,:], x)
+#calculate source vector
+for i in range(len(b)):
+	b[i] = Delta_x*(f[np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + f[np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/2
 
-b[-1] = scp.trapz(-f*phi[-1,:], x)
+#scale matrix with constant
 A *= a
 
-b_p = np.zeros(len(b))
-for i in range(len(b)):
-	b_p[i] = Delta_x*(N_pos[i]+Delta_x/2 + N_pos[i]-Delta_x/2)/2
-
-b_p[0] = Delta_x*(N_pos[0] + Delta_x)/2
-b_p[-1] = Delta_x*(N_pos[-1]-Delta_x)/2
-
-print(b)
-print(b_p)
+#do boundary values of source term
+b[0]  = Delta_x*(f[np.argmin(abs(x-(N_pos[0] + Delta_x)))])/4
+b[-1] = Delta_x*(f[np.argmin(abs(x-(N_pos[-1]- Delta_x)))])/4
 
 
-for i in range(len(b)):
-	b_p[i] = Delta_x*(f[np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + f[np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/2
-
-b_p[0]  = Delta_x*(f[np.argmin(abs(x-(N_pos[0] + Delta_x)))])/2
-b_p[-1] = Delta_x*(f[np.argmin(abs(x-(N_pos[-1]- Delta_x)))])/2
-print(b_p)
-sol = np.linalg.solve(A+A_p, -b_p)
-u = np.zeros(len(x))
+sol = np.linalg.solve(A+A_p, -b)
 
 for i in range(N):
 	u += sol[i]*phi[i, :]
 
 plt.show()
-plt.plot(x[:-1], u[:-1])
-#plt.plot(x, -np.sin(np.pi*x)/(1+np.pi*np.pi))
+plt.plot(x[:-1], u[:-1], label="my sol")
+plt.plot(x, -np.cos(np.pi*x), label="ana sol")
+plt.legend(loc="best")
 plt.show()
 
 """
