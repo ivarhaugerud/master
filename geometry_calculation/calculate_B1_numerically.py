@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 
 #define general parameters
-N = 500
+N = 100
 x = np.linspace(0, 1, int(pow(10, 3)))
 
 phi = np.zeros((N, len(x)))
@@ -28,8 +28,8 @@ f = (1+np.pi*np.pi)*np.cos(np.pi*x) #source term
 a = -1
 
 #define boundary conditions
-BC_cond_0 = 0
-BC_cond_1 = 0
+BC_cond_0 = -1
+BC_cond_1 =  1
 psi       = BC_cond_0*phi[0, :] + BC_cond_1*phi[-1, :]
 
 #calculate matrix elements using analytical results
@@ -47,24 +47,29 @@ for i in range(N-1):
 	A[i, i+1]   += Delta_x/6
 	A[i+1, i+1] += Delta_x/3
 
+print(A)
+print(A_p)
 #calculate source vector
 for i in range(len(b)):
 	b[i] = Delta_x*(f[np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + f[np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/2
+	#b[i] = Delta_x*(f[np.argmin(abs(x-N_pos[i]))])/2
 
 #scale matrix with constant
 A *= a
 
 #do boundary values of source term
-b[0]  = Delta_x*(f[np.argmin(abs(x-(N_pos[0] + Delta_x)))])/4
+b[0]  = Delta_x*(f[np.argmin(abs(x-(N_pos[0] + Delta_x)))])/4 
 b[-1] = Delta_x*(f[np.argmin(abs(x-(N_pos[-1]- Delta_x)))])/4
 
-
+#solve for undetermined coeffs using numpy 
 sol = np.linalg.solve(A+A_p, -b)
 
+#transfer back solution to regular basis
 for i in range(N):
 	u += sol[i]*phi[i, :]
 
-plt.show()
+
+#plot result
 plt.plot(x[:-1], u[:-1], label="my sol")
 plt.plot(x, -np.cos(np.pi*x), label="ana sol")
 plt.legend(loc="best")
