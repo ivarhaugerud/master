@@ -9,8 +9,8 @@ def finite_element_solver(N, x, f, a, Bc0, Bc1):
 
 	A   = np.zeros((N, N))
 	A_p = np.zeros((N, N))
-	u = np.zeros(len(x))
-	b = np.zeros(N)
+	u   = np.zeros(len(x))
+	b   = np.zeros(N)
 
 	#find form of phi's given our interval
 	for i in range(N):
@@ -20,7 +20,7 @@ def finite_element_solver(N, x, f, a, Bc0, Bc1):
 		phi[i, sta_index:top_index]   = np.linspace(0, 1, top_index-sta_index)
 		phi[i, top_index:end_index]   = np.linspace(1, 0, end_index-top_index)
 	
-	phi[-1, -1] = 1
+	phi[-1, -1] = 1 #some times the last element is not included, and is therefore set to zero if this is not odne
 
 
 	#calculate matrix elements using analytical results
@@ -28,15 +28,20 @@ def finite_element_solver(N, x, f, a, Bc0, Bc1):
 	# A_p = phi_i' * phi_j' matrix 
 
 	for i in range(N-1):
-		A_p[i, i]     += 1/Delta_x
-		A_p[i+1, i]   -= 1/Delta_x
-		A_p[i, i+1]   -= 1/Delta_x
-		A_p[i+1, i+1] += 1/Delta_x
+		A_p[i, i]     += 1
+		A_p[i+1, i]   -= 1
+		A_p[i, i+1]   -= 1
+		A_p[i+1, i+1] += 1
 
-		A[i, i]     += Delta_x/3
-		A[i+1, i]   += Delta_x/6
-		A[i, i+1]   += Delta_x/6
-		A[i+1, i+1] += Delta_x/3
+		A[i, i]     += 2
+		A[i+1, i]   += 1
+		A[i, i+1]   += 1
+		A[i+1, i+1] += 2
+
+	print(A)
+	print(A_p)
+	A *= Delta_x*a/6
+	A_p *= 1/Delta_x
 
 	#calculate source vector
 	for i in range(len(b)):
@@ -45,14 +50,9 @@ def finite_element_solver(N, x, f, a, Bc0, Bc1):
 	b[0]  = -Delta_x*(f[np.argmin(abs(x-(N_pos[0] +Delta_x/2)))])/2
 	b[-1] = -Delta_x*(f[np.argmin(abs(x-(N_pos[-1]-Delta_x/2)))])/2
 
-	#scale matrix with constant
-	A *= a
-
 	#if derivative is non-zero at boundary
-	if abs(Bc0) > 1e-4 and abs(Bc1) > 1e-4:
-		print("applying BCs")
-		b[0]   -= Bc0
-		b[-1]  +=  Bc1
+	b[0]   -= Bc0
+	b[-1]  +=  Bc1
 
 	sol = np.linalg.solve(A+A_p, b)
 
@@ -61,14 +61,31 @@ def finite_element_solver(N, x, f, a, Bc0, Bc1):
 		u += sol[i]*phi[i, :]
 	return u
 
-
+"""
 N = 100
 x = np.linspace(0, 1, int(pow(10, 5)))
 f = (1+np.pi*np.pi)*np.sin(np.pi*x)
 sol = finite_element_solver(N, x, f, -1, -np.pi, np.pi)
 
-plt.plot(x, -np.sin(np.pi*x))
-plt.plot(x[:-1], sol[:-1])
+plt.plot(x, -np.sin(np.pi*x), label="analytical solution")
+plt.plot(x[:-1], sol[:-1], label="numerical solution")
+plt.xlabel("x")
+plt.legend(loc="best")
+plt.savefig("figures/test_FE_1.png")
+plt.show()
+"""
+
+
+N = 10
+x = np.linspace(0, 1, int(pow(10, 5)))
+f = (1+np.pi*np.pi)*np.cos(np.pi*x)
+sol = finite_element_solver(N, x, f, -1, 0,0)
+
+plt.plot(x, -np.cos(np.pi*x), label="analytical solution")
+plt.plot(x, sol, label="numerical solution")
+plt.xlabel("x")
+plt.legend(loc="best")
+plt.savefig("figures/test_FE_2.png")
 plt.show()
 
 
