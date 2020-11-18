@@ -1,82 +1,75 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-#define general parameters
+def finite_element_solver(N, x, f, a, Bc0, Bc1):
+	#define general parameters
+	phi = np.zeros((N, len(x)))
+	N_pos = np.linspace(min(x), max(x), N)
+	Delta_x = N_pos[1]-N_pos[0]
+
+	A   = np.zeros((N, N))
+	A_p = np.zeros((N, N))
+	u = np.zeros(len(x))
+	b = np.zeros(N)
+
+	#find form of phi's given our interval
+	for i in range(N):
+		sta_index = np.argmin(abs(x-(N_pos[i]-Delta_x)))
+		top_index = np.argmin(abs(x-(N_pos[i]        )))
+		end_index = np.argmin(abs(x-(N_pos[i]+Delta_x)))
+		phi[i, sta_index:top_index]   = np.linspace(0, 1, top_index-sta_index)
+		phi[i, top_index:end_index]   = np.linspace(1, 0, end_index-top_index)
+	
+	phi[-1, -1] = 1
+
+
+	#calculate matrix elements using analytical results
+	# A   = phi_i  * phi_j  matrix 
+	# A_p = phi_i' * phi_j' matrix 
+
+	for i in range(N-1):
+		A_p[i, i]     += 1/Delta_x
+		A_p[i+1, i]   -= 1/Delta_x
+		A_p[i, i+1]   -= 1/Delta_x
+		A_p[i+1, i+1] += 1/Delta_x
+
+		A[i, i]     += Delta_x/3
+		A[i+1, i]   += Delta_x/6
+		A[i, i+1]   += Delta_x/6
+		A[i+1, i+1] += Delta_x/3
+
+	#calculate source vector
+	for i in range(len(b)):
+		b[i] = -Delta_x*(f[np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + f[np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/2
+
+	b[0]  = -Delta_x*(f[np.argmin(abs(x-(N_pos[0] +Delta_x/2)))])/2
+	b[-1] = -Delta_x*(f[np.argmin(abs(x-(N_pos[-1]-Delta_x/2)))])/2
+
+	#scale matrix with constant
+	A *= a
+
+	#if derivative is non-zero at boundary
+	if abs(Bc0) > 1e-4 and abs(Bc1) > 1e-4:
+		print("applying BCs")
+		b[0]   -= Bc0
+		b[-1]  +=  Bc1
+
+	sol = np.linalg.solve(A+A_p, b)
+
+	#transfer back solution to regular basis
+	for i in range(N):
+		u += sol[i]*phi[i, :]
+	return u
+
+
 N = 100
-x = np.linspace(0, 1, int(pow(10, 3)))
+x = np.linspace(0, 1, int(pow(10, 5)))
+f = (1+np.pi*np.pi)*np.sin(np.pi*x)
+sol = finite_element_solver(N, x, f, -1, -np.pi, np.pi)
 
-phi = np.zeros((N, len(x)))
-
-N_pos = np.linspace(min(x), max(x), N)
-Delta_x = N_pos[1]-N_pos[0]
-
-A   = np.zeros((N, N))
-A_p = np.zeros((N, N))
-u = np.zeros(len(x))
-b = np.zeros(N)
-
-#find form of phi's given our interval
-for i in range(N):
-	sta_index = np.argmin(abs(x-(N_pos[i]-Delta_x)))
-	top_index = np.argmin(abs(x-(N_pos[i]        )))
-	end_index = np.argmin(abs(x-(N_pos[i]+Delta_x)))
-	phi[i, sta_index:top_index]   = np.linspace(0, 1, top_index-sta_index)
-	phi[i, top_index:end_index]   = np.linspace(1, 0, end_index-top_index)
-
-#define differential equation
-f = (1+np.pi*np.pi)*np.cos(np.pi*x) #source term
-a = -1
-
-#define boundary conditions
-BC_cond_0 = -1
-BC_cond_1 =  1
-psi       = BC_cond_0*phi[0, :] + BC_cond_1*phi[-1, :]
-
-#calculate matrix elements using analytical results
-# A   = phi_i  * phi_j  matrix 
-# A_p = phi_i' * phi_j' matrix 
-
-for i in range(N-1):
-	A_p[i, i]     += 1/Delta_x
-	A_p[i+1, i]   -= 1/Delta_x
-	A_p[i, i+1]   -= 1/Delta_x
-	A_p[i+1, i+1] += 1/Delta_x
-
-	A[i, i]     += Delta_x/3
-	A[i+1, i]   += Delta_x/6
-	A[i, i+1]   += Delta_x/6
-	A[i+1, i+1] += Delta_x/3
-
-print(A)
-print(A_p)
-#calculate source vector
-for i in range(len(b)):
-	b[i] = Delta_x*(f[np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + f[np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/2
-	#b[i] = Delta_x*(f[np.argmin(abs(x-N_pos[i]))])/2
-
-#scale matrix with constant
-A *= a
-
-#do boundary values of source term
-b[0]  = Delta_x*(f[np.argmin(abs(x-(N_pos[0] + Delta_x)))])/4 
-b[-1] = Delta_x*(f[np.argmin(abs(x-(N_pos[-1]- Delta_x)))])/4
-
-#solve for undetermined coeffs using numpy 
-sol = np.linalg.solve(A+A_p, -b)
-
-#transfer back solution to regular basis
-for i in range(N):
-	u += sol[i]*phi[i, :]
-
-
-#plot result
-plt.plot(x[:-1], u[:-1], label="my sol")
-plt.plot(x, -np.cos(np.pi*x), label="ana sol")
-plt.legend(loc="best")
+plt.plot(x, -np.sin(np.pi*x))
+plt.plot(x[:-1], sol[:-1])
 plt.show()
-
-
-
 
 
 """
