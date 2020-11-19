@@ -30,10 +30,10 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 
 	for j in range(n):
 		for i in range(N-1):
-			A_p[j*N+i,     j*N+i]     += 1*0
-			A_p[j*N+i+1,   j*N+i]   -= 1*0
-			A_p[j*N+i,   j*N+i+1]   -= 1*0
-			A_p[j*N+i+1, j*N+i+1] += 1*0
+			A_p[j*N+i,     j*N+i] += 1
+			A_p[j*N+i+1,   j*N+i] -= 1
+			A_p[j*N+i,   j*N+i+1] -= 1
+			A_p[j*N+i+1, j*N+i+1] += 1
 
 			A[j*N+ i, j*N+ i]     += 2*alpha[j]
 			A[j*N+ i+1, j*N+i]    += 1*alpha[j]
@@ -44,21 +44,20 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	A   *= Delta_x/6
 
 	for i in range(n-1):
-		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_backward*np.identity(N)
-		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] += couple_forward *np.identity(N)
+		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward*np.identity(N)
+		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] += couple_backward *np.identity(N)
 
 	#calculate source vector
 	for j in range(n):
 		for i in range(N):
-			#print(j*N+i)
 			b[j*N+i] = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + f[j, np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/2
 
 		b[j*N+0]   = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[0] + Delta_x/2)))])/2
 		b[j*N+N-1] = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/2
 
 		#if derivative is non-zero at boundary
-		b[0]   -= Bc0[j]
-		b[-1]  +=  Bc1[j]
+		b[N*j+0]    -= Bc0[j]
+		b[N*j+N-1]  += Bc1[j]
 
 	print(A+A_p)
 	print(b)
@@ -72,33 +71,39 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	return u
 
 
-"""
-f'' = b_1(x) + alpha_1*g
-g'' = b_2(x) + alpha_2*f
-"""
+#works for differential equation with constant terms, now just need coupeling to work as well
 n = 2  #number of vectors 
-N = 3 #length of each vector 
+N = 500 #length of each vector 
 x = np.linspace(0, 1, int(1e4))
 
 alpha = np.zeros(n) #self-interaction
 
-alpha[0] = -1
-alpha[1] = -1
+alpha[0] = 1
+alpha[1] = 1
 
 #coupleing between vectors
-couple_backward = 0*np.linspace(-3, -2, N) 
-couple_forward  = 0*np.linspace(-1, 1, N)
+couple_backward = np.zeros(N) 
+couple_forward  = np.zeros(N)
 
 #boundary conditions
 Bc0 = np.zeros(n)
 Bc1 = np.zeros(n)
 
+Bc0[1] = -np.pi
+Bc1[1] =  np.pi
+
 f = np.zeros((n, len(x)))
-f[0, :] = x
+f[0, :] =  (1+np.pi*np.pi)*np.cos(np.pi*x)
+f[1, :] =  (1+np.pi*np.pi)*np.sin(np.pi*x)
+
 
 sol = coupled_finite_element_solver(N, n, x, alpha, couple_backward, couple_forward, f, Bc0, Bc1)
 
 for i in range(len(sol[:,0])):
-	plt.plot(x, sol[i,:])
-plt.plot(x, f[0,:] + sol[0,0], "--")
+	plt.plot(x, sol[i,:], label="num"+str(i))
+plt.plot(x, -np.cos(np.pi*x), "--")
+plt.plot(x, -np.sin(np.pi*x), "--")
+
+#plt.plot(x, f[1,:], "--")
+plt.legend(loc="best")
 plt.show()
