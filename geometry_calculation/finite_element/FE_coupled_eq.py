@@ -107,3 +107,6 @@ plt.plot(x, -np.sin(np.pi*x), "--")
 #plt.plot(x, f[1,:], "--")
 plt.legend(loc="best")
 plt.show()
+
+
+#tomorrow try and solve f'' = g and g'' = (1+pi*pi)*cos(k*x)
