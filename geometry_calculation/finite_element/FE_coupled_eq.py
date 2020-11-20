@@ -116,6 +116,7 @@ for i in range(len(sol[:,0])):
 plt.plot(x, np.real(-sol1[0]+sol1), "--")
 plt.plot(x, np.real(-sol2[0]+sol2), "--")
 plt.legend(loc="best")
+plt.savefig("figures/coupled_FE_test.pdf")
 plt.show()
 
 

@@ -68,7 +68,7 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	return u
 
 tol = 1e-6
-k = np.arange(-2, 2, 1)
+k = np.arange(-3, 3, 1)
 xi = np.linspace(-1, 1, int(1e5))
 q = np.zeros((len(k), len(xi)), dtype="complex")
 
@@ -156,8 +156,8 @@ plt.figure(1)
 plt.legend(loc="best")
 plt.show()
 
-
-
+k_odd = k
+sol_odd = sol
 
 
 
@@ -235,4 +235,43 @@ for i in range(int(len(k)/2)+1):
 
 plt.figure(1)
 plt.legend(loc="best")
+plt.show()
+
+sol_even = sol
+k_even = k
+
+
+
+
+
+
+for i in range(int(len(k)/2)+1):
+	if abs(k[i]) % 2 == 0:
+		print("even:", k[i])
+		plt.figure(1) #sin figure
+		plt.plot(xi, -np.real(sol_even[i,0]+sol_even[-i,0]) + np.real(sol_even[i,:]+sol_even[-i,:]), label=r"$\omega=\omega$"+str(abs(k_even[i])))
+
+		plt.figure(2) #cos figure
+		plt.plot(xi, -np.real(sol_odd[i,0]+sol_odd[-i,0]) + np.real(sol_odd[i,:]+sol_odd[-i,:]), label=r"$\omega=\omega$"+str(abs(k_odd[i])))
+
+	else:
+		print("odd: ", k[i])
+		plt.figure(2) #cos figure
+		plt.plot(xi, -np.real(sol_even[i,0]+sol_even[-i,0]) + np.real(sol_even[i,:]+sol_even[-i,:]), label=r"$\omega=\omega$"+str(abs(k_even[i])))
+
+		plt.figure(1) #sin figure
+		plt.plot(xi, -np.real(sol_odd[i,0]+sol_odd[-i,0]) + np.real(sol_odd[i,:]+sol_odd[-i,:]), label=r"$\omega=\omega$"+str(abs(k_odd[i])))	
+
+plt.figure(1)
+plt.legend(loc="best")
+plt.title(r"$\sin{\kappa\eta}$-solution")
+plt.xlabel(r"x-axis $\xi$")
+plt.ylabel(r"Brenner field $B(\xi)$")
+plt.savefig("figures/Brennerfield_sin.pdf")
+plt.figure(2)
+plt.legend(loc="best")
+plt.title(r"$\cos{\kappa\eta}$-solution")
+plt.xlabel(r"x-axis $\xi$")
+plt.ylabel(r"Brenner field $B(\xi)$")
+plt.savefig("figures/Brennerfield_cos.pdf")
 plt.show()
