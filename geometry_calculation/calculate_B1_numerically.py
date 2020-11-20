@@ -41,10 +41,6 @@ def finite_element_solver(N, x, f, a, Bc0, Bc1):
 	A_p *= 1/Delta_x
 	A   *= a*Delta_x/6 # a=k^2
 
-	#maybe something like this?
-	#A_p[0, 0]   += 0 
-	#A_p[-1, -1] += 1
-
 	#calculate source vector
 	for i in range(len(b)):
 		b[i] = -Delta_x*(f[np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + f[np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/2
