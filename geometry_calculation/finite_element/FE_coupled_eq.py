@@ -85,8 +85,8 @@ alpha[0] =  1
 alpha[1] =  1
 
 #coupleing between vectors
-couple_backward = -2*np.zeros(N)
-couple_forward  =  1*np.ones(N)
+couple_backward =  1*np.ones(N)
+couple_forward  =  1*np.zeros(N)
 
 
 #since integral over last and first basis function is half the value of the others
@@ -100,15 +100,15 @@ couple_forward[-1] *= 0.5
 Bc0 = np.zeros(n)
 Bc1 = np.zeros(n)
 
-Bc0[0] = 0#np.gradient(sol1, x)[0]
-Bc1[0] = 0#np.gradient(sol1, x)[-1]
+Bc0[0] = -np.pi#np.gradient(sol1, x)[0]
+Bc1[0] = np.pi#np.gradient(sol1, x)[-1]
 
-Bc0[1] = 0#np.gradient(sol2, x)[0]
-Bc1[1] = 0#np.gradient(sol2, x)[-1]
+Bc0[1] = np.pi/(1+np.pi*np.pi)#np.gradient(sol2, x)[0]
+Bc1[1] = -np.pi/(1+np.pi*np.pi)#np.gradient(sol2, x)[-1]
 
 f = np.zeros((n, len(x)))
-f[0, :] =  (1+np.pi*np.pi)*np.cos(np.pi*x)
-f[1, :] =  (1+np.pi*np.pi)*np.cos(np.pi*x)
+f[0, :] =  (1+np.pi*np.pi)*np.sin(np.pi*x)
+#f[1, :] =  (1+np.pi*np.pi)*np.sin(np.pi*x)
 
 
 sol = coupled_finite_element_solver(N, n, x, alpha, couple_backward, couple_forward, f, Bc0, Bc1)
@@ -116,8 +116,8 @@ sol = coupled_finite_element_solver(N, n, x, alpha, couple_backward, couple_forw
 for i in range(len(sol[:,0])):
 	plt.plot(x, sol[i,:], label="num"+str(i))
 
-plt.plot(x, -np.cos(np.pi*x), "--")
-plt.plot(x,  -np.pi*np.pi*np.cos(np.pi*x)/(1+np.pi*np.pi), "--")
+plt.plot(x, -np.sin(np.pi*x), "--")
+plt.plot(x,  np.sin(np.pi*x)/(1+np.pi*np.pi), "--")
 plt.legend(loc="best")
 plt.show()
 
