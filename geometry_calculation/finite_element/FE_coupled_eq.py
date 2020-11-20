@@ -76,47 +76,48 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 
 #works for differential equation with constant terms, now just need coupeling to work as well
 n = 2  #number of vectors 
-N = 50 #length of each vector 
+N = 500 #length of each vector 
 x = np.linspace(0, 1, int(1e4))
 
 alpha = np.zeros(n) #self-interaction
 
-alpha[0] = 1
-alpha[1] = 1
+alpha[0] =  1
+alpha[1] =  1
 
 #coupleing between vectors
-couple_backward = (1+np.pi*np.pi)*np.ones(N)
-couple_forward  = (1+np.pi*np.pi)*np.ones(N)
+couple_backward = -2*np.zeros(N)
+couple_forward  =  1*np.ones(N)
 
 
 #since integral over last and first basis function is half the value of the others
-couple_backward[0] *= 0.5
+couple_backward[0]  *= 0.5
 couple_backward[-1] *= 0.5 
 
-couple_forward[0] *= 0.5
+couple_forward[0]  *= 0.5
 couple_forward[-1] *= 0.5 
 
 #boundary conditions
 Bc0 = np.zeros(n)
 Bc1 = np.zeros(n)
 
-#Bc0[1] = -np.pi
-#Bc1[1] =  np.pi
+Bc0[0] = 0#np.gradient(sol1, x)[0]
+Bc1[0] = 0#np.gradient(sol1, x)[-1]
+
+Bc0[1] = 0#np.gradient(sol2, x)[0]
+Bc1[1] = 0#np.gradient(sol2, x)[-1]
 
 f = np.zeros((n, len(x)))
 f[0, :] =  (1+np.pi*np.pi)*np.cos(np.pi*x)
-f[1, :] =  (1+np.pi*np.pi)*np.sin(np.pi*x)
+f[1, :] =  (1+np.pi*np.pi)*np.cos(np.pi*x)
 
 
 sol = coupled_finite_element_solver(N, n, x, alpha, couple_backward, couple_forward, f, Bc0, Bc1)
 
 for i in range(len(sol[:,0])):
 	plt.plot(x, sol[i,:], label="num"+str(i))
+
 plt.plot(x, -np.cos(np.pi*x), "--")
-
-#plt.plot(x, -np.sin(np.pi*x), "--")
-
-#plt.plot(x, f[1,:], "--")
+plt.plot(x,  -np.pi*np.pi*np.cos(np.pi*x)/(1+np.pi*np.pi), "--")
 plt.legend(loc="best")
 plt.show()
 
