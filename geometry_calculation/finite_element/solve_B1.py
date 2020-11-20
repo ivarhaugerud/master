@@ -74,7 +74,7 @@ q = np.zeros((len(k), len(xi)), dtype="complex")
 
 kappa = 0.5
 Sc = 1.2 
-omega = 1.35
+omega = 1.35*100
 F0 = 3
 Pe = F0/Sc 
 
@@ -108,7 +108,7 @@ Delta = xi[1]-xi[0]
 
 #works for differential equation with constant terms, now just need coupeling to work as well
 n = len(k) #number of vectors
-N = 20 #length of each vector 
+N = 100 #length of each vector 
 N_pos = np.linspace(min(xi), max(xi), N)
 
 alpha = p_np2 #self-interaction
@@ -140,12 +140,13 @@ Bc1 = np.zeros(n, dtype="complex")
 
 sol = coupled_finite_element_solver(N, n, xi, alpha, couple_backward, couple_forward, q, Bc0, Bc1)
 
-for i in range(int(len(sol[:,0])/2)):
+for i in range(int((len(sol[:,0])-1)/2)+1):
 	plt.figure(1)
-	plt.plot(xi, np.real(sol[i,:]+sol[-i]), label="num"+str(k[i]))
+	plt.plot(xi, -np.real(sol[i,0]+sol[-i,0]) + np.real(sol[i,:]+sol[-i,:]), label="num"+str(k[i]))
 
 	plt.figure(2)
-	plt.plot(xi, np.imag(sol[i,:]+sol[-i-1]), label="num"+str(k[i]))
+	print(k[i], k[-i])
+	plt.plot(xi, np.imag(sol[i,:]+sol[-i, :]), label="num"+str(k[i]))
 
 plt.legend(loc="best")
 plt.show()
