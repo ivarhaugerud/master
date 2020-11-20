@@ -76,14 +76,14 @@ x = np.linspace(0, 1, int(1e5))
 alpha = np.zeros(n) #self-interaction
 
 alpha[0] =  1
-alpha[1] =  3
+alpha[1] =  1
 
 #coupleing between vectors
-couple_forward  =  2*np.ones(N)
-couple_backward =  4*np.ones(N)
+couple_forward  =  np.ones(N)
+couple_backward =  np.ones(N)
 
-sol1 =  1j*np.exp(1j*x) - 1j*np.exp(-1j*x) + np.sqrt(5)*np.exp(np.sqrt(5)*x)/10 - np.sqrt(5)*np.exp(-np.sqrt(5)*x)/10
-sol2 = -1j*np.exp(1j*x) + 1j*np.exp(-1j*x) + np.sqrt(5)*np.exp(np.sqrt(5)*x)/5  - np.sqrt(5)*np.exp(-np.sqrt(5)*x)/5
+sol1 = -(1+np.pi*np.pi)*np.sin(np.pi*x) #1j*np.exp(1j*x) - 1j*np.exp(-1j*x) + np.sqrt(5)*np.exp(np.sqrt(5)*x)/10 - np.sqrt(5)*np.exp(-np.sqrt(5)*x)/10
+sol2 =  np.sin(np.pi*x)  #-1j*np.exp(1j*x) + 1j*np.exp(-1j*x) + np.sqrt(5)*np.exp(np.sqrt(5)*x)/5  - np.sqrt(5)*np.exp(-np.sqrt(5)*x)/5
 
 #since integral over last and first basis function is half the value of the others
 couple_backward[0]  *= 0.5
@@ -104,17 +104,17 @@ Bc1[1] = np.gradient(sol2, x)[-1]
 
 print(Bc0, Bc1)
 f = np.zeros((n, len(x)))
-#f[0, :] =  (1+np.pi*np.pi)*np.sin(np.pi*x)
+f[0, :] =  np.pi*np.pi*(2+np.pi*np.pi)*np.sin(np.pi*x)
 #f[1, :] =  (1+np.pi*np.pi)*np.sin(np.pi*x)
 
 
 sol = coupled_finite_element_solver(N, n, x, alpha, couple_backward, couple_forward, f, Bc0, Bc1)
 
 for i in range(len(sol[:,0])):
-	plt.plot(x, np.real(sol[i,:]), label="num"+str(i))
+	plt.plot(x, np.real(-sol[i,0]+sol[i,:]), label="num"+str(i))
 
-plt.plot(x, np.real(sol1), "--")
-plt.plot(x, np.real(sol2), "--")
+plt.plot(x, np.real(-sol1[0]+sol1), "--")
+plt.plot(x, np.real(-sol2[0]+sol2), "--")
 plt.legend(loc="best")
 plt.show()
 
