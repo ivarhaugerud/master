@@ -44,7 +44,7 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	A   *= Delta_x/6
 
 	for i in range(n-1):
-		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward*np.identity(N)*Delta_x
+		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward  *np.identity(N)*Delta_x
 		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] += couple_backward *np.identity(N)*Delta_x
 	print(A)
 	#calculate source vector
@@ -76,15 +76,14 @@ x = np.linspace(0, 1, int(1e5))
 alpha = np.zeros(n) #self-interaction
 
 alpha[0] =  1
-alpha[1] =  1
+alpha[1] =  3
 
 #coupleing between vectors
-couple_backward =  2*np.ones(N)
 couple_forward  =  2*np.ones(N)
+couple_backward =  4*np.ones(N)
 
-
-sol1 =  1j*np.exp(1j*x) - 1j*np.exp(-1j*x) + np.exp(np.sqrt(3)*x)/np.sqrt(3) - np.exp(-np.sqrt(3)*x)/np.sqrt(3)
-sol2 = -1j*np.exp(1j*x) + 1j*np.exp(-1j*x) + np.exp(np.sqrt(3)*x)/np.sqrt(3) - np.exp(-np.sqrt(3)*x)/np.sqrt(3)
+sol1 =  1j*np.exp(1j*x) - 1j*np.exp(-1j*x) + np.sqrt(5)*np.exp(np.sqrt(5)*x)/10 - np.sqrt(5)*np.exp(-np.sqrt(5)*x)/10
+sol2 = -1j*np.exp(1j*x) + 1j*np.exp(-1j*x) + np.sqrt(5)*np.exp(np.sqrt(5)*x)/5  - np.sqrt(5)*np.exp(-np.sqrt(5)*x)/5
 
 #since integral over last and first basis function is half the value of the others
 couple_backward[0]  *= 0.5
