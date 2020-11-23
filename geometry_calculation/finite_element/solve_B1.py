@@ -72,9 +72,9 @@ k = np.array([-3, -2, -1, 0, 1, 2, 3])
 xi = np.linspace(-1, 1, int(1e5))
 q = np.zeros((len(k), len(xi)), dtype="complex")
 
-kappa = 0.5
+kappa = 1
 Sc = 1.2 
-omega = 1.35
+omega = kappa/(np.sqrt(2))
 F0 = 3
 Pe = F0/Sc 
 
@@ -99,6 +99,13 @@ q[np.argmin(abs(k+1)), :] = kappa*kappa*xi*np.conj(B0_deriv)/2 - 2*np.conj(B0_de
 #q[np.argmin(abs(k-0)), :] = kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_deriv) - uy1*np.conj(B0_deriv) - np.conj(uy1)*B0_deriv
 q[np.argmin(abs(k-1)), :] = kappa*kappa*xi*B0_deriv/2 - 2*B0_deriv_deriv/2 + Pe*ux1/2
 #q[np.argmin(abs(k-2)), :] = kappa*xi*ux0*B0_deriv/4 - uy1*B0_deriv/4
+
+"""
+for i in range(len(q[:,0])):
+	plt.title(str(k[i]))
+	plt.plot(xi, q[i,:])
+	plt.show()
+"""
 
 p_np2 = 1j*omega*k + kappa*kappa
 Delta = xi[1]-xi[0]
@@ -140,7 +147,7 @@ sol = coupled_finite_element_solver(N, n, xi, alpha, couple_backward, couple_for
 
 for i in range(int(len(k)/2)+1):
 	if k[i] < 1e-3:
-		plt.plot(xi, -np.real(sol[i,0]+sol[-i-1,0]) + np.real(sol[i,:]+sol[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
+		#plt.plot(xi, -np.real(sol[i,0]+sol[-i-1,0]) + np.real(sol[i,:]+sol[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
 		
 		if np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i-1,0]+sol[-i,0]))) > tol:
 			print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[i-1,:]+sol[-i-1,:]) - np.imag(sol[i-1,0]+sol[-i-1,0]))))
@@ -150,12 +157,12 @@ for i in range(int(len(k)/2)+1):
 		if np.max(abs(np.imag(sol[0,:]-sol[0,0]))) > tol:
 			print("LARGE IMAGINARY VALUE FOR 0-OMEGA = ", np.max(abs(np.imag(sol[0,:]))))
 
-plt.figure(1)
-plt.legend(loc="best")
-plt.show()
+#plt.figure(1)
+#plt.legend(loc="best")
+#plt.show()
 
 k_odd = k
-sol_odd = sol
+sol_odd = sol/2
 
 
 ###
@@ -165,12 +172,6 @@ sol_odd = sol
 
 k = np.array([-3, -2, -1, 0, 1, 2, 3])
 q = np.zeros((len(k), len(xi)), dtype="complex")
-
-kappa = 0.5
-Sc = 1.2 
-omega = 1.35
-F0 = 3
-Pe = F0/Sc 
 
 q[np.argmin(abs(k+2)), :] = kappa*xi*np.conj(ux0)*np.conj(B0_deriv)/4 - np.conj(uy1)*np.conj(B0_deriv)/4
 #q[np.argmin(abs(k+1)), :] = kappa*kappa*xi*np.conj(B0_deriv)/2 - 2*np.conj(B0_deriv_deriv)/2 + Pe*np.conj(ux1)/2
@@ -212,14 +213,14 @@ couple_forward[-1] *= 0.5
 Bc0 = np.zeros(n, dtype="complex")
 Bc1 = np.zeros(n, dtype="complex")
 
-Bc0[np.argmin(abs(k-0))] =  kappa
-Bc1[np.argmin(abs(k-0))] = -kappa
+Bc0[np.argmin(abs(k-0))] =  -kappa
+Bc1[np.argmin(abs(k-0))] =  kappa
 
 sol = coupled_finite_element_solver(N, n, xi, alpha, couple_backward, couple_forward, q, Bc0, Bc1)
 
 for i in range(int(len(k)/2)+1):
 	if k[i] < 1e-3:
-		plt.plot(xi, -np.real(sol[i,0]+sol[-i-1,0]) + np.real(sol[i,:]+sol[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
+		#plt.plot(xi, -np.real(sol[i,0]+sol[-i-1,0]) + np.real(sol[i,:]+sol[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
 		
 		if np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0]))) > tol:
 			print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0]))))
@@ -229,40 +230,46 @@ for i in range(int(len(k)/2)+1):
 		if np.max(abs(np.imag(sol[0,:]-sol[0,0]))) > tol:
 			print("LARGE IMAGINARY VALUE FOR 0-OMEGA = ", np.max(abs(np.imag(sol[0,:]))))
 
-plt.figure(1)
-plt.legend(loc="best")
-plt.show()
+#plt.figure(1)
+#plt.legend(loc="best")
+#plt.show()
 
-sol_even = sol
+sol_even = sol/2
 k_even = k
 
 
 
 
 
-
+full_sol = np.zeros((len(xi), 2))
 for i in range(int(len(k)/2)+1):
 	if abs(k[i]) % 2 == 0:
 		print("even:", k[i])
 		plt.figure(1) #cos figure
 		plt.plot(xi, -np.real(sol_even[i,0]+sol_even[-i-1,0]) + np.real(sol_even[i,:]+sol_even[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_even[i])))
+		full_sol[:, 1] += -np.real(sol_even[i,0]+sol_even[-i-1,0]) + np.real(sol_even[i,:]+sol_even[-i-1,:])
 
 		plt.figure(2) #sin figure
 		plt.plot(xi, -np.real(sol_odd[i,0]+sol_odd[-i-1,0]) + np.real(sol_odd[i,:]+sol_odd[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_odd[i])))
+		full_sol[:, 0] += -np.real(sol_odd[i,0]+sol_odd[-i-1,0]) + np.real(sol_odd[i,:]+sol_odd[-i-1,:])
 
 	else:
 		print("odd: ", k[i])
 		plt.figure(2) #sin figure
 		plt.plot(xi, -np.real(sol_even[i,0]+sol_even[-i-1,0]) + np.real(sol_even[i,:]+sol_even[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_even[i])))
+		full_sol[:, 0] += -np.real(sol_odd[i,0]+sol_odd[-i-1,0]) + np.real(sol_odd[i,:]+sol_odd[-i-1,:])
 
-		plt.figure(1) #cos figure
+		plt.figure(2) #sin figure
 		plt.plot(xi, -np.real(sol_odd[i,0]+sol_odd[-i-1,0]) + np.real(sol_odd[i,:]+sol_odd[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_odd[i])))	
+		full_sol[:, 0] += -np.real(sol_even[i,0]+sol_even[-i-1,0]) + np.real(sol_even[i,:]+sol_even[-i-1,:])
 
 plt.figure(1)
 plt.legend(loc="best")
 plt.title(r"$\cos{\kappa\eta}$-solution")
 plt.xlabel(r"x-axis $\xi$")
 plt.ylabel(r"Brenner field $B(\xi)$")
+plt.plot(xi, -np.cosh(-kappa)/np.sinh(kappa)+np.cosh(kappa*xi)/np.sinh(kappa), "--")
+
 plt.savefig("figures/Brennerfield_cos.pdf")
 plt.figure(2)
 plt.legend(loc="best")
@@ -270,4 +277,12 @@ plt.title(r"$\sin{\kappa\eta}$-solution")
 plt.xlabel(r"x-axis $\xi$")
 plt.ylabel(r"Brenner field $B(\xi)$")
 plt.savefig("figures/Brennerfield_sin.pdf")
+
+plt.figure(3)
+plt.plot(xi, full_sol[:, 0])
+plt.plot(xi, full_sol[:, 1])
+plt.title(r"Full solution")
+plt.xlabel(r"x-axis $\xi$")
+plt.ylabel(r"Brenner field $B(\xi)$")
+plt.savefig("figures/Brennerfield_full.pdf")
 plt.show()
