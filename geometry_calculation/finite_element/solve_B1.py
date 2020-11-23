@@ -142,6 +142,10 @@ couple_forward[-1] *= 0.5
 #boundary conditions
 Bc0 = np.zeros(n, dtype="complex")
 Bc1 = np.zeros(n, dtype="complex")
+
+Bc0[np.argmin(abs(k-0))] =  -kappa
+Bc1[np.argmin(abs(k-0))] =  kappa
+
 sol = coupled_finite_element_solver(N, n, xi, alpha, couple_backward, couple_forward, q, Bc0, Bc1)
 
 
@@ -160,9 +164,10 @@ for i in range(int(len(k)/2)+1):
 #plt.figure(1)
 #plt.legend(loc="best")
 #plt.show()
+		print("even:", k[i], "and", k[-i-1])
 
 k_odd = k
-sol_odd = sol/2
+f0_g1 = sol/2
 
 
 ###
@@ -213,9 +218,6 @@ couple_forward[-1] *= 0.5
 Bc0 = np.zeros(n, dtype="complex")
 Bc1 = np.zeros(n, dtype="complex")
 
-Bc0[np.argmin(abs(k-0))] =  -kappa
-Bc1[np.argmin(abs(k-0))] =  kappa
-
 sol = coupled_finite_element_solver(N, n, xi, alpha, couple_backward, couple_forward, q, Bc0, Bc1)
 
 for i in range(int(len(k)/2)+1):
@@ -234,7 +236,7 @@ for i in range(int(len(k)/2)+1):
 #plt.legend(loc="best")
 #plt.show()
 
-sol_even = sol/2
+g0_f1 = sol/2
 k_even = k
 
 
@@ -244,24 +246,24 @@ k_even = k
 full_sol = np.zeros((len(xi), 2))
 for i in range(int(len(k)/2)+1):
 	if abs(k[i]) % 2 == 0:
-		print("even:", k[i])
+		print("even:", k[i], "and", k[-i-1])
 		plt.figure(1) #cos figure
-		plt.plot(xi, -np.real(sol_even[i,0]+sol_even[-i-1,0]) + np.real(sol_even[i,:]+sol_even[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_even[i])))
-		full_sol[:, 1] += -np.real(sol_even[i,0]+sol_even[-i-1,0]) + np.real(sol_even[i,:]+sol_even[-i-1,:])
+		plt.plot(xi, -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_even[i])))
+		full_sol[:, 1] += -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:])
 
 		plt.figure(2) #sin figure
-		plt.plot(xi, -np.real(sol_odd[i,0]+sol_odd[-i-1,0]) + np.real(sol_odd[i,:]+sol_odd[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_odd[i])))
-		full_sol[:, 0] += -np.real(sol_odd[i,0]+sol_odd[-i-1,0]) + np.real(sol_odd[i,:]+sol_odd[-i-1,:])
+		plt.plot(xi, -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_odd[i])))
+		full_sol[:, 0] += -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:])
 
 	else:
-		print("odd: ", k[i])
+		print("odd:", k[i], "and", k[-i-1])
 		plt.figure(2) #sin figure
-		plt.plot(xi, -np.real(sol_even[i,0]+sol_even[-i-1,0]) + np.real(sol_even[i,:]+sol_even[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_even[i])))
-		full_sol[:, 0] += -np.real(sol_odd[i,0]+sol_odd[-i-1,0]) + np.real(sol_odd[i,:]+sol_odd[-i-1,:])
+		plt.plot(xi, -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_even[i])))
+		full_sol[:, 0] += -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:])
 
-		plt.figure(2) #sin figure
-		plt.plot(xi, -np.real(sol_odd[i,0]+sol_odd[-i-1,0]) + np.real(sol_odd[i,:]+sol_odd[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_odd[i])))	
-		full_sol[:, 0] += -np.real(sol_even[i,0]+sol_even[-i-1,0]) + np.real(sol_even[i,:]+sol_even[-i-1,:])
+		plt.figure(1) #cos figure
+		plt.plot(xi, -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_odd[i])))	
+		full_sol[:, 1] += -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:])
 
 plt.figure(1)
 plt.legend(loc="best")
