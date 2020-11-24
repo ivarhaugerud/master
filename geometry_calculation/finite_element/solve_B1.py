@@ -72,10 +72,10 @@ k = np.array([-3, -2, -1, 0, 1, 2, 3])
 xi = np.linspace(-1, 1, int(1e5))
 q = np.zeros((len(k), len(xi)), dtype="complex")
 
-kappa = 1+1e-3
-Sc = 1+1e-2
-omega = 1+1e-4#kappa/(np.sqrt(2))
-F0 = 1
+kappa = 0.5
+Sc = 1.2
+omega = kappa/(np.sqrt(2))
+F0 = 0.5
 Pe = F0*Sc 
 
 gamma = np.sqrt(1j*omega/Sc )
@@ -95,9 +95,9 @@ B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(
 #RHS_cos  = (ux0*kappa*xi - uy1)*B0_deriv
 
 #q[np.argmin(abs(k+2)), :] = kappa*xi*np.conj(ux0)*np.conj(B0_deriv)/4 - np.conj(uy1)*np.conj(B0_deriv)/4
-q[np.argmin(abs(k+1)), :] = kappa*kappa*xi*np.conj(B0_deriv)/2 - 2*np.conj(B0_deriv_deriv)/2 + Pe*np.conj(ux1)/2
+q[np.argmin(abs(k+1)), :] = kappa*kappa*xi*np.conj(B0_deriv)/2 + Pe*np.conj(ux0)/2 - 2*np.conj(B0_deriv_deriv)/2
 #q[np.argmin(abs(k-0)), :] = kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_deriv) - uy1*np.conj(B0_deriv) - np.conj(uy1)*B0_deriv
-q[np.argmin(abs(k-1)), :] = kappa*kappa*xi*B0_deriv/2 - 2*B0_deriv_deriv/2 + Pe*ux1/2
+q[np.argmin(abs(k-1)), :] = kappa*kappa*xi*B0_deriv/2  + Pe*ux0/2 - 2*B0_deriv_deriv/2
 #q[np.argmin(abs(k-2)), :] = kappa*xi*ux0*B0_deriv/4 - uy1*B0_deriv/4
 
 """
@@ -248,38 +248,25 @@ for i in range(int(len(k)/2)+1):
 	if abs(k[i]) % 2 == 0:
 		print("even:", k[i], "and", k[-i-1])
 		plt.figure(1) #cos figure
-		plt.plot(xi, -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_even[i])))
+		plt.plot(xi, -np.real(f0_g1[i,0]+f0_g1[-i-1,0])/2 + np.real(f0_g1[i,:]+f0_g1[-i-1,:])/2, label=r"$\omega=\omega$"+str(abs(k_even[i])))
 		full_sol[:, 1] += -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:])
 
 		plt.figure(2) #sin figure
-		plt.plot(xi, -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_odd[i])))
+		plt.plot(xi, -np.real(g0_f1[i,0]+g0_f1[-i-1,0])/2 + np.real(g0_f1[i,:]+g0_f1[-i-1,:])/2, label=r"$\omega=\omega$"+str(abs(k_odd[i])))
 		full_sol[:, 0] += -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:])
 
 	else:
 		print("odd:", k[i], "and", k[-i-1])
 		plt.figure(2) #sin figure
-		plt.plot(xi, -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_even[i])))
+		plt.plot(xi, -np.real(f0_g1[i,0]+f0_g1[-i-1,0])/2 + np.real(f0_g1[i,:]+f0_g1[-i-1,:])/2, label=r"$\omega=\omega$"+str(abs(k_even[i])))
 		full_sol[:, 0] += -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:])
 
 		plt.figure(1) #cos figure
-		plt.plot(xi, -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_odd[i])))	
-		full_sol[:, 1] += -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:])
+		plt.plot(xi, -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:])/2, label=r"$\omega=\omega$"+str(abs(k_odd[i])))	
+		full_sol[:, 1] += -np.real(g0_f1[i,0]+g0_f1[-i-1,0])/2 + np.real(g0_f1[i,:]+g0_f1[-i-1,:])
 
 full_sol *= 0.5
 
-plt.figure(1)
-plt.legend(loc="best")
-plt.title(r"$\cos{\kappa\eta}$-solution")
-plt.xlabel(r"x-axis $\xi$")
-plt.ylabel(r"Brenner field $B(\xi)$")
-
-plt.savefig("figures/Brennerfield_cos.pdf")
-plt.figure(2)
-plt.legend(loc="best")
-plt.title(r"$\sin{\kappa\eta}$-solution")
-plt.xlabel(r"x-axis $\xi$")
-plt.ylabel(r"Brenner field $B(\xi)$")
-plt.savefig("figures/Brennerfield_sin.pdf")
 
 from numpy import *
 rho_p   = sqrt(1j*omega+kappa*kappa)
@@ -287,19 +274,34 @@ rho     = sqrt(1j*omega)
 gamma   = sqrt(1j*omega/Sc)
 my_sol1 =  kappa*kappa*Pe*F0*tanh(gamma)/(gamma*gamma*gamma*(Sc-1)*sinh(rho)) * (xi*sinh(rho*xi)/(kappa*kappa) + 2*rho*cosh(rho*xi)/(kappa*kappa*kappa*kappa))
 my_sol2 = -kappa*kappa*Pe*F0*tanh(gamma)/(gamma*gamma*gamma*(Sc-1)*sinh(gamma))*(xi*sinh(gamma*xi)/(rho_p*rho_p-gamma*gamma) + 2*gamma*cosh(gamma*xi)/(rho_p*rho_p-gamma*gamma)**2)
-my_sol3 = F0*Pe/(gamma*gamma*rho_p*rho_p) + F0*kappa*cosh(kappa*xi)/(gamma*gamma*rho*rho*sinh(kappa)) - Pe*F0*cosh(gamma*xi)/(gamma*gamma*cosh(gamma)*(kappa*kappa+rho*rho-gamma*gamma))
-my_sol4 = F0*kappa/(2*gamma*gamma*cosh(gamma)*sinh(kappa))*(cosh(xi*(gamma+kappa))/(gamma*gamma+2*kappa*gamma-rho*rho) + cosh(xi*(gamma-kappa))/(gamma*gamma-2*kappa*gamma-rho*rho) )
+my_sol3 = F0*Pe/(gamma*gamma*rho_p*rho_p) + F0*Pe*kappa*cosh(kappa*xi)/(gamma*gamma*rho*rho*sinh(kappa)) - Pe*F0*cosh(gamma*xi)/(gamma*gamma*cosh(gamma)*(kappa*kappa+rho*rho-gamma*gamma))
+my_sol4 = F0*Pe*kappa/(2*gamma*gamma*cosh(gamma)*sinh(kappa))*(cosh(xi*(gamma+kappa))/(gamma*gamma+2*kappa*gamma-rho*rho) + cosh(xi*(gamma-kappa))/(gamma*gamma-2*kappa*gamma-rho*rho) )
 my_sol  = my_sol1+my_sol2+my_sol3+my_sol4
 
 my_sol_homo = -cosh(rho_p*xi)*np.gradient(my_sol, xi)[-1]/(rho_p*sinh(rho_p))
+my_sol = np.real(my_sol+my_sol_homo-my_sol[0]-my_sol_homo[0])/8
+
+
+plt.figure(1)
+plt.legend(loc="best")
+plt.title(r"$\cos{\kappa\eta}$-solution")
+plt.xlabel(r"x-axis $\xi$")
+plt.ylabel(r"Brenner field $B(\xi)$")
+plt.plot(xi, 0.5*(-np.cosh(-kappa)/np.sinh(kappa)+np.cosh(kappa*xi)/np.sinh(kappa)), "--")
+
+plt.savefig("figures/Brennerfield_cos.pdf")
+plt.figure(2)
+plt.legend(loc="best")
+plt.title(r"$\sin{\kappa\eta}$-solution")
+plt.xlabel(r"x-axis $\xi$")
+plt.ylabel(r"Brenner field $B(\xi)$")
+plt.plot(xi, -my_sol, "--")
+plt.savefig("figures/Brennerfield_sin.pdf")
+
 
 plt.figure(3)
 plt.plot(xi, full_sol[:, 0])
 plt.plot(xi, full_sol[:, 1])
-#plt.plot(xi, np.real(my_sol-my_sol[0]), "--")
-#plt.plot(xi, np.real(my_sol_homo-my_sol_homo[0]), "--")
-plt.plot(xi, np.real(my_sol+my_sol_homo-my_sol[0]-my_sol_homo[0]), "--")
-plt.plot(xi, 0.5*(-np.cosh(-kappa)/np.sinh(kappa)+np.cosh(kappa*xi)/np.sinh(kappa)), "--")
 
 plt.title(r"Full solution")
 plt.xlabel(r"x-axis $\xi$")
