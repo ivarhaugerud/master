@@ -72,11 +72,11 @@ k = np.array([-3, -2, -1, 0, 1, 2, 3])
 xi = np.linspace(-1, 1, int(1e5))
 q = np.zeros((len(k), len(xi)), dtype="complex")
 
-kappa = 1
-Sc = 1.2 
-omega = kappa/(np.sqrt(2))
-F0 = 3
-Pe = F0/Sc 
+kappa = 1+1e-3
+Sc = 1+1e-2
+omega = 1+1e-4#kappa/(np.sqrt(2))
+F0 = 1
+Pe = F0*Sc 
 
 gamma = np.sqrt(1j*omega/Sc )
 kappa_p = np.sqrt(gamma*gamma+kappa*kappa)
@@ -265,12 +265,13 @@ for i in range(int(len(k)/2)+1):
 		plt.plot(xi, -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k_odd[i])))	
 		full_sol[:, 1] += -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:])
 
+full_sol *= 0.5
+
 plt.figure(1)
 plt.legend(loc="best")
 plt.title(r"$\cos{\kappa\eta}$-solution")
 plt.xlabel(r"x-axis $\xi$")
 plt.ylabel(r"Brenner field $B(\xi)$")
-plt.plot(xi, -np.cosh(-kappa)/np.sinh(kappa)+np.cosh(kappa*xi)/np.sinh(kappa), "--")
 
 plt.savefig("figures/Brennerfield_cos.pdf")
 plt.figure(2)
@@ -280,9 +281,26 @@ plt.xlabel(r"x-axis $\xi$")
 plt.ylabel(r"Brenner field $B(\xi)$")
 plt.savefig("figures/Brennerfield_sin.pdf")
 
+from numpy import *
+rho_p   = sqrt(1j*omega+kappa*kappa)
+rho     = sqrt(1j*omega)
+gamma   = sqrt(1j*omega/Sc)
+my_sol1 =  kappa*kappa*Pe*F0*tanh(gamma)/(gamma*gamma*gamma*(Sc-1)*sinh(rho)) * (xi*sinh(rho*xi)/(kappa*kappa) + 2*rho*cosh(rho*xi)/(kappa*kappa*kappa*kappa))
+my_sol2 = -kappa*kappa*Pe*F0*tanh(gamma)/(gamma*gamma*gamma*(Sc-1)*sinh(gamma))*(xi*sinh(gamma*xi)/(rho_p*rho_p-gamma*gamma) + 2*gamma*cosh(gamma*xi)/(rho_p*rho_p-gamma*gamma)**2)
+my_sol3 = F0*Pe/(gamma*gamma*rho_p*rho_p) + F0*kappa*cosh(kappa*xi)/(gamma*gamma*rho*rho*sinh(kappa)) - Pe*F0*cosh(gamma*xi)/(gamma*gamma*cosh(gamma)*(kappa*kappa+rho*rho-gamma*gamma))
+my_sol4 = F0*kappa/(2*gamma*gamma*cosh(gamma)*sinh(kappa))*(cosh(xi*(gamma+kappa))/(gamma*gamma+2*kappa*gamma-rho*rho) + cosh(xi*(gamma-kappa))/(gamma*gamma-2*kappa*gamma-rho*rho) )
+my_sol  = my_sol1+my_sol2+my_sol3+my_sol4
+
+my_sol_homo = -cosh(rho_p*xi)*np.gradient(my_sol, xi)[-1]/(rho_p*sinh(rho_p))
+
 plt.figure(3)
 plt.plot(xi, full_sol[:, 0])
 plt.plot(xi, full_sol[:, 1])
+#plt.plot(xi, np.real(my_sol-my_sol[0]), "--")
+#plt.plot(xi, np.real(my_sol_homo-my_sol_homo[0]), "--")
+plt.plot(xi, np.real(my_sol+my_sol_homo-my_sol[0]-my_sol_homo[0]), "--")
+plt.plot(xi, 0.5*(-np.cosh(-kappa)/np.sinh(kappa)+np.cosh(kappa*xi)/np.sinh(kappa)), "--")
+
 plt.title(r"Full solution")
 plt.xlabel(r"x-axis $\xi$")
 plt.ylabel(r"Brenner field $B(\xi)$")
