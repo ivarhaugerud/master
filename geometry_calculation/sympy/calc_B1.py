@@ -21,14 +21,16 @@ ux1 = ux1.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 uy1 = simplify(uy1.subs(D, kappa*P_1*sinh(kappa)/(gamma*gamma)))
 uy1 = uy1.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
 
-RHS = - Pe*u0*(1 + kappa*cosh(kappa*xi)/sinh(kappa)) -kappa*kappa*xi*diff(B0, xi) 
+RHS = 2*diff(B0, xi, xi)#- Pe*u0*kappa*cosh(kappa*xi)/sinh(kappa) #-kappa*kappa*xi*diff(B0, xi) 
 print(simplify(RHS))
 
 my_sol1 =  kappa*kappa*Pe*F0*tanh(gamma)/(gamma*gamma*gamma*(Sc-1)*sinh(rho)) * (xi*sinh(rho*xi)/(kappa*kappa) + 2*rho*cosh(rho*xi)/(kappa*kappa*kappa*kappa))
 my_sol2 = -kappa*kappa*Pe*F0*tanh(gamma)/(gamma*gamma*gamma*(Sc-1)*sinh(gamma))*(xi*sinh(gamma*xi)/(rho_p*rho_p-gamma*gamma) + 2*gamma*cosh(gamma*xi)/(rho_p*rho_p-gamma*gamma)**2)
-my_sol3 = F0*Pe/(gamma*gamma*rho_p*rho_p) + F0*Pe*kappa*cosh(kappa*xi)/(gamma*gamma*rho*rho*sinh(kappa)) - Pe*F0*cosh(gamma*xi)/(gamma*gamma*cosh(gamma)*(kappa*kappa+rho*rho-gamma*gamma))
-my_sol4 = F0*Pe*kappa/(2*gamma*gamma*cosh(gamma)*sinh(kappa))*(cosh(xi*(gamma+kappa))/(gamma*gamma+2*kappa*gamma-rho*rho) + cosh(xi*(gamma-kappa))/(gamma*gamma-2*kappa*gamma-rho*rho) )
-my_sol  = simplify(my_sol1+my_sol2+my_sol3+my_sol4)
+my_sol3 =  F0*Pe*kappa*cosh(kappa*xi)/(gamma*gamma*rho*rho*sinh(kappa))
+my_sol4 =  F0*Pe*kappa/(2*gamma*gamma*cosh(gamma)*sinh(kappa))*(cosh(xi*(gamma+kappa))/(gamma*gamma+2*kappa*gamma-rho*rho) + cosh(xi*(gamma-kappa))/(gamma*gamma-2*kappa*gamma-rho*rho) )
+#my_sol  = simplify(my_sol1+my_sol2+my_sol3+my_sol4)
+my_sol = -2*Pe*F0*tanh(gamma)/(gamma*gamma*gamma*kappa*kappa*(Sc-1))*(rho*cosh(rho*xi)/sinh(rho) - gamma*kappa*kappa*cosh(gamma*xi)/((rho_p*rho_p - gamma*gamma)*sinh(gamma)))
+
 my_sol_check = diff(my_sol, xi, xi) - rho_p*rho_p*my_sol - RHS
 my_sol_check = simplify(expand(my_sol_check))
 print("check mmy sol", my_sol_check, "\n\n")
