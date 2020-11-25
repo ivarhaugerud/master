@@ -76,7 +76,7 @@ Delta = xi[1]-xi[0]
 kappa = 0.5
 Sc = 1.2
 omega = 2.3
-F0 = 10
+F0 = 1
 Pe = 3
 
 
@@ -98,8 +98,8 @@ B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(
 
 #define source terms
 q = np.zeros((len(k), len(xi)), dtype="complex")
-q[np.argmin(abs(k+1)), :] = kappa*kappa*xi*np.conj(B0_deriv)/2 + Pe*np.conj(ux1)/2 - 2*np.conj(B0_deriv_deriv)/2
-q[np.argmin(abs(k-1)), :] = kappa*kappa*xi*B0_deriv/2  + Pe*ux1/2 - 2*B0_deriv_deriv/2
+q[np.argmin(abs(k+1)), :] = 0#Pe*np.conj(ux1)/2 + kappa*kappa*xi*np.conj(B0_deriv)/2- 2*np.conj(B0_deriv_deriv)/2
+q[np.argmin(abs(k-1)), :] = 2*(Pe*ux1/2 + kappa*kappa*xi*B0_deriv/2 - 2*B0_deriv_deriv/2) - Pe*kappa*ux0*np.cosh(kappa*xi)/np.sinh(kappa)
 
 
 #works for differential equation with constant terms, now just need coupeling to work as well
@@ -112,10 +112,10 @@ couple_forward  =  np.zeros(N, dtype="complex")
 couple_backward =  np.zeros(N, dtype="complex")
 
 for i in range(N):
-	couple_backward[i] = Delta*(ux0[np.argmin(abs(xi-(N_pos[i]+Delta/2)))] + ux0[np.argmin(abs(xi-(N_pos[i]-Delta/2)))])/2
+	couple_backward[i] = 0#Delta*(ux0[np.argmin(abs(xi-(N_pos[i]+Delta/2)))] + ux0[np.argmin(abs(xi-(N_pos[i]-Delta/2)))])/2
 
-couple_backward[0]   = Delta*(ux0[np.argmin(abs(xi-(N_pos[0] + Delta/2)))])/2
-couple_backward[-1]  = Delta*(ux0[np.argmin(abs(xi-(N_pos[-1]- Delta/2)))])/2
+couple_backward[0]   = 0#Delta*(ux0[np.argmin(abs(xi-(N_pos[0] + Delta/2)))])/2
+couple_backward[-1]  = 0#Delta*(ux0[np.argmin(abs(xi-(N_pos[-1]- Delta/2)))])/2
 couple_backward *= kappa 
 
 couple_forward = np.conj(couple_backward)
@@ -139,19 +139,19 @@ sol = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_for
 
 for i in range(int(len(k)/2)+1):
 	if k[i] < 1e-3:
-		plt.plot(xi, np.real(sol[i,:]+sol[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
+		#plt.plot(xi, np.real(sol[i,:]+sol[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
 		
 		if np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i-1,0]+sol[-i,0]))) > tol:
 			print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[i-1,:]+sol[-i-1,:]) - np.imag(sol[i-1,0]+sol[-i-1,0]))))
 	else:
-		plt.plot(xi, np.real(sol[0,:]), label=str(k[i]))
+		#plt.plot(xi, np.real(sol[0,:]), label=str(k[i]))
 
 		if np.max(abs(np.imag(sol[0,:]-sol[0,0]))) > tol:
 			print("LARGE IMAGINARY VALUE FOR 0-OMEGA = ", np.max(abs(np.imag(sol[0,:]))))
 
 #plt.figure(1)
-plt.legend(loc="best")
-plt.show()
+#plt.legend(loc="best")
+#plt.show()
 
 f0_g1 = sol/2
 
@@ -172,22 +172,22 @@ sol = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_for
 
 for i in range(int(len(k)/2)+1):
 	if k[i] < 1e-3:
-		plt.plot(xi, -np.real(sol[i,0]+sol[-i-1,0]) + np.real(sol[i,:]+sol[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
+		#plt.plot(xi, -np.real(sol[i,0]+sol[-i-1,0]) + np.real(sol[i,:]+sol[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
 		
 		if np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0]))) > tol:
 			print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0]))))
 	else:
-		plt.plot(xi, np.real(sol[0,:]), label=str(k[i]))
+		#plt.plot(xi, np.real(sol[0,:]), label=str(k[i]))
 
 		if np.max(abs(np.imag(sol[0,:]-sol[0,0]))) > tol:
 			print("LARGE IMAGINARY VALUE FOR 0-OMEGA = ", np.max(abs(np.imag(sol[0,:]))))
 
 #plt.figure(1)
-plt.legend(loc="best")
-plt.show()
+#plt.legend(loc="best")
+#plt.show()
 
 g0_f1 = sol/2
-
+g0_f1 = np.zeros(np.shape(f0_g1))
 
 full_sol = np.zeros((len(xi), 2)) #[xi, sin, cos]
 for i in range(int(len(k)/2)+1):
@@ -226,7 +226,7 @@ analytic_f1_solution +=  Pe*P_1*kappa*cosh(kappa)/(gamma*gamma)*(cosh(kappa*xi)/
 analytic_f1_solution += (Pe*F0*tanh(gamma)/gamma)*(xi*sinh(gamma*xi)*(gamma*gamma-rho_p*rho_p) - 2*gamma*cosh(gamma*xi))/(sinh(gamma)*(rho_p*rho_p-gamma*gamma)**2) - Pe*F0*tanh(gamma)*cosh(kappa_p*xi)/(gamma*(gamma*gamma-rho*rho)*cosh(kappa_p))
 
 A = F0*Pe*kappa_p*sinh(kappa_p)*tanh(gamma)/(gamma*(gamma**2 - rho**2)*cosh(kappa_p)) - F0*Pe*(-2*gamma**2*sinh(gamma) + gamma*(gamma**2 - rho_p**2)*cosh(gamma) + (gamma**2 - rho_p**2)*sinh(gamma))*tanh(gamma)/(gamma*(gamma**2 - rho_p**2)**2*sinh(gamma)) - F0*Pe*kappa**2/(gamma**2*rho**2) + F0*Pe*kappa*((gamma - kappa)*sinh(gamma - kappa)/(-gamma**2 + 2*gamma*kappa + rho**2) - (gamma + kappa)*sinh(gamma + kappa)/(gamma**2 + 2*gamma*kappa - rho**2))/(2*gamma**2*sinh(kappa)*cosh(gamma)) - F0*Pe*kappa**2*(-2*gamma**2*sinh(gamma)/(gamma**2 - rho_p**2)**2 + gamma*cosh(gamma)/(gamma**2 - rho_p**2) + sinh(gamma)/(gamma**2 - rho_p**2))*tanh(gamma)/(gamma**3*(Sc - 1)*sinh(gamma)) - F0*Pe*kappa**2*(rho*cosh(rho)/kappa**2 + sinh(rho)/kappa**2 + 2*rho**2*sinh(rho)/kappa**4)*tanh(gamma)/(gamma**3*(Sc - 1)*sinh(rho)) + 2*F0*Pe*(gamma**2*kappa**2/(gamma**2 - rho_p**2) + rho**2)*tanh(gamma)/(gamma**3*kappa**2*(Sc - 1)) - P_1*Pe*kappa*(kappa*sinh(kappa)/(rho**2*cosh(kappa)) + kappa_p*sinh(kappa_p)/((gamma**2 - rho**2)*cosh(kappa_p)))*cosh(kappa)/gamma**2
-
+#A = np.gradient(analytic_f1_solution, xi)[0]
 my_sol_homo = cosh(rho_p*xi)*A/(rho_p*sinh(rho_p))
 my_sol      = np.real(analytic_f1_solution+my_sol_homo-analytic_f1_solution[0]-my_sol_homo[0])
 
@@ -245,13 +245,13 @@ plt.title(r"$\sin{\kappa\eta}$-solution")
 plt.xlabel(r"x-axis $\xi$")
 plt.ylabel(r"Brenner field $B(\xi)$")
 plt.plot(xi, my_sol, "--")
-plt.savefig("figures/Brennerfield_sin.pdf")
+plt.plot(xi, my_sol*np.max(-np.real(f0_g1[np.argmin(abs(k-1)),0]+f0_g1[-np.argmin(abs(k-1))-1,0]) + np.real(f0_g1[np.argmin(abs(k-1)),:]+f0_g1[-np.argmin(abs(k-1))-1,:]))/np.max(my_sol), "k--")
 
+plt.savefig("figures/Brennerfield_sin.pdf")
 
 plt.figure(3)
 plt.plot(xi, full_sol[:, 0])
 plt.plot(xi, full_sol[:, 1])
-
 plt.title(r"Full solution")
 plt.xlabel(r"x-axis $\xi$")
 plt.ylabel(r"Brenner field $B(\xi)$")
