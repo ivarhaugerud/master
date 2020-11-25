@@ -19,10 +19,8 @@ ux1 = ux1.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(k
 ux1 = ux1.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 
 uy1 = simplify(uy1.subs(D, kappa*P_1*sinh(kappa)/(gamma*gamma)))
-#uy1 = uy1.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
 P1 = P_1*cosh(kappa*xi)
 
-RHS_x = -kappa*kappa*xi*diff(u0, xi) + 2*diff(u0, xi, xi) - P1*kappa
 RHS_y = diff(P1, xi)
 
 my_sol_y = uy1 
@@ -30,13 +28,14 @@ my_sol_y_check = simplify(diff(my_sol_y, xi, xi) - kappa_p*kappa_p*my_sol_y - RH
 my_sol_y_check = simplify(my_sol_y_check.subs(kappa_p, sqrt(kappa*kappa + gamma*gamma)))
 print("y-check: ", my_sol_y_check)
 
+
+RHS_x = -kappa*kappa*xi*diff(u0, xi) + 2*diff(u0, xi, xi) - P1*kappa
+
 my_sol_x =  P_1*kappa*cosh(kappa)*(cosh(kappa*xi)/cosh(kappa) - cosh(kappa_p*xi)/cosh(kappa_p))/(gamma*gamma) + F0*tanh(gamma)*(cosh(kappa_p*xi)/cosh(kappa_p) - xi*sinh(gamma*xi)/sinh(gamma))/gamma
 my_sol_x  = simplify(my_sol_x)
 
 my_sol_check = simplify(diff(my_sol_x, xi, xi) - kappa_p*kappa_p*my_sol_x - RHS_x)
-
 my_sol_check = simplify(expand(my_sol_check))
-#my_sol_check = simplify(my_sol_check.subs(P_1, (gamma*F0*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p)))))
 my_sol_check = simplify(my_sol_check.subs(kappa_p, sqrt(kappa*kappa + gamma*gamma)))
 
 
