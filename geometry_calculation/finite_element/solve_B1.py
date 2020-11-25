@@ -44,8 +44,8 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	A   *= Delta_x/6
 
 	for i in range(n-1):
-		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward  *np.identity(N)
-		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] += couple_backward *np.identity(N)
+		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward  * np.identity(N)
+		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] += couple_backward * np.identity(N)
 
 	#calculate source vector
 	for j in range(n):
@@ -128,8 +128,8 @@ couple_forward[0]  *= 0.5
 couple_forward[-1] *= 0.5 
 
 #boundary conditions
-Bc0 = np.zeros(n, dtype="complex")
-Bc1 = np.zeros(n, dtype="complex")
+Bc0 = np.zeros(n, dtype="complex") #BC at xi = -1
+Bc1 = np.zeros(n, dtype="complex") #BC at xi =  1
 
 Bc0[np.argmin(abs(k-0))] =  -kappa
 Bc1[np.argmin(abs(k-0))] =  kappa
@@ -157,8 +157,6 @@ f0_g1 = sol/2
 
 
 ###
-
-
 
 #reset source term for new solution
 q = np.zeros((len(k), len(xi)), dtype="complex")
@@ -191,37 +189,34 @@ plt.show()
 g0_f1 = sol/2
 
 
-full_sol = np.zeros((len(xi), 2))
+full_sol = np.zeros((len(xi), 2)) #[xi, sin, cos]
 for i in range(int(len(k)/2)+1):
 	if abs(k[i]) % 2 == 0:
 		print("even:", k[i], "and", k[-i-1])
 		plt.figure(1) #cos figure
-		plt.plot(xi, -np.real(f0_g1[i,0]+f0_g1[-i-1,0])/2 + np.real(f0_g1[i,:]+f0_g1[-i-1,:])/2, label=r"$\omega=\omega$"+str(abs(k[i])))
+		plt.plot(xi, -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
 		full_sol[:, 1] += -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:])
 
 		plt.figure(2) #sin figure
-		plt.plot(xi, -np.real(g0_f1[i,0]+g0_f1[-i-1,0])/2 + np.real(g0_f1[i,:]+g0_f1[-i-1,:])/2, label=r"$\omega=\omega$"+str(abs(k[i])))
+		plt.plot(xi, -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
 		full_sol[:, 0] += -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:])
 
 	else:
 		print("odd:", k[i], "and", k[-i-1])
 		plt.figure(2) #sin figure
-		plt.plot(xi, -np.real(f0_g1[i,0]+f0_g1[-i-1,0])/2 + np.real(f0_g1[i,:]+f0_g1[-i-1,:])/2, label=r"$\omega=\omega$"+str(abs(k[i])))
+		plt.plot(xi, -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
 		full_sol[:, 0] += -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:])
 
 		plt.figure(1) #cos figure
-		plt.plot(xi, -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:])/2, label=r"$\omega=\omega$"+str(abs(k[i])))	
-		full_sol[:, 1] += -np.real(g0_f1[i,0]+g0_f1[-i-1,0])/2 + np.real(g0_f1[i,:]+g0_f1[-i-1,:])
-
-full_sol *= 0.5
-
+		plt.plot(xi, -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))	
+		full_sol[:, 1] += -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:])
 
 from numpy import *
 rho_p   = sqrt(1j*omega+kappa*kappa)
 rho     = sqrt(1j*omega)
 gamma   = sqrt(1j*omega/Sc)
 
-analytic_f1_solution = np.zeros(len(xi), dtype="complex")
+analytic_f1_solution  = np.zeros(len(xi), dtype="complex")
 analytic_f1_solution +=  kappa*kappa*Pe*F0*tanh(gamma)/(gamma*gamma*gamma*(Sc-1)*sinh(rho)) * (xi*sinh(rho*xi)/(kappa*kappa) + 2*rho*cosh(rho*xi)/(kappa*kappa*kappa*kappa))
 analytic_f1_solution += -kappa*kappa*Pe*F0*tanh(gamma)/(gamma*gamma*gamma*(Sc-1)*sinh(gamma))*(xi*sinh(gamma*xi)/(rho_p*rho_p-gamma*gamma) + 2*gamma*cosh(gamma*xi)/(rho_p*rho_p-gamma*gamma)**2)
 analytic_f1_solution +=  F0*Pe*kappa*cosh(kappa*xi)/(gamma*gamma*rho*rho*sinh(kappa))
@@ -231,7 +226,7 @@ analytic_f1_solution +=  Pe*P_1*kappa*cosh(kappa)/(gamma*gamma)*(cosh(kappa*xi)/
 analytic_f1_solution += (Pe*F0*tanh(gamma)/gamma)*(xi*sinh(gamma*xi)*(gamma*gamma-rho_p*rho_p) - 2*gamma*cosh(gamma*xi))/(sinh(gamma)*(rho_p*rho_p-gamma*gamma)**2) - Pe*F0*tanh(gamma)*cosh(kappa_p*xi)/(gamma*(gamma*gamma-rho*rho)*cosh(kappa_p))
 
 my_sol_homo = -cosh(rho_p*xi)*np.gradient(analytic_f1_solution, xi)[-1]/(rho_p*sinh(rho_p))
-my_sol = -np.real(analytic_f1_solution+my_sol_homo-analytic_f1_solution[0]-my_sol_homo[0])/3
+my_sol = -np.real(analytic_f1_solution+my_sol_homo-analytic_f1_solution[0]-my_sol_homo[0])
 
 
 plt.figure(1)
@@ -239,7 +234,7 @@ plt.legend(loc="best")
 plt.title(r"$\cos{\kappa\eta}$-solution")
 plt.xlabel(r"x-axis $\xi$")
 plt.ylabel(r"Brenner field $B(\xi)$")
-plt.plot(xi, 0.5*(-np.cosh(-kappa)/np.sinh(kappa)+np.cosh(kappa*xi)/np.sinh(kappa)), "--")
+plt.plot(xi, -np.cosh(-kappa)/np.sinh(kappa)+np.cosh(kappa*xi)/np.sinh(kappa), "--")
 
 plt.savefig("figures/Brennerfield_cos.pdf")
 plt.figure(2)
