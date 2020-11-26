@@ -67,9 +67,9 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 			u[j,:] += sol[j*N+i]*phi[i, :]
 	return u
 
-tol = 1e-6
-k = np.array([-3, -2, -1, 0, 1, 2, 3])
-xi = np.linspace(-1, 1, int(1e5))
+tol   = 1e-6
+k     = np.array([-3, -2, -1, 0, 1, 2, 3])
+xi    = np.linspace(-1, 1, int(1e5))
 Delta = xi[1]-xi[0]
 
 #system parameters
@@ -81,14 +81,14 @@ Pe = 3
 
 
 #implicitly defined parameters
-gamma = np.sqrt(1j*omega/Sc)
+gamma   = np.sqrt(1j*omega/Sc)
 kappa_p = np.sqrt(gamma*gamma+kappa*kappa)
-rho = np.sqrt(kappa*kappa+1j*omega)
-P_1 = (F0*gamma*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_p*np.tanh(kappa)/(kappa*np.tanh(kappa_p)))
-p_np2 = 1j*omega*k + kappa*kappa
+rho     = np.sqrt(kappa*kappa+1j*omega)
+P_1     = (F0*gamma*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_p*np.tanh(kappa)/(kappa*np.tanh(kappa_p)))
+p_np2   = 1j*omega*k + kappa*kappa
 
 #analytic results up to first order
-ux0  = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(gamma*gamma)
+ux0 = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(gamma*gamma)
 ux1 = (P_1*kappa*np.cosh(kappa)/(gamma*gamma))*(np.cosh(kappa*xi)/np.cosh(kappa) - np.cosh(kappa_p *xi)/np.cosh(kappa_p)) + (F0*np.tanh(gamma)/gamma)*(np.cosh(kappa_p*xi)/np.cosh(kappa_p) - xi*np.sinh(gamma*xi)/np.sinh(gamma))
 uy1 = (kappa*P_1*np.sinh(kappa)/(gamma*gamma))*(np.sinh(kappa_p*xi)/np.sinh(kappa_p) - np.sinh(kappa*xi)/np.sinh(kappa))
 
@@ -98,13 +98,13 @@ B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(
 
 #define source terms
 q = np.zeros((len(k), len(xi)), dtype="complex")
-q[np.argmin(abs(k+1)), :] = 0#Pe*np.conj(ux1)/2 + kappa*kappa*xi*np.conj(B0_deriv)/2- 2*np.conj(B0_deriv_deriv)/2
-q[np.argmin(abs(k-1)), :] = 2*(Pe*ux1/2 + kappa*kappa*xi*B0_deriv/2 - 2*B0_deriv_deriv/2) - Pe*kappa*ux0*np.cosh(kappa*xi)/np.sinh(kappa)
+q[np.argmin(abs(k+1)), :] = Pe*np.conj(ux1)/2 + kappa*kappa*xi*np.conj(B0_deriv)/2 - 2*np.conj(B0_deriv_deriv)/2
+q[np.argmin(abs(k-1)), :] = Pe*ux1/2          + kappa*kappa*xi*B0_deriv/2          - 2*B0_deriv_deriv/2 
 
 
 #works for differential equation with constant terms, now just need coupeling to work as well
 n = len(k) #number of vectors
-N = 500 #length of each vector 
+N = 500    #length of each vector 
 N_pos = np.linspace(min(xi), max(xi), N)
 
 #coupleing between vectors
@@ -112,20 +112,20 @@ couple_forward  =  np.zeros(N, dtype="complex")
 couple_backward =  np.zeros(N, dtype="complex")
 
 for i in range(N):
-	couple_backward[i] = 0#Delta*(ux0[np.argmin(abs(xi-(N_pos[i]+Delta/2)))] + ux0[np.argmin(abs(xi-(N_pos[i]-Delta/2)))])/2
+	couple_backward[i] = Delta*(ux0[np.argmin(abs(xi-(N_pos[i]+Delta/2)))] + ux0[np.argmin(abs(xi-(N_pos[i]-Delta/2)))])/2
 
-couple_backward[0]   = 0#Delta*(ux0[np.argmin(abs(xi-(N_pos[0] + Delta/2)))])/2
-couple_backward[-1]  = 0#Delta*(ux0[np.argmin(abs(xi-(N_pos[-1]- Delta/2)))])/2
-couple_backward *= kappa 
+couple_backward[0]   = Delta*(ux0[np.argmin(abs(xi-(N_pos[0] + Delta/2)))])/2
+couple_backward[-1]  = Delta*(ux0[np.argmin(abs(xi-(N_pos[-1]- Delta/2)))])/2
+couple_backward     *= kappa 
 
 couple_forward = np.conj(couple_backward)
 
 #since integral over last and first basis function is half the value of the others
-couple_backward[0]  *= 0.5
-couple_backward[-1] *= 0.5 
+#couple_backward[0]  *= 0.5
+#couple_backward[-1] *= 0.5 
 
-couple_forward[0]  *= 0.5
-couple_forward[-1] *= 0.5 
+#couple_forward[0]  *= 0.5
+#couple_forward[-1] *= 0.5 
 
 #boundary conditions
 Bc0 = np.zeros(n, dtype="complex") #BC at xi = -1
@@ -244,8 +244,8 @@ plt.legend(loc="best")
 plt.title(r"$\sin{\kappa\eta}$-solution")
 plt.xlabel(r"x-axis $\xi$")
 plt.ylabel(r"Brenner field $B(\xi)$")
-plt.plot(xi, my_sol, "--")
-plt.plot(xi, my_sol*np.max(-np.real(f0_g1[np.argmin(abs(k-1)),0]+f0_g1[-np.argmin(abs(k-1))-1,0]) + np.real(f0_g1[np.argmin(abs(k-1)),:]+f0_g1[-np.argmin(abs(k-1))-1,:]))/np.max(my_sol), "k--")
+plt.plot(xi, my_sol, "--", label="analytic solution")
+plt.plot(xi, my_sol*np.max(abs(-np.real(f0_g1[np.argmin(abs(k-1)),0]+f0_g1[-np.argmin(abs(k-1))-1,0]) + np.real(f0_g1[np.argmin(abs(k-1)),:]+f0_g1[-np.argmin(abs(k-1))-1,:])))/np.max(my_sol), "k--")
 
 plt.savefig("figures/Brennerfield_sin.pdf")
 
