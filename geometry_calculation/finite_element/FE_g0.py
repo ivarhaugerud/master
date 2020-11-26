@@ -89,12 +89,12 @@ B0             =  Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*rho*rho) + Pe*F0*np.ta
 B0_deriv       = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))
 B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(rho*xi)/np.sinh(rho) - gamma*np.cosh(gamma*xi)/np.sinh(gamma))
 
-f = -Pe*ux1 - kappa*kappa*xi*B0_deriv + 2*B0_deriv_deriv -Pe*kappa*ux0*np.cosh(kappa*xi)/np.sinh(kappa)
+f = -Pe*ux1 - kappa*kappa*xi*B0_deriv + 2*B0_deriv_deriv - Pe*kappa*ux0*np.cosh(kappa*xi)/np.sinh(kappa)
 
 
 sol = finite_element_solver(N, xi, f, rho_p*rho_p, 0, 0)
 
-plt.plot(xi[:-1], np.real(sol[:-1]-sol[0]), label="numerical solution")
+plt.plot(xi[:-1], np.real(sol[:-1]), label="numerical solution")
 plt.xlabel("x")
 
 
@@ -118,6 +118,6 @@ A = F0*Pe*kappa_p*sinh(kappa_p)*tanh(gamma)/(gamma*(gamma**2 - rho**2)*cosh(kapp
 my_sol_homo = cosh(rho_p*xi)*A/(rho_p*sinh(rho_p))
 my_sol      = np.real(analytic_f1_solution+my_sol_homo-analytic_f1_solution[0]-my_sol_homo[0])
 
-plt.plot(xi, np.real(my_sol-my_sol[0]), "--", label="analytic solution")
+plt.plot(xi, np.real(my_sol), "--", label="analytic solution")
 plt.legend(loc="best")
 plt.show()
