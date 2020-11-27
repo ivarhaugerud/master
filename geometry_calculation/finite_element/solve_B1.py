@@ -3,16 +3,19 @@ import matplotlib.pyplot as plt
 
 def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backward, f, Bc0, Bc1):
 	#define general parameters
+	phi = np.zeros((N, len(x)))
 	N_pos = np.linspace(min(x), max(x), N)
 	Delta_x = N_pos[1]-N_pos[0]
 
 	Nn = int(N*n)
-	A   = np.zeros((Nn, Nn), dtype="complex")
-	A_p = np.zeros((Nn, Nn), dtype="complex")
-	b = np.zeros(Nn, dtype="complex")
+	A   = np.zeros((Nn, Nn),  dtype="complex")
+	A_p = np.zeros((Nn, Nn),  dtype="complex")
+	b = np.zeros(Nn,          dtype="complex")
 	u = np.zeros((n, len(x)), dtype="complex")
 
-	phi = np.zeros((N, len(x)), dtype="complex")
+	phi = np.zeros((N, len(x)))
+
+	#find form of phi's given our interval
 
 	#find form of phi's given our interval
 	for i in range(N):
@@ -23,7 +26,7 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 		phi[i, top_index:end_index]   = np.linspace(1, 0, end_index-top_index)
 	
 	phi[-1, -1] = 1 #some times the last element is not included, and is therefore set to zero if this is not done
-	
+
 	#calculate matrix elements using analytical results
 	# A   = phi_i  * phi_j  matrix 
 	# A_p = phi_i' * phi_j' matrix 
@@ -68,14 +71,14 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	return u
 
 tol   = 1e-6
-k     = np.array([-3, -2, -1, 0, 1, 2, 3])
-xi    = np.linspace(-1, 1, int(1e6))
+k     = np.array([-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5])
+xi    = np.linspace(-1, 1, int(1e4))
 
 #system parameters
-kappa = 0.5
+kappa = 2
 Sc = 1.2
 omega = 2.3
-F0 = 10
+F0 = 3
 Pe = F0*Sc
 
 
@@ -100,11 +103,10 @@ q = np.zeros((len(k), len(xi)), dtype="complex")
 q[np.argmin(abs(k+1)), :] = -Pe*np.conj(ux1)/2 - kappa*kappa*xi*np.conj(B0_deriv)/2 + 2*np.conj(B0_deriv_deriv)/2
 q[np.argmin(abs(k-1)), :] = -Pe*ux1/2          - kappa*kappa*xi*B0_deriv/2          + 2*B0_deriv_deriv/2 
 
-
 #works for differential equation with constant terms, now just need coupeling to work as well
 n = len(k) #number of vectors
-N = 50   #length of each vector 
-N_pos = np.linspace(min(xi), max(xi), N)
+N = 500
+N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
 #coupleing between vectors
@@ -112,15 +114,12 @@ couple_backward =  np.zeros((N, N), dtype="complex")
 
 for i in range(N-1):
 	couple_backward[i, i]   = Delta*(ux0[np.argmin(abs(xi-(N_pos[i]-Delta/2)))] + 2*ux0[np.argmin(abs(xi-(N_pos[i])))] + ux0[np.argmin(abs(xi-(N_pos[i]+Delta/2)))])/6
-	couple_backward[i, i+1] = Delta*ux0[np.argmin(abs(xi-(N_pos[i]+N_pos[i+1])/2))]
-	couple_backward[i+1, i] = Delta*ux0[np.argmin(abs(xi-(N_pos[i+1]+N_pos[i])/2))]
+	couple_backward[i, i+1] = Delta*ux0[np.argmin(abs(xi-(N_pos[i]+N_pos[i+1])/2))]/6
+	couple_backward[i+1, i] = Delta*ux0[np.argmin(abs(xi-(N_pos[i+1]+N_pos[i])/2))]/6
 
 couple_backward[0, 0]    = Delta*(ux0[np.argmin(abs(xi-(N_pos[0])))]  + ux0[np.argmin(abs(xi-(N_pos[0]  + Delta/2)))])/6
 couple_backward[-1, -1]  = Delta*(ux0[np.argmin(abs(xi-(N_pos[-1])))] + ux0[np.argmin(abs(xi-(N_pos[-1] - Delta/2)))])/6
 couple_backward         *= kappa 
-
-print((ux0[np.argmin(abs(xi-(N_pos[0])))], ux0[np.argmin(abs(xi-(N_pos[0]  + Delta/2)))]))
-print(np.real(couple_backward))
 couple_forward = np.conj(couple_backward)
 
 #boundary conditions
@@ -138,9 +137,6 @@ for i in range(int(len(k))):
 		print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[i-1,:]+sol[-i-1,:]) - np.imag(sol[i-1,0]+sol[-i-1,0]))))
 
 f0_g1 = sol/2
-
-
-###
 
 #reset source term for new solution
 q = np.zeros((len(k), len(xi)), dtype="complex")
@@ -161,29 +157,53 @@ for i in range(int(len(k)/2)+1):
 	if np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0])))/2 > tol:
 		print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0]))))
 
-g0_f1 = np.zeros(np.shape(f0_g1)) #sol/2
+g0_f1 = sol/2
 
-full_sol = np.zeros((len(xi), 2)) #[xi, sin, cos]
+B_plus   = np.zeros((len(xi), len(k)), dtype="complex") #sin-solution
+B_minus  = np.zeros((len(xi), len(k)), dtype="complex") #cos-solution
+
 for i in range(int(len(k)/2)+1):
 	if abs(k[i]) % 2 == 0:
 		print("even:", k[i], "and", k[-i-1])
 		plt.figure(1) #cos figure
 		plt.plot(xi, -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
-		full_sol[:, 1] += -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:])
-
 		plt.figure(2) #sin figure
 		plt.plot(xi, -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
-		full_sol[:, 0] += -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:])
 
 	else:
 		print("odd:", k[i], "and", k[-i-1])
 		plt.figure(2) #sin figure
 		plt.plot(xi, -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
-		full_sol[:, 0] += -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:])
-
 		plt.figure(1) #cos figure
 		plt.plot(xi, -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))	
-		full_sol[:, 1] += -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:])
+
+for i in range(len(k)):
+	if abs(k[i]) % 2 == 0:
+		B_minus[:, i] = -f0_g1[i,0] + f0_g1[i,:]
+		B_plus[:, i]  = -g0_f1[i,0] + g0_f1[i,:]
+
+	else:
+		B_plus[:, i]  = -f0_g1[i,0] + f0_g1[i,:]
+		B_minus[:, i] = -g0_f1[i,0] + g0_f1[i,:]
+
+plt.figure(1)
+plt.legend(loc="best")
+plt.title(r"$\cos{\kappa\eta}$-solution")
+plt.xlabel(r"x-axis $\xi$")
+plt.ylabel(r"Brenner field $B(\xi)$")
+plt.plot(xi, np.cosh(kappa*xi)/np.sinh(kappa)-1/np.tanh(kappa), "--")
+
+plt.savefig("figures/Brennerfield_cos.pdf")
+plt.figure(2)
+plt.legend(loc="best")
+plt.title(r"$\sin{\kappa\eta}$-solution")
+plt.xlabel(r"x-axis $\xi$")
+plt.ylabel(r"Brenner field $B(\xi)$")
+plt.savefig("figures/Brennerfield_sin.pdf")
+
+np.save("data/B_plus", B_plus)
+np.save("data/B_minus", B_minus)
+np.save("data/k", k)
 
 from numpy import *
 rho_p   = sqrt(1j*omega+kappa*kappa)
@@ -200,33 +220,16 @@ analytic_f1_solution += Pe*P_1*kappa*cosh(kappa)/(gamma*gamma)*(cosh(kappa*xi)/(
 analytic_f1_solution += (Pe*F0*tanh(gamma)/gamma)*(xi*sinh(gamma*xi)*(gamma*gamma-rho_p*rho_p) - 2*gamma*cosh(gamma*xi))/(sinh(gamma)*(rho_p*rho_p-gamma*gamma)**2) - Pe*F0*tanh(gamma)*cosh(kappa_p*xi)/(gamma*(gamma*gamma-rho*rho)*cosh(kappa_p))
 
 A = F0*Pe*kappa_p*sinh(kappa_p)*tanh(gamma)/(gamma*(gamma**2 - rho**2)*cosh(kappa_p)) - F0*Pe*(-2*gamma**2*sinh(gamma) + gamma*(gamma**2 - rho_p**2)*cosh(gamma) + (gamma**2 - rho_p**2)*sinh(gamma))*tanh(gamma)/(gamma*(gamma**2 - rho_p**2)**2*sinh(gamma)) - F0*Pe*kappa**2/(gamma**2*rho**2) + F0*Pe*kappa*((gamma - kappa)*sinh(gamma - kappa)/(-gamma**2 + 2*gamma*kappa + rho**2) - (gamma + kappa)*sinh(gamma + kappa)/(gamma**2 + 2*gamma*kappa - rho**2))/(2*gamma**2*sinh(kappa)*cosh(gamma)) - F0*Pe*kappa**2*(-2*gamma**2*sinh(gamma)/(gamma**2 - rho_p**2)**2 + gamma*cosh(gamma)/(gamma**2 - rho_p**2) + sinh(gamma)/(gamma**2 - rho_p**2))*tanh(gamma)/(gamma**3*(Sc - 1)*sinh(gamma)) - F0*Pe*kappa**2*(rho*cosh(rho)/kappa**2 + sinh(rho)/kappa**2 + 2*rho**2*sinh(rho)/kappa**4)*tanh(gamma)/(gamma**3*(Sc - 1)*sinh(rho)) + 2*F0*Pe*(gamma**2*kappa**2/(gamma**2 - rho_p**2) + rho**2)*tanh(gamma)/(gamma**3*kappa**2*(Sc - 1)) - P_1*Pe*kappa*(kappa*sinh(kappa)/(rho**2*cosh(kappa)) + kappa_p*sinh(kappa_p)/((gamma**2 - rho**2)*cosh(kappa_p)))*cosh(kappa)/gamma**2
+#A = np.gradient(analytic_f1_solution, xi)[0]
 my_sol_homo = cosh(rho_p*xi)*A/(rho_p*sinh(rho_p))
 my_sol      = np.real(analytic_f1_solution+my_sol_homo-analytic_f1_solution[0]-my_sol_homo[0])
 
-
-plt.figure(1)
-plt.legend(loc="best")
-plt.title(r"$\cos{\kappa\eta}$-solution")
-plt.xlabel(r"x-axis $\xi$")
-plt.ylabel(r"Brenner field $B(\xi)$")
-plt.plot(xi, -np.cosh(-kappa)/np.sinh(kappa)+np.cosh(kappa*xi)/np.sinh(kappa), "--")
-
-plt.savefig("figures/Brennerfield_cos.pdf")
-plt.figure(2)
-plt.legend(loc="best")
-plt.title(r"$\sin{\kappa\eta}$-solution")
-plt.xlabel(r"x-axis $\xi$")
-plt.ylabel(r"Brenner field $B(\xi)$")
-plt.plot(xi, my_sol, "--", label="analytic solution")
-plt.plot(xi, my_sol*np.max(abs(-np.real(f0_g1[np.argmin(abs(k-1)),0]+f0_g1[-np.argmin(abs(k-1))-1,0]) + np.real(f0_g1[np.argmin(abs(k-1)),:]+f0_g1[-np.argmin(abs(k-1))-1,:])))/np.max(my_sol), "k--")
-
-plt.savefig("figures/Brennerfield_sin.pdf")
+plt.plot(xi, np.real(my_sol), "--", label="analytic solution")
 plt.show()
 
-#plt.figure(3)
-plt.plot(xi, full_sol[:, 0])
-plt.plot(xi, full_sol[:, 1])
-plt.title(r"Full solution")
-plt.xlabel(r"x-axis $\xi$")
-plt.ylabel(r"Brenner field $B(\xi)$")
-plt.savefig("figures/Brennerfield_full.pdf")
+for i in range(len(B_minus[0,:])):
+	plt.title(str(k[i]))
+	plt.plot(xi, B_minus[:,i], label="cosine")
+	plt.plot(xi, B_plus[:, i], label="sine")
+	plt.legend(loc="best")
+	plt.show()
