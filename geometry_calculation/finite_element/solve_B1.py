@@ -77,7 +77,7 @@ xi    = np.linspace(-1, 1, int(1e4))
 #system parameters
 kappa = 2
 Sc = 1.2
-omega = 2.3
+omega = 1
 F0 = 3
 Pe = F0*Sc
 
