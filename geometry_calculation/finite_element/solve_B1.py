@@ -71,8 +71,8 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	return u
 
 tol   = 1e-6
-k     = np.array([-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5])
-xi    = np.linspace(-1, 1, int(1e4))
+k     = np.array([-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7])
+xi    = np.linspace(-1, 1, int(1e5))
 
 #system parameters
 kappa = 2

@@ -1,8 +1,10 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
 import scipy.integrate as scpi 
+from scipy.interpolate import interp1d
+from scipy.signal import savgol_filter
 
-def finite_element_solver(N, x, f, double_deriv, a, Bc0, Bc1):
+def finite_element_solver(N, x, f, double_deriv, a, Bc0, Bc1, laplace):
 	#define general parameters
 	phi = np.zeros((N, len(x)))
 	N_pos = np.linspace(min(x), max(x), N)
@@ -39,9 +41,12 @@ def finite_element_solver(N, x, f, double_deriv, a, Bc0, Bc1):
 		A[i, i+1]   += 1
 		A[i+1, i+1] += 2
 
+	if laplace:
+		A_p[0, 0] = 2
+		A_p[-1, -1] = 2
+
 	A_p *= 1/Delta_x
 	A   *= a*Delta_x/6 # a=k^2
-	print(np.linalg.det(A_p))
 
 	#calculate source vector
 	for i in range(len(b)):
@@ -72,11 +77,11 @@ N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
 #system parameters
-kappa = 0.5
+kappa = 2
 Sc = 1.2
-omega = 2.3
+omega = 1
 F0 = 3
-Pe = 1
+Pe = F0*Sc
 
 #implicitly defined parameters
 gamma   = np.sqrt(1j*omega/Sc)
@@ -121,16 +126,21 @@ o1  = np.argmin(abs(k-1))
 om1 = np.argmin(abs(k-1))
 
 B_minus_deriv = np.zeros(np.shape(B_minus), dtype="complex")
-B_plus_deriv  = np.zeros(np.shape(B_plus), dtype="complex")
-double_deriv = np.zeros((N, len(k)), dtype="complex")
+B_plus_deriv  = np.zeros(np.shape(B_plus),  dtype="complex")
+double_deriv = np.zeros((N, len(k)),        dtype="complex")
 
-from scipy.signal import savgol_filter
+slise = int(len(xi)/N)
+print(slise)
+
 for i in range(len(k)):
-	B_minus[:,i] = savgol_filter(B_minus[:,i], 1001, 5) # window size 51, polynomial order 3
-	B_plus[:, i] = savgol_filter(B_plus[:, i], 1001, 5) # window size 51, polynomial order 3
+	B_minus_temp = interp1d(N_pos, B_minus[::slise, i], kind='cubic')
+	B_plus_temp  = interp1d(N_pos,  B_plus[::slise, i], kind='cubic')
 
-	B_minus_deriv[:, i] = savgol_filter(np.gradient(B_minus[:,i], xi), 1001, 5)
-	B_plus_deriv[:, i]  = savgol_filter(np.gradient(B_plus[:,i],  xi), 1001, 5)
+	B_minus[:,i] = B_minus_temp(xi)#savgol_filter(np.real(B_minus[:,i]), 1001, 5) + 1j*savgol_filter(np.imag(B_minus[:,i]), 1001, 5) # window size 51, polynomial order 3
+	B_plus[:, i] = B_plus_temp(xi)#savgol_filter(np.real(B_plus[:, i]), 1001, 5) + 1j*savgol_filter(np.imag(B_plus[:, i]), 1001, 5) # window size 51, polynomial order 3
+	
+	B_minus_deriv[:, i] = savgol_filter(np.gradient(np.real(B_minus[:,i]), xi), 1001, 5) + 1j*savgol_filter(np.gradient(np.imag(B_minus[:,i]), xi), 1001, 5)
+	B_plus_deriv[:, i]  = savgol_filter(np.gradient(np.real(B_plus[:,i]),  xi), 1001, 5) + 1j*savgol_filter(np.gradient(np.imag(B_plus[:,i]),  xi), 1001, 5)
 
 for i in range(len(k)):
 	f[:, i]  = 0.5*kappa*kappa*xi*B0_deriv[:, i] + 0.5*(3+kappa*kappa*xi*xi)*B0_deriv_deriv[:, i] - 0.5*kappa*kappa*xi*B_plus_deriv[:,i] + Pe*ux2[:, i]
@@ -138,27 +148,30 @@ for i in range(len(k)):
 		f[:, i] += Pe*0.5*(ux0[:,  o1]*kappa*xi*B_minus_deriv[:, i-1] + ux1[:,  o1]*kappa*B_minus[:, i-1] - uy1[:, o1]*B_minus_deriv[:, i-1] )
 	if i != len(f[0,:])-1:
 		f[:, i] += Pe*0.5*(ux0[:, om1]*kappa*xi*B_minus_deriv[:, i+1] + ux1[:, om1]*kappa*B_minus[:, i+1] - uy1[:, om1]*B_minus_deriv[:, i+1])
+	
 	for j in range(1, N-1):
-		double_deriv[j, i] = (-B_plus_deriv[np.argmin(abs(xi-N_pos[j-1])), i] + B_plus_deriv[np.argmin(abs(xi-N_pos[j+1])), i]-4*B_plus_deriv[np.argmin(abs(xi-(N_pos[j]-Delta/2))), i] + 4*B_plus_deriv[np.argmin(abs(xi-(N_pos[j]+Delta/2))), i])/6
-	double_deriv[0 , i]     =  (B_plus_deriv[np.argmin(abs(xi-N_pos[j+1])), i] + 4*B_plus_deriv[np.argmin(abs(xi-(N_pos[j]+Delta/2))), i])/6
-	double_deriv[-1, i]    = -(B_plus_deriv[np.argmin(abs(xi-N_pos[j-1])), i] + 4*B_plus_deriv[np.argmin(abs(xi-(N_pos[j]-Delta/2))), i])/6
+		double_deriv[j, i] = 0#(-B_plus_deriv[np.argmin(abs(xi-N_pos[j-1])), i] + B_plus_deriv[np.argmin(abs(xi-N_pos[j+1])), i]-4*B_plus_deriv[np.argmin(abs(xi-(N_pos[j]-Delta/2))), i] + 4*B_plus_deriv[np.argmin(abs(xi-(N_pos[j]+Delta/2))), i])/6
+	
+	double_deriv[0 , i]    =  0#(B_plus_deriv[np.argmin(abs(xi-N_pos[0])), i]  + 4*B_plus_deriv[np.argmin(abs(xi-(N_pos[0]   + Delta/2))), i] + B_plus_deriv[np.argmin(abs(xi-N_pos[ 1])), i])/6
+	double_deriv[-1, i]    =  0#-(B_plus_deriv[np.argmin(abs(xi-N_pos[-2])), i] + 4*B_plus_deriv[np.argmin(abs(xi-(N_pos[-1]  - Delta/2))), i] + B_plus_deriv[np.argmin(abs(xi-N_pos[-1])), i])/6
+
 
 sol = np.zeros((len(xi), len(k)))
 BC0 = np.zeros(len(k))
 BC1 = np.zeros(len(k))
 
-BC0[np.argmin(abs(k-0))] = -kappa*kappa/4
-BC1[np.argmin(abs(k-0))] =  kappa*kappa/4
+BC0[np.argmin(abs(k-0))] =  -kappa*kappa/4
+BC1[np.argmin(abs(k-0))] =   kappa*kappa/4
 
 for i in range(len(k)):
-	print(i)
 	if abs(k[i]) > 1e-4:
-		sol[:,i] = finite_element_solver(N, xi, f[:,i], double_deriv[:,i], 1j*omega*k[i], BC0[i], BC1[i])
-
-sol[:, np.argmin(abs(k-0))] = -kappa*kappa*xi*xi/8
-
+		sol[:,i] = finite_element_solver(N, xi, f[:,i], double_deriv[:,i], 1j*omega*k[i], BC0[i], BC1[i], False)
+	else:
+		sol[:,i] = finite_element_solver(N, xi, f[:,i], double_deriv[:,i], 1j*omega*k[i], BC0[i], BC1[i], True)
+		print(i, BC0[i], BC1[i])
 
 for i in range(len(k)):
-	plt.plot(xi, sol[:,i], label=str(k[i]))
-plt.legend(loc="best")
+	plt.plot(xi, sol[:, i])
 plt.show()
+np.save("data/B2", sol)
+
