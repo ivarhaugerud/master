@@ -77,7 +77,7 @@ N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
 #system parameters
-kappa = 2
+kappa = 0.5
 Sc = 1.2
 omega = 1
 F0 = 3
@@ -127,6 +127,7 @@ om1 = np.argmin(abs(k-1))
 
 B_minus_deriv = np.zeros(np.shape(B_minus), dtype="complex")
 B_plus_deriv  = np.zeros(np.shape(B_plus),  dtype="complex")
+B_plus_deriv_deriv  = np.zeros(np.shape(B_plus),  dtype="complex")
 double_deriv = np.zeros((N, len(k)),        dtype="complex")
 
 slise = int(len(xi)/N)
@@ -136,27 +137,30 @@ for i in range(len(k)):
 	B_minus_temp = interp1d(N_pos, B_minus[::slise, i], kind='cubic')
 	B_plus_temp  = interp1d(N_pos,  B_plus[::slise, i], kind='cubic')
 
-	B_minus[:,i] = B_minus_temp(xi)#savgol_filter(np.real(B_minus[:,i]), 1001, 5) + 1j*savgol_filter(np.imag(B_minus[:,i]), 1001, 5) # window size 51, polynomial order 3
-	B_plus[:, i] = B_plus_temp(xi)#savgol_filter(np.real(B_plus[:, i]), 1001, 5) + 1j*savgol_filter(np.imag(B_plus[:, i]), 1001, 5) # window size 51, polynomial order 3
+	B_minus[:,i] = savgol_filter(np.real(B_minus[:,i]), 1001, 5) + 1j*savgol_filter(np.imag(B_minus[:,i]), 1001, 5) # window size 51, polynomial order 3
+	B_plus[:, i] = savgol_filter(np.real(B_plus[:, i]), 1001, 5) + 1j*savgol_filter(np.imag(B_plus[:, i]), 1001, 5) # window size 51, polynomial order 3
 	
 	B_minus_deriv[:, i] = savgol_filter(np.gradient(np.real(B_minus[:,i]), xi), 1001, 5) + 1j*savgol_filter(np.gradient(np.imag(B_minus[:,i]), xi), 1001, 5)
 	B_plus_deriv[:, i]  = savgol_filter(np.gradient(np.real(B_plus[:,i]),  xi), 1001, 5) + 1j*savgol_filter(np.gradient(np.imag(B_plus[:,i]),  xi), 1001, 5)
 
+	B_plus_deriv_deriv[:, i]  = savgol_filter(np.gradient(np.real(B_plus_deriv[:,i]),  xi), 1001, 5) + 1j*savgol_filter(np.gradient(np.imag(B_plus_deriv[:,i]),  xi), 1001, 5)
+
+
 for i in range(len(k)):
-	f[:, i]  = 0.5*kappa*kappa*xi*B0_deriv[:, i] + 0.5*(3+kappa*kappa*xi*xi)*B0_deriv_deriv[:, i] - 0.5*kappa*kappa*xi*B_plus_deriv[:,i] + Pe*ux2[:, i]
+	f[:, i]  = 0.5*kappa*kappa*xi*B0_deriv[:, i] + 0.5*(3+kappa*kappa*xi*xi)*B0_deriv_deriv[:, i] - 0.5*kappa*kappa*xi*B_plus_deriv[:,i] + Pe*ux2[:, i] - B_plus_deriv_deriv[:,i]
 	if i != 0:
 		f[:, i] += Pe*0.5*(ux0[:,  o1]*kappa*xi*B_minus_deriv[:, i-1] + ux1[:,  o1]*kappa*B_minus[:, i-1] - uy1[:, o1]*B_minus_deriv[:, i-1] )
 	if i != len(f[0,:])-1:
 		f[:, i] += Pe*0.5*(ux0[:, om1]*kappa*xi*B_minus_deriv[:, i+1] + ux1[:, om1]*kappa*B_minus[:, i+1] - uy1[:, om1]*B_minus_deriv[:, i+1])
 	
 	for j in range(1, N-1):
-		double_deriv[j, i] = 0#(-B_plus_deriv[np.argmin(abs(xi-N_pos[j-1])), i] + B_plus_deriv[np.argmin(abs(xi-N_pos[j+1])), i]-4*B_plus_deriv[np.argmin(abs(xi-(N_pos[j]-Delta/2))), i] + 4*B_plus_deriv[np.argmin(abs(xi-(N_pos[j]+Delta/2))), i])/6
+		double_deriv[j, i] =  0#(-B_plus_deriv[np.argmin(abs(xi-N_pos[j-1])), i] + B_plus_deriv[np.argmin(abs(xi-N_pos[j+1])), i]-4*B_plus_deriv[np.argmin(abs(xi-(N_pos[j]-Delta/2))), i] + 4*B_plus_deriv[np.argmin(abs(xi-(N_pos[j]+Delta/2))), i])/6
 	
-	double_deriv[0 , i]    =  0#(B_plus_deriv[np.argmin(abs(xi-N_pos[0])), i]  + 4*B_plus_deriv[np.argmin(abs(xi-(N_pos[0]   + Delta/2))), i] + B_plus_deriv[np.argmin(abs(xi-N_pos[ 1])), i])/6
+	double_deriv[0 , i]    =  0# (B_plus_deriv[np.argmin(abs(xi-N_pos[0])), i]  + 4*B_plus_deriv[np.argmin(abs(xi-(N_pos[0]   + Delta/2))), i] + B_plus_deriv[np.argmin(abs(xi-N_pos[ 1])), i])/6
 	double_deriv[-1, i]    =  0#-(B_plus_deriv[np.argmin(abs(xi-N_pos[-2])), i] + 4*B_plus_deriv[np.argmin(abs(xi-(N_pos[-1]  - Delta/2))), i] + B_plus_deriv[np.argmin(abs(xi-N_pos[-1])), i])/6
 
 
-sol = np.zeros((len(xi), len(k)))
+sol = np.zeros((len(xi), len(k)), dtype="complex")
 BC0 = np.zeros(len(k))
 BC1 = np.zeros(len(k))
 
@@ -168,10 +172,9 @@ for i in range(len(k)):
 		sol[:,i] = finite_element_solver(N, xi, f[:,i], double_deriv[:,i], 1j*omega*k[i], BC0[i], BC1[i], False)
 	else:
 		sol[:,i] = finite_element_solver(N, xi, f[:,i], double_deriv[:,i], 1j*omega*k[i], BC0[i], BC1[i], True)
-		print(i, BC0[i], BC1[i])
 
 for i in range(len(k)):
-	plt.plot(xi, sol[:, i])
+	plt.plot(xi, np.real(sol[:, i]))
 plt.show()
 np.save("data/B2", sol)
 
