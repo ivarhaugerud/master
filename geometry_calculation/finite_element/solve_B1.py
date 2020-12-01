@@ -105,7 +105,7 @@ q[np.argmin(abs(k-1)), :] = -Pe*ux1/2          - kappa*kappa*xi*B0_deriv/2      
 
 #works for differential equation with constant terms, now just need coupeling to work as well
 n = len(k) #number of vectors
-N = 1000
+N = 50
 N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
@@ -161,30 +161,36 @@ g0_f1 = sol/2
 
 B_plus   = np.zeros((len(xi), len(k)), dtype="complex") #sin-solution
 B_minus  = np.zeros((len(xi), len(k)), dtype="complex") #cos-solution
+B_plus_coeff    = np.zeros((N, len(k)), dtype="complex") #sin-solution
+B_minus_coeff   = np.zeros((N, len(k)), dtype="complex") #sin-solution
 
 for i in range(int(len(k)/2)+1):
 	if abs(k[i]) % 2 == 0:
 		print("even:", k[i], "and", k[-i-1])
 		plt.figure(1) #cos figure
-		plt.plot(xi, -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
+		plt.plot(xi, np.real(f0_g1[i,:]+f0_g1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
 		plt.figure(2) #sin figure
-		plt.plot(xi, -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
+		plt.plot(xi, np.real(g0_f1[i,:]+g0_f1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
 
 	else:
 		print("odd:", k[i], "and", k[-i-1])
 		plt.figure(2) #sin figure
-		plt.plot(xi, -np.real(f0_g1[i,0]+f0_g1[-i-1,0]) + np.real(f0_g1[i,:]+f0_g1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
+		plt.plot(xi, np.real(f0_g1[i,:]+f0_g1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
 		plt.figure(1) #cos figure
-		plt.plot(xi, -np.real(g0_f1[i,0]+g0_f1[-i-1,0]) + np.real(g0_f1[i,:]+g0_f1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))	
+		plt.plot(xi, np.real(g0_f1[i,:]+g0_f1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))	
 
 for i in range(len(k)):
 	if abs(k[i]) % 2 == 0:
-		B_minus[:, i] = -f0_g1[i,0] + f0_g1[i,:]
-		B_plus[:, i]  = -g0_f1[i,0] + g0_f1[i,:]
+		B_minus[:, i] = f0_g1[i,:]
+		B_plus[:, i]  = g0_f1[i,:]
+		B_minus_coeff[:, i] = coeff_f0g1[i*N:(i+1)*N]
+		B_plus_coeff[:, i]  = coeff_g0f1[i*N:(i+1)*N]
 
 	else:
-		B_plus[:, i]  = -f0_g1[i,0] + f0_g1[i,:]
-		B_minus[:, i] = -g0_f1[i,0] + g0_f1[i,:]
+		B_plus[:, i]  = f0_g1[i,:]
+		B_minus[:, i] = g0_f1[i,:]
+		B_minus_coeff[:, i] = coeff_g0f1[i*N:(i+1)*N]
+		B_plus_coeff[:, i]  = coeff_f0g1[i*N:(i+1)*N]
 
 plt.figure(1)
 plt.legend(loc="best")
@@ -203,6 +209,8 @@ plt.savefig("figures/Brennerfield_sin.pdf")
 
 np.save("data/B_plus", B_plus)
 np.save("data/B_minus", B_minus)
+np.save("data/B_minus_coeff", B_minus_coeff)
+np.save("data/B_plus_coeff", B_plus_coeff)
 np.save("data/k", k)
 
 from numpy import *
