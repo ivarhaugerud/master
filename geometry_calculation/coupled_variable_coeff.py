@@ -75,7 +75,7 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 xi = np.linspace(-1, 1, int(1e5))
 x = xi
 n = 2 #number of vectors
-N = 5
+N = 500
 N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
@@ -92,18 +92,16 @@ couple1 = np.sin(np.pi*xi)
 for i in range(N-1):
 	couple_forward[i, i]   = Delta*(couple1[np.argmin(abs(xi-(N_pos[i]-Delta/2)))] + 2*couple1[np.argmin(abs(xi-(N_pos[i])))] + couple1[np.argmin(abs(xi-(N_pos[i]+Delta/2)))])/6
 	couple_forward[i, i+1] = Delta*couple1[np.argmin(abs(xi-(N_pos[i]+Delta/2)))]/6
-	couple_forward[i+1, i] = Delta*couple1[np.argmin(abs(xi-(N_pos[i]-Delta/2)))]/6
+	couple_forward[i+1, i] = Delta*couple1[np.argmin(abs(xi-(N_pos[i]+Delta/2)))]/6
 
 couple_forward[0, 0]    = Delta*(couple1[np.argmin(abs(xi-(N_pos[0])))]  + couple1[np.argmin(abs(xi-(N_pos[0]  + Delta/2)))])/6
 couple_forward[-1, -1]  = Delta*(couple1[np.argmin(abs(xi-(N_pos[-1])))] + couple1[np.argmin(abs(xi-(N_pos[-1] - Delta/2)))])/6
-#couple_forward[1, 0] = 0
-#couple_forward[-2, -1] = 0
 
 couple1 = source
 for i in range(N-1):
 	couple_backward[i, i]   = Delta*(couple1[np.argmin(abs(xi-(N_pos[i]-Delta/2)))] + 2*couple1[np.argmin(abs(xi-(N_pos[i])))] + couple1[np.argmin(abs(xi-(N_pos[i]+Delta/2)))])/6
 	couple_backward[i, i+1] = Delta*couple1[np.argmin(abs(xi-(N_pos[i]+Delta/2)))]/6
-	couple_backward[i+1, i] = Delta*couple1[np.argmin(abs(xi-(N_pos[i]-Delta/2)))]/6
+	couple_backward[i+1, i] = Delta*couple1[np.argmin(abs(xi-(N_pos[i]+Delta/2)))]/6
 
 couple_backward[0, 0]    = Delta*(couple1[np.argmin(abs(xi-(N_pos[0])))]  + couple1[np.argmin(abs(xi-(N_pos[0]  + Delta/2)))])/6
 couple_backward[-1, -1]  = Delta*(couple1[np.argmin(abs(xi-(N_pos[-1])))] + couple1[np.argmin(abs(xi-(N_pos[-1] - Delta/2)))])/6
@@ -124,8 +122,6 @@ q[0, :] = np.cos(np.pi*xi)*np.cos(np.pi*xi)
 q[1, :] = -(1+np.pi*np.pi)*np.sin(np.pi*xi)
 
 coeff = np.ones(n)
-
-
 sol = coupled_finite_element_solver(N, n, xi, coeff, couple_backward, couple_forward, q, Bc0, Bc1)
 
 plt.plot(xi, sol[0, :], label="f")
@@ -133,4 +129,9 @@ plt.plot(xi, sol[1, :], label="g")
 plt.plot(xi, f, "--")
 plt.plot(xi, g, "--")
 plt.legend(loc="best")
+plt.savefig("figures/coupled_variable.pdf")
+plt.show()
+
+plt.plot(xi, (sol[0, :]-f)/max(f))
+plt.plot(xi, (sol[1, :]-g)/max(g))
 plt.show()

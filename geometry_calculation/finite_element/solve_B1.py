@@ -53,10 +53,10 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	#calculate source vector
 	for j in range(n):
 		for i in range(N):
-			b[j*N+i] = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + f[j, np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/2
+			b[j*N+i] = -Delta_x*(2*f[j, np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + 2*f[j, np.argmin(abs(x-(N_pos[i])))] + 2*f[j, np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/6
 
-		b[j*N+0]   = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[0] + Delta_x/2)))])/2
-		b[j*N+N-1] = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/2
+		b[j*N+0]   = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[0 ])))] + 2*f[j, np.argmin(abs(x-(N_pos[0] + Delta_x/2)))])/6
+		b[j*N+N-1] = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[-1])))] + 2*f[j, np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/6
 
 		#if derivative is non-zero at boundary
 		b[N*j+0]    -= Bc0[j]
@@ -68,7 +68,7 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	for j in range(n):
 		for i in range(N):
 			u[j,:] += sol[j*N+i]*phi[i, :]
-	return u
+	return u, sol
 
 tol   = 1e-6
 k     = np.array([-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7])
@@ -105,7 +105,7 @@ q[np.argmin(abs(k-1)), :] = -Pe*ux1/2          - kappa*kappa*xi*B0_deriv/2      
 
 #works for differential equation with constant terms, now just need coupeling to work as well
 n = len(k) #number of vectors
-N = 500
+N = 1000
 N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
@@ -114,8 +114,8 @@ couple_backward =  np.zeros((N, N), dtype="complex")
 
 for i in range(N-1):
 	couple_backward[i, i]   = Delta*(ux0[np.argmin(abs(xi-(N_pos[i]-Delta/2)))] + 2*ux0[np.argmin(abs(xi-(N_pos[i])))] + ux0[np.argmin(abs(xi-(N_pos[i]+Delta/2)))])/6
-	couple_backward[i, i+1] = Delta*ux0[np.argmin(abs(xi-(N_pos[i]+N_pos[i+1])/2))]/6
-	couple_backward[i+1, i] = Delta*ux0[np.argmin(abs(xi-(N_pos[i+1]+N_pos[i])/2))]/6
+	couple_backward[i, i+1] = Delta*ux0[np.argmin(abs(xi-(N_pos[i]+Delta/2)))]/6
+	couple_backward[i+1, i] = Delta*ux0[np.argmin(abs(xi-(N_pos[i]+Delta/2)))]/6
 
 couple_backward[0, 0]    = Delta*(ux0[np.argmin(abs(xi-(N_pos[0])))]  + ux0[np.argmin(abs(xi-(N_pos[0]  + Delta/2)))])/6
 couple_backward[-1, -1]  = Delta*(ux0[np.argmin(abs(xi-(N_pos[-1])))] + ux0[np.argmin(abs(xi-(N_pos[-1] - Delta/2)))])/6
@@ -129,7 +129,7 @@ Bc1 = np.zeros(n, dtype="complex") #BC at xi =  1
 Bc0[np.argmin(abs(k-0))] = -kappa
 Bc1[np.argmin(abs(k-0))] =  kappa
 
-sol = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_forward, q, Bc0, Bc1)
+sol, coeff_f0g1 = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_forward, q, Bc0, Bc1)
 
 
 for i in range(int(len(k))):
@@ -151,7 +151,7 @@ couple_forward  *= -1
 Bc0 = np.zeros(n, dtype="complex")
 Bc1 = np.zeros(n, dtype="complex")
 
-sol = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_forward, q, Bc0, Bc1)
+sol, coeff_g0f1 = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_forward, q, Bc0, Bc1)
 
 for i in range(int(len(k)/2)+1):
 	if np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0])))/2 > tol:

@@ -76,6 +76,9 @@ xi = np.linspace(-1, 1, len(B_plus[:,0]))
 N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
+plt.plot(xi, B_plus[:, 6])
+plt.plot(xi, np.gradient(B_plus[:, 6], xi))
+plt.show()
 #system parameters
 kappa = 0.5
 Sc = 1.2
