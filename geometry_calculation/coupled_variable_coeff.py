@@ -1,5 +1,7 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
+import numpy
+numpy.set_printoptions(suppress=True,linewidth=numpy.nan)
 
 def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backward, f, Bc0, Bc1):
 	#define general parameters
@@ -8,10 +10,10 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	Delta_x = N_pos[1]-N_pos[0]
 
 	Nn = int(N*n)
-	A   = np.zeros((Nn, Nn),  dtype="complex")
-	A_p = np.zeros((Nn, Nn),  dtype="complex")
-	b = np.zeros(Nn,          dtype="complex")
-	u = np.zeros((n, len(x)), dtype="complex")
+	A   = np.zeros((Nn, Nn))
+	A_p = np.zeros((Nn, Nn))
+	b = np.zeros(Nn)
+	u = np.zeros((n, len(x)))
 
 	phi = np.zeros((N, len(x)))
 
@@ -50,13 +52,13 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward
 		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] += couple_backward
 
-	#calculate source vector
+	print(A)
 	for j in range(n):
 		for i in range(N):
-			b[j*N+i] = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + f[j, np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/2
+			b[j*N+i] = -Delta_x*(2*f[j, np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + 2*f[j, np.argmin(abs(x-(N_pos[i])))] + 2*f[j, np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/6
 
-		b[j*N+0]   = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[0] + Delta_x/2)))])/2
-		b[j*N+N-1] = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/2
+		b[j*N+0]   = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[0])))]  + 2*f[j, np.argmin(abs(x-(N_pos[0] + Delta_x/2)))])/6
+		b[j*N+N-1] = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[-1])))] + 2*f[j, np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/6
 
 		#if derivative is non-zero at boundary
 		b[N*j+0]    -= Bc0[j]
@@ -73,13 +75,13 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 xi = np.linspace(-1, 1, int(1e5))
 x = xi
 n = 2 #number of vectors
-N = 500
+N = 5
 N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
 h = (1+4*np.pi*np.pi)*np.cos(np.pi*x)
 f = -np.sin(2*np.pi*x)/2 - 1
-source = (1+np.pi*np.pi)*(1+4*np.pi*np.pi)*np.cos(np.pi*x)/(1+np.sin(2*np.pi*x)/2) #np.gradient(np.gradient(h, xi), xi) - h )/f 
+source = (1+np.pi*np.pi)*(1+4*np.pi*np.pi)*np.cos(np.pi*x)/(1+np.sin(2*np.pi*x)/2)
 g = np.sin(np.pi*x) + h
 
 #coupleing between vectors
@@ -89,17 +91,19 @@ couple_forward  =  np.zeros((N, N))
 couple1 = np.sin(np.pi*xi)
 for i in range(N-1):
 	couple_forward[i, i]   = Delta*(couple1[np.argmin(abs(xi-(N_pos[i]-Delta/2)))] + 2*couple1[np.argmin(abs(xi-(N_pos[i])))] + couple1[np.argmin(abs(xi-(N_pos[i]+Delta/2)))])/6
-	couple_forward[i, i+1] = Delta*couple1[np.argmin(abs(xi-(N_pos[i]+N_pos[i-1])/2))]/6
-	couple_forward[i+1, i] = Delta*couple1[np.argmin(abs(xi-(N_pos[i+1]+N_pos[i])/2))]/6
+	couple_forward[i, i+1] = Delta*couple1[np.argmin(abs(xi-(N_pos[i]+Delta/2)))]/6
+	couple_forward[i+1, i] = Delta*couple1[np.argmin(abs(xi-(N_pos[i]-Delta/2)))]/6
 
 couple_forward[0, 0]    = Delta*(couple1[np.argmin(abs(xi-(N_pos[0])))]  + couple1[np.argmin(abs(xi-(N_pos[0]  + Delta/2)))])/6
 couple_forward[-1, -1]  = Delta*(couple1[np.argmin(abs(xi-(N_pos[-1])))] + couple1[np.argmin(abs(xi-(N_pos[-1] - Delta/2)))])/6
+#couple_forward[1, 0] = 0
+#couple_forward[-2, -1] = 0
 
 couple1 = source
 for i in range(N-1):
 	couple_backward[i, i]   = Delta*(couple1[np.argmin(abs(xi-(N_pos[i]-Delta/2)))] + 2*couple1[np.argmin(abs(xi-(N_pos[i])))] + couple1[np.argmin(abs(xi-(N_pos[i]+Delta/2)))])/6
 	couple_backward[i, i+1] = Delta*couple1[np.argmin(abs(xi-(N_pos[i]+Delta/2)))]/6
-	couple_backward[i+1, i] = Delta*couple1[np.argmin(abs(xi-(N_pos[i]+Delta/2)))]/6
+	couple_backward[i+1, i] = Delta*couple1[np.argmin(abs(xi-(N_pos[i]-Delta/2)))]/6
 
 couple_backward[0, 0]    = Delta*(couple1[np.argmin(abs(xi-(N_pos[0])))]  + couple1[np.argmin(abs(xi-(N_pos[0]  + Delta/2)))])/6
 couple_backward[-1, -1]  = Delta*(couple1[np.argmin(abs(xi-(N_pos[-1])))] + couple1[np.argmin(abs(xi-(N_pos[-1] - Delta/2)))])/6
