@@ -45,6 +45,9 @@ def finite_element_solver(N, x, f, double_deriv, a, Bc0, Bc1, laplace):
 		A_p[0,0] += 1
 		A_p[-1, -1] += 1
 
+		#Bc0 *= 1/Delta_x
+		#Bc1 *= 1/Delta_x
+
 	A_p *= 1/Delta_x
 	A   *= a*Delta_x/6 # a=k^2
 
@@ -56,8 +59,8 @@ def finite_element_solver(N, x, f, double_deriv, a, Bc0, Bc1, laplace):
 	b[-1] = -Delta_x*(f[np.argmin(abs(x-(N_pos[-1])))] + 2*f[np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/6
 
 	#if derivative is non-zero at boundary
-	b[0]   +=  -Bc0
-	b[-1]  +=   Bc1
+	b[0]   +=  Bc0
+	b[-1]  += -Bc1
 	sol = np.linalg.solve(A+A_p, b+double_deriv)
 
 	#transfer back solution to regular basis
@@ -178,8 +181,8 @@ sol = np.zeros((len(xi), len(k)), dtype="complex")
 BC0 = np.zeros(len(k))
 BC1 = np.zeros(len(k))
 
-BC0[np.argmin(abs(k-0))] =  -kappa*kappa/4
-BC1[np.argmin(abs(k-0))] =   kappa*kappa/4
+BC0[np.argmin(abs(k-0))] = -kappa*kappa/4
+BC1[np.argmin(abs(k-0))] =  kappa*kappa/4
 
 for i in range(len(k)):
 	if abs(k[i]) > 1e-4:

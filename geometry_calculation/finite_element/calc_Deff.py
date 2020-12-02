@@ -7,8 +7,6 @@ B_plus  = np.load("data/B_plus.npy")
 B_minus = np.load("data/B_minus.npy")
 B_2     = np.load("data/B2.npy")
 k       = np.load("data/k.npy")
-
-N = 500
 xi = np.linspace(-1, 1, len(B_plus[:,0]))
 
 #system parameters
@@ -33,8 +31,7 @@ for i in range(len(k)):
 	B_plus_grad[:, i]  = np.gradient(savgol_filter(np.real(B_plus[:,  i]), 1001, 5), xi) +1j*np.gradient(savgol_filter(np.imag(B_plus[:,  i]), 1001, 5), xi)
 	B_minus_grad[:, i] = np.gradient(savgol_filter(np.real(B_minus[:, i]), 1001, 5), xi) +1j*np.gradient(savgol_filter(np.imag(B_minus[:, i]), 1001, 5), xi)
 	B_2_grad[:, i]     = np.gradient(savgol_filter(np.real(B_2[:, i]),     1001, 5), xi) +1j*np.gradient(savgol_filter(np.imag(B_2[:, i]),     1001, 5), xi)
-	plt.plot(xi, np.imag(B_2_grad[:, i]))
-plt.show()
+
 B0_deriv[:, np.argmin(abs(k-1))] =         (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))/2
 B0_deriv[:, np.argmin(abs(k+1))] = np.conj((Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma)))/2
 
@@ -44,24 +41,29 @@ new_k    = np.arange(-2*max(k), 2*max(k)+1e-3, 1)
 D_eff_xi = np.zeros((len(xi), len(new_k)), dtype="complex")
 D_eff    = np.zeros(len(new_k), dtype="complex")
 
-print(k, new_k)
-
 for i in range(len(k)):
 	D_eff_xi[:, np.argmin(abs(new_k-k[i]))] -=  kappa*B_minus[:, i]/2 + kappa*xi*B_minus_grad[:,i]/2
+
+for i in range(len(k)):
 	for j in range(len(k)):
 		D_eff_xi[:, np.argmin(abs(new_k -k[i]-k[j]))] += B0_deriv[:,i]*B0_deriv[:,j]*(5+kappa*kappa*xi*xi)/2
 		D_eff_xi[:, np.argmin(abs(new_k -k[i]-k[j]))] += (kappa*kappa*B_plus[:, i]*B_plus[:, j] + B_plus_grad[:,i]*B_plus_grad[:,j] + kappa*kappa*B_minus[:, i]*B_minus[:, j] + B_minus_grad[:,i]*B_minus_grad[:,j])/2
 		D_eff_xi[:, np.argmin(abs(new_k -k[i]-k[j]))] += 2*B0_deriv[:, i]*B_2_grad[:,j] + B0_deriv[:,i]*(B_plus_grad[:,j] - kappa*kappa*xi*B_plus[:, j])
 
-		D_eff[np.argmin(abs(new_k -k[i]-k[j]))] = scpi.trapz(D_eff_xi[:, np.argmin(abs(new_k -k[i]-k[j]))], xi)/2
-		D_eff[np.argmin(abs(new_k - 0))] = 0
-		total_D += np.exp(1j*omega*(k[i]+k[j])*t)*D_eff[np.argmin(abs(new_k - k[i]- k[j]))]
+for i in range(len(new_k)):
+	D_eff[i] = scpi.trapz(D_eff_xi[:, i], xi)/2
+	total_D += np.exp(1j*omega*new_k[i]*t)*D_eff[i]
 
-plt.plot(new_k, np.imag(D_eff), "o")
-plt.plot(new_k, -np.flip(np.imag(D_eff)), "--")
+
+plt.plot(new_k, np.imag(D_eff), "ro")
+plt.plot(new_k, -np.flip(np.imag(D_eff)), "r--")
+plt.show()
+plt.plot(new_k, np.real(D_eff), "ko")
 plt.show()
 
 plt.plot(t, np.real(total_D))
 plt.plot(t, np.imag(total_D), "--")
-
 plt.show()
+
+D_eff = scpi.trapz(np.real(total_D), t)/(max(t)-min(t))
+print(D_eff)
