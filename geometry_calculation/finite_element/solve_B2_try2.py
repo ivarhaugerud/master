@@ -56,9 +56,9 @@ def finite_element_solver(N, x, f, double_deriv, a, Bc0, Bc1, laplace):
 	b[-1] = -Delta_x*(f[np.argmin(abs(x-(N_pos[-1])))] + 2*f[np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/6
 
 	#if derivative is non-zero at boundary
-	b[0]   -= 0#Bc0/Delta_x
-	b[-1]  += 0#Bc1/Delta_x
-	sol = np.linalg.solve(A+A_p, b+double_deriv)
+	b[0]   += -Bc0
+	b[-1]  +=  Bc1
+	sol = np.linalg.solve(A+A_p, b-double_deriv)
 
 	#transfer back solution to regular basis
 	for i in range(N):
