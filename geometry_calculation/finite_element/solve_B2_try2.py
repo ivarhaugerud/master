@@ -141,6 +141,7 @@ for i in range(len(k)):
 
 for i in range(len(k)):
 	f[:, i]  = 0.5*kappa*kappa*xi*B0_deriv[:, i] + 0.5*(3+kappa*kappa*xi*xi)*B0_deriv_deriv[:, i] + Pe*ux2[:, i]
+	
 	if i != 0:
 		f[:, i] += Pe*0.5*(ux1[:,  o1]*kappa*B_minus[:, i-1])
 
@@ -150,6 +151,7 @@ for i in range(len(k)):
 			term1[j, i] -= B_minus_coeff[j-1, i-1]*(factor1[np.argmin(abs(xi-(N_pos[j]))), o1] + 2*factor1[np.argmin(abs(xi-(N_pos[j]-Delta/2))), o1])/6
 		term1[0, i]  += (-B_minus_coeff[0,  i-1]+B_plus_coeff[1, i-1])*(factor1[np.argmin(abs(xi-(N_pos[0]))),  o1]   + 2*factor1[np.argmin(abs(xi-(N_pos[0]+Delta/2))),  o1])/6
 		term1[-1, i] += (-B_minus_coeff[-2, i-1]+B_plus_coeff[-1,i-1])*(factor1[np.argmin(abs(xi-(N_pos[-1]))), o1]   + 2*factor1[np.argmin(abs(xi-(N_pos[-1]-Delta/2))), o1])/6
+	
 	if i != len(f[0,:])-1:
 		f[:, i] += Pe*0.5*(ux1[:, om1]*kappa*B_minus[:, i+1])
 
@@ -172,10 +174,6 @@ term3[0,  :] = (-B_plus_coeff[0,  :]+B_plus_coeff[1, :])/Delta
 term3[-1, :] = (-B_plus_coeff[-1, :]+B_plus_coeff[-2, :])/Delta
 
 derivatives = term1 + term2 + term3
-
-for i in range(len(k)):
-	plt.plot(N_pos, np.imag(term1[:,i]+term1[:,-i-1]))
-	plt.show()
 sol = np.zeros((len(xi), len(k)), dtype="complex")
 BC0 = np.zeros(len(k))
 BC1 = np.zeros(len(k))
