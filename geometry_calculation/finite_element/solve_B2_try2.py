@@ -138,23 +138,32 @@ factor1 = np.zeros((len(xi), len(k)), dtype="complex")
 
 for i in range(len(k)):
 	factor1[:, i] = uy1[:, i] -kappa*xi*ux1[:, i]
+
+for i in range(len(k)):
 	f[:, i]  = 0.5*kappa*kappa*xi*B0_deriv[:, i] + 0.5*(3+kappa*kappa*xi*xi)*B0_deriv_deriv[:, i] + Pe*ux2[:, i]
 	if i != 0:
 		f[:, i] += Pe*0.5*(ux1[:,  o1]*kappa*B_minus[:, i-1])
+
+		for j in range(1, N-1):
+			term1[j, i] +=  B_minus_coeff[j,   i-1]*(factor1[np.argmin(abs(xi-(N_pos[j]-Delta/2))), o1] - factor1[np.argmin(abs(xi-(N_pos[j]+Delta/2))), o1])/3
+			term1[j, i] += B_minus_coeff[j+1, i-1]*(factor1[np.argmin(abs(xi-(N_pos[j]))), o1] + 2*factor1[np.argmin(abs(xi-(N_pos[j]+Delta/2))), o1])/6
+			term1[j, i] -= B_minus_coeff[j-1, i-1]*(factor1[np.argmin(abs(xi-(N_pos[j]))), o1] + 2*factor1[np.argmin(abs(xi-(N_pos[j]-Delta/2))), o1])/6
+		term1[0, i]  += (-B_minus_coeff[0,  i-1]+B_plus_coeff[1, i-1])*(factor1[np.argmin(abs(xi-(N_pos[0]))),  o1]   + 2*factor1[np.argmin(abs(xi-(N_pos[0]+Delta/2))),  o1])/6
+		term1[-1, i] += (-B_minus_coeff[-2, i-1]+B_plus_coeff[-1,i-1])*(factor1[np.argmin(abs(xi-(N_pos[-1]))), o1]   + 2*factor1[np.argmin(abs(xi-(N_pos[-1]-Delta/2))), o1])/6
 	if i != len(f[0,:])-1:
 		f[:, i] += Pe*0.5*(ux1[:, om1]*kappa*B_minus[:, i+1])
 
+		for j in range(1, N-1):
+			term1[j, i] +=  B_minus_coeff[j,i+1]*(factor1[np.argmin(abs(xi-(N_pos[j]-Delta/2))), om1] - factor1[np.argmin(abs(xi-(N_pos[j]+Delta/2))), om1])/3
+			term1[j, i] += B_minus_coeff[j+1, i+1]*(factor1[np.argmin(abs(xi-(N_pos[j]))), om1] + 2*factor1[np.argmin(abs(xi-(N_pos[j]+Delta/2))), om1])/6
+			term1[j, i] -= B_minus_coeff[j-1, i+1]*(factor1[np.argmin(abs(xi-(N_pos[j]))), om1] + 2*factor1[np.argmin(abs(xi-(N_pos[j]-Delta/2))), om1])/6
+		term1[0,  i] += (-B_minus_coeff[0,  i+1]+B_plus_coeff[1, i+1])*(factor1[np.argmin(abs(xi-(N_pos[0]))), om1]   + 2*factor1[np.argmin(abs(xi-(N_pos[0]+Delta/2))),  om1])/6
+		term1[-1, i] += (-B_minus_coeff[-2, i+1]+B_plus_coeff[-1,i+1])*(factor1[np.argmin(abs(xi-(N_pos[-1]))), om1]  + 2*factor1[np.argmin(abs(xi-(N_pos[-1]-Delta/2))), om1])/6
+
 for j in range(1, N-1):
-	term1[j, :] =  B_minus_coeff[j,:]*(factor1[np.argmin(abs(xi-(N_pos[j]-Delta/2))), :] - factor1[np.argmin(abs(xi-(N_pos[j]+Delta/2))), :])/3
-	term1[j, :] += B_minus_coeff[j+1,:]*(factor1[np.argmin(abs(xi-(N_pos[j]))), :] + 2*factor1[np.argmin(abs(xi-(N_pos[j]+Delta/2))), :])/6
-	term1[j, :] -= B_minus_coeff[j-1,:]*(factor1[np.argmin(abs(xi-(N_pos[j]))), :] + 2*factor1[np.argmin(abs(xi-(N_pos[j]-Delta/2))), :])/6
-
+	#term 2 and 3 have frequency equal to their
 	term2[j, :] = -Delta*B_plus_coeff[j, :]/3 + 0.5*(N_pos[j]+Delta/3)*B_plus_coeff[j+1, :] - 0.5*(N_pos[j]-Delta/3)*B_plus_coeff[j-1, :] 
-
 	term3[j, :] = (B_plus_coeff[j+1, :]+B_plus_coeff[j-1, :]-2*B_plus_coeff[j, :])/Delta 
-
-term1[0, :]  = (-B_minus_coeff[0,  :]+B_plus_coeff[1, :])*(factor1[np.argmin(abs(xi-(N_pos[0]))), :]   + 2*factor1[np.argmin(abs(xi-(N_pos[0]+Delta/2))),  :])/6
-term1[-1, :] = (-B_minus_coeff[-2, :]+B_plus_coeff[-1,:])*(factor1[np.argmin(abs(xi-(N_pos[-1]))), :]  + 2*factor1[np.argmin(abs(xi-(N_pos[-1]-Delta/2))), :])/6
 
 term2[0,  :] = (B_plus_coeff[1,  :] - B_plus_coeff[0,  :])*Delta/3
 term2[-1, :] = (B_plus_coeff[-1, :] - B_plus_coeff[-2, :])*Delta/3
@@ -163,12 +172,10 @@ term3[0,  :] = (-B_plus_coeff[0,  :]+B_plus_coeff[1, :])/Delta
 term3[-1, :] = (-B_plus_coeff[-1, :]+B_plus_coeff[-2, :])/Delta
 
 derivatives = term1 + term2 + term3
-"""
-for i in range(len(k)):
-	plt.plot(N_pos, np.imag(term3[:, i]))
-plt.show()
-"""
 
+for i in range(len(k)):
+	plt.plot(N_pos, np.imag(term1[:,i]+term1[:,-i-1]))
+	plt.show()
 sol = np.zeros((len(xi), len(k)), dtype="complex")
 BC0 = np.zeros(len(k))
 BC1 = np.zeros(len(k))
@@ -177,16 +184,11 @@ BC0[np.argmin(abs(k-0))] =  -kappa*kappa/4
 BC1[np.argmin(abs(k-0))] =   kappa*kappa/4
 
 for i in range(len(k)):
-	print(k[i], k[-i-1])
-	plt.plot(np.imag(f[:, i])+np.imag(f[:,-i-1]))
-	plt.show()
-
-for i in range(len(k)):
 	if abs(k[i]) > 1e-4:
-		sol[:,i] = finite_element_solver(N, xi, f[:,i], term1[:,i]+term2[:,i]+term3[:,i], 1j*omega*k[i], BC0[i], BC1[i], False)
+		sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i], 1j*omega*k[i], BC0[i], BC1[i], False)
 	else:
-		sol[:,i] = finite_element_solver(N, xi, f[:,i], term1[:,i]+term2[:,i]+term3[:,i], 0, BC0[i], BC1[i], True)
-		plt.plot(xi, np.imag(sol[:, i]))
+		sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i], 0,             BC0[i], BC1[i], True)
+		plt.plot(xi, np.real(sol[:, i]))
 		print(BC0[i], BC1[i])
 		plt.show()
 		plt.plot(xi, np.gradient(np.real(sol[:, i]), xi))
@@ -197,7 +199,7 @@ for i in range(len(k)):
 plt.show()
 
 for i in range(len(k)):
-	plt.plot(xi, np.imag(sol[:, i]))
+	plt.plot(xi, np.imag(sol[:, i]+sol[:,-i-1]))
 plt.show()
 
 np.save("data/B2", sol)
