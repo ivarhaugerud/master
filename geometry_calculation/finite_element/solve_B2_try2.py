@@ -78,9 +78,9 @@ N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
 #system parameters
-kappa = 2
+kappa = 1
 Sc = 1.2
-omega = 1
+omega = 0.5
 F0 = 3
 Pe = F0*Sc
 
@@ -185,10 +185,11 @@ for i in range(len(k)):
 		sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i], 1j*omega*k[i], BC0[i], BC1[i], False)
 	else:
 		print(BC0[i], BC1[i])
-		sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i], 0,             BC0[i], BC1[i], True)
-		plt.plot(xi, np.real(sol[:,i]))
-		plt.plot(xi, kappa*kappa*xi*xi/8 - kappa*kappa/8)
-		plt.show()
+		sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i],  0, BC0[i], BC1[i], True)
+		#plt.plot(xi, np.real(sol[:,i]))
+		#plt.plot(xi, kappa*kappa*xi*xi/8 - kappa*kappa/8)
+		#plt.show()
+		sol[:, i] = kappa*kappa*xi*xi/8
 
 for i in range(len(k)):
 	plt.plot(xi, np.real(sol[:, i]))
@@ -198,5 +199,5 @@ for i in range(len(k)):
 	plt.plot(xi, np.imag(sol[:, i]+sol[:,-i-1]))
 plt.show()
 
-np.save("data/B2", sol)
+np.save("data/B2_new", sol)
 

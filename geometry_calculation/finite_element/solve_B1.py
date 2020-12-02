@@ -75,12 +75,11 @@ k     = np.array([-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7])
 xi    = np.linspace(-1, 1, int(1e5))
 
 #system parameters
-kappa = 0.5
+kappa = 1
 Sc = 1.2
-omega = 1
+Omega = 0.5
 F0 = 3
 Pe = F0*Sc
-
 
 #implicitly defined parameters
 gamma   = np.sqrt(1j*omega/Sc)

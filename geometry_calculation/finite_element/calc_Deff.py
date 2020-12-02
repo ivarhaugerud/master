@@ -5,14 +5,14 @@ from scipy.signal import savgol_filter
 
 B_plus  = np.load("data/B_plus.npy")
 B_minus = np.load("data/B_minus.npy")
-B_2     = np.load("data/B2.npy")
+B_2     = np.load("data/B2_new.npy")
 k       = np.load("data/k.npy")
 xi = np.linspace(-1, 1, len(B_plus[:,0]))
 
 #system parameters
-kappa = 0.5
+kappa = 1
 Sc = 1.2
-omega = 1
+omega = 0.5
 F0 = 3
 Pe = F0*Sc
 
@@ -27,19 +27,19 @@ B_plus_grad   = np.zeros((len(xi), len(k)), dtype="complex")
 B_minus_grad  = np.zeros((len(xi), len(k)), dtype="complex")
 B_2_grad      = np.zeros((len(xi), len(k)), dtype="complex")
 
+t        = np.linspace(0, 2*np.pi/omega, int(1e4))
+new_k    = np.arange(-2*max(k), 2*max(k)+1e-3, 1)
+D_eff_xi = np.zeros((len(xi), len(new_k)), dtype="complex")
+total_D  = np.zeros(len(t),                dtype="complex")
+D_eff    = np.zeros(len(new_k),            dtype="complex")
+
 for i in range(len(k)):
-	B_plus_grad[:, i]  = np.gradient(savgol_filter(np.real(B_plus[:,  i]), 1001, 5), xi) +1j*np.gradient(savgol_filter(np.imag(B_plus[:,  i]), 1001, 5), xi)
-	B_minus_grad[:, i] = np.gradient(savgol_filter(np.real(B_minus[:, i]), 1001, 5), xi) +1j*np.gradient(savgol_filter(np.imag(B_minus[:, i]), 1001, 5), xi)
-	B_2_grad[:, i]     = np.gradient(savgol_filter(np.real(B_2[:, i]),     1001, 5), xi) +1j*np.gradient(savgol_filter(np.imag(B_2[:, i]),     1001, 5), xi)
+	B_plus_grad[:, i]  = np.gradient(np.real(B_plus[:,  i]), xi) +1j*np.gradient(np.imag(B_plus[:,  i]), xi)
+	B_minus_grad[:, i] = np.gradient(np.real(B_minus[:, i]), xi) +1j*np.gradient(np.imag(B_minus[:, i]), xi)
+	B_2_grad[:, i]     = np.gradient(np.real(B_2[:, i]),     xi) +1j*np.gradient(np.imag(B_2[:, i]),     xi)
 
 B0_deriv[:, np.argmin(abs(k-1))] =         (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))/2
 B0_deriv[:, np.argmin(abs(k+1))] = np.conj((Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma)))/2
-
-t        = np.linspace(0, 2*np.pi/omega, int(1e4))
-total_D  = np.zeros(len(t), dtype="complex")
-new_k    = np.arange(-2*max(k), 2*max(k)+1e-3, 1)
-D_eff_xi = np.zeros((len(xi), len(new_k)), dtype="complex")
-D_eff    = np.zeros(len(new_k), dtype="complex")
 
 for i in range(len(k)):
 	D_eff_xi[:, np.argmin(abs(new_k-k[i]))] -=  kappa*B_minus[:, i]/2 + kappa*xi*B_minus_grad[:,i]/2
@@ -59,6 +59,7 @@ plt.plot(new_k, np.imag(D_eff), "ro")
 plt.plot(new_k, -np.flip(np.imag(D_eff)), "r--")
 plt.show()
 plt.plot(new_k, np.real(D_eff), "ko")
+x = np.linspace(0, max(new_k), int(1e4))
 plt.show()
 
 plt.plot(t, np.real(total_D))
