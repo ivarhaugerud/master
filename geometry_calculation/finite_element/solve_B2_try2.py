@@ -42,23 +42,22 @@ def finite_element_solver(N, x, f, double_deriv, a, Bc0, Bc1, laplace):
 		A[i+1, i+1] += 2
 
 	if laplace:
-		A_p[0, 0] = 2
-		A_p[-1, -1] = 2
+		A_p[0,0] += 1
+		A_p[-1, -1] += 1
 
 	A_p *= 1/Delta_x
 	A   *= a*Delta_x/6 # a=k^2
 
 	#calculate source vector
 	for i in range(len(b)):
-		b[i] = -Delta_x*(f[np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + f[np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/2
+		b[i] = -Delta_x*(2*f[np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + 2*f[np.argmin(abs(x-(N_pos[i])))] + 2*f[np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/6
 
-	b[0]  = -Delta_x*(f[np.argmin(abs(x-(N_pos[0] + Delta_x/2)))])/2
-	b[-1] = -Delta_x*(f[np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/2
+	b[0]  = -Delta_x*(f[np.argmin(abs(x-(N_pos[0 ])))] + 2*f[np.argmin(abs(x-(N_pos[0] + Delta_x/2)))])/6
+	b[-1] = -Delta_x*(f[np.argmin(abs(x-(N_pos[-1])))] + 2*f[np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/6
 
 	#if derivative is non-zero at boundary
-	b[0]   -= Bc0
-	b[-1]  +=  Bc1
-
+	b[0]   +=  -Bc0
+	b[-1]  +=   Bc1
 	sol = np.linalg.solve(A+A_p, b+double_deriv)
 
 	#transfer back solution to regular basis
@@ -74,13 +73,13 @@ B_minus = np.load("data/B_minus.npy")
 B_minus_coeff  = np.load("data/B_minus_coeff.npy")
 k       = np.load("data/k.npy")
 
-N = 50
+N = len(B_minus_coeff[:, 0])
 xi = np.linspace(-1, 1, len(B_plus[:,0]))
 N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
 #system parameters
-kappa = 0.5
+kappa = 2
 Sc = 1.2
 omega = 1
 F0 = 3
@@ -121,17 +120,16 @@ B0[:, np.argmin(abs(k-1))]             =  (Pe*F0*np.tanh(gamma)/(gamma*gamma*gam
 B0_deriv[:, np.argmin(abs(k-1))]       = ((Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma)))/2
 B0_deriv_deriv[:, np.argmin(abs(k-1))] = ((Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(rho*xi)/np.sinh(rho) - gamma*np.cosh(gamma*xi)/np.sinh(gamma)))/2
 
-B0[:, np.argmin(abs(k-1))]             =  np.conj(Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*rho*rho) + Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))))/2
-B0_deriv[:, np.argmin(abs(k-1))]       = np.conj((Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma)))/2
-B0_deriv_deriv[:, np.argmin(abs(k-1))] = np.conj((Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(rho*xi)/np.sinh(rho) - gamma*np.cosh(gamma*xi)/np.sinh(gamma)))/2
+B0[:, np.argmin(abs(k+1))]             =  np.conj(Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*rho*rho) + Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))))/2
+B0_deriv[:, np.argmin(abs(k+1))]       = np.conj((Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma)))/2
+B0_deriv_deriv[:, np.argmin(abs(k+1))] = np.conj((Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(rho*xi)/np.sinh(rho) - gamma*np.cosh(gamma*xi)/np.sinh(gamma)))/2
 
 o1  = np.argmin(abs(k-1))
-om1 = np.argmin(abs(k-1))
+om1 = np.argmin(abs(k+1))
 
 B_minus_deriv = np.zeros(np.shape(B_minus), dtype="complex")
 B_plus_deriv  = np.zeros(np.shape(B_plus),  dtype="complex")
 B_plus_deriv_deriv  = np.zeros(np.shape(B_plus),  dtype="complex")
-double_deriv = np.zeros((N, len(k)),        dtype="complex")
 
 term1 = np.zeros((N, len(k)), dtype="complex")
 term2 = np.zeros((N, len(k)), dtype="complex")
@@ -164,9 +162,13 @@ term2[-1, :] = (B_plus_coeff[-1, :] - B_plus_coeff[-2, :])*Delta/3
 term3[0,  :] = (-B_plus_coeff[0,  :]+B_plus_coeff[1, :])/Delta
 term3[-1, :] = (-B_plus_coeff[-1, :]+B_plus_coeff[-2, :])/Delta
 
+derivatives = term1 + term2 + term3
+"""
 for i in range(len(k)):
 	plt.plot(N_pos, np.imag(term3[:, i]))
 plt.show()
+"""
+
 sol = np.zeros((len(xi), len(k)), dtype="complex")
 BC0 = np.zeros(len(k))
 BC1 = np.zeros(len(k))
@@ -175,13 +177,28 @@ BC0[np.argmin(abs(k-0))] =  -kappa*kappa/4
 BC1[np.argmin(abs(k-0))] =   kappa*kappa/4
 
 for i in range(len(k)):
+	print(k[i], k[-i-1])
+	plt.plot(np.imag(f[:, i])+np.imag(f[:,-i-1]))
+	plt.show()
+
+for i in range(len(k)):
 	if abs(k[i]) > 1e-4:
-		sol[:,i] = finite_element_solver(N, xi, f[:,i], double_deriv[:,i], 1j*omega*k[i], BC0[i], BC1[i], False)
+		sol[:,i] = finite_element_solver(N, xi, f[:,i], term1[:,i]+term2[:,i]+term3[:,i], 1j*omega*k[i], BC0[i], BC1[i], False)
 	else:
-		sol[:,i] = finite_element_solver(N, xi, f[:,i], double_deriv[:,i], 1j*omega*k[i], BC0[i], BC1[i], True)
+		sol[:,i] = finite_element_solver(N, xi, f[:,i], term1[:,i]+term2[:,i]+term3[:,i], 0, BC0[i], BC1[i], True)
+		plt.plot(xi, np.imag(sol[:, i]))
+		print(BC0[i], BC1[i])
+		plt.show()
+		plt.plot(xi, np.gradient(np.real(sol[:, i]), xi))
+		plt.show()
 
 for i in range(len(k)):
 	plt.plot(xi, np.real(sol[:, i]))
 plt.show()
+
+for i in range(len(k)):
+	plt.plot(xi, np.imag(sol[:, i]))
+plt.show()
+
 np.save("data/B2", sol)
 

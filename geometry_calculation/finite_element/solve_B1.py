@@ -105,7 +105,7 @@ q[np.argmin(abs(k-1)), :] = -Pe*ux1/2          - kappa*kappa*xi*B0_deriv/2      
 
 #works for differential equation with constant terms, now just need coupeling to work as well
 n = len(k) #number of vectors
-N = 50
+N = 250
 N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
