@@ -42,8 +42,8 @@ def finite_element_solver(N, x, f, double_deriv, a, Bc0, Bc1, laplace):
 		A[i+1, i+1] += 2
 
 	if laplace:
-		A_p[0,0]    += 1
-		A_p[-1, -1] += 1
+		A_p[0,-1]    += 1
+		A_p[-1,0]    += 1
 
 	A_p *= 1/Delta_x
 	A   *= a*Delta_x/6 # a=k^2
@@ -185,11 +185,11 @@ for i in range(len(k)):
 		sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i], 1j*omega*k[i], BC0[i], BC1[i], False)
 	else:
 		print(BC0[i], BC1[i])
-		sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i],  0, BC0[i], BC1[i], True)
-		#plt.plot(xi, np.real(sol[:,i]))
-		#plt.plot(xi, kappa*kappa*xi*xi/8 - kappa*kappa/8)
-		#plt.show()
-		sol[:, i] = kappa*kappa*xi*xi/8
+		sol[:,i] = laplace(N, xi, f[:,i], derivatives[:, i],  0, BC0[i], BC1[i], True)
+		plt.plot(xi, np.real(sol[:,i]))
+		plt.plot(xi, kappa*kappa*xi*xi/8 - kappa*kappa/8, "--")
+		plt.show()
+		#sol[:, i] = kappa*kappa*xi*xi/8
 
 for i in range(len(k)):
 	plt.plot(xi, np.real(sol[:, i]))

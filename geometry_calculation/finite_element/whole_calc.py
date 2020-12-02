@@ -376,7 +376,7 @@ for w in range(len(kappas)):
 		total_D += np.exp(1j*omega*new_k[i]*t)*D_eff[i]
 
 	D_parallels[w] = scpi.trapz(np.real(total_D), t)/(max(t)-min(t))
-	np.save("data/total_D_omega"+str(kappa)[:4], total_D)
+	np.save("data/total_D_kappa"+str(kappa)[:4], D_eff)
 	#plt.plot(new_k, D_eff)
 	#plt.show()
 
