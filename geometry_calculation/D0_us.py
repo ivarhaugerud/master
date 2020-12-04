@@ -81,7 +81,7 @@ plt.xscale("log")
 plt.show()
 
 
-np.save("data/D_eff", D_eff)
-np.save("data/D_eff_params_Omega_Schmidt", D_eff)
+np.save("data_test/D_eff", D_eff)
+np.save("data_test/D_eff_params_Omega_Schmidt", D_eff)
 
 

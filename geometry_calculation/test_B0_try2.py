@@ -28,14 +28,15 @@ for s in range(len(Schmidt)):
 
 		factor = Sc*Sc*Sc*Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(omega*omega*omega*(Sc-1)*(Sc-1))
 		integral = 0.5*sci.trapz(np.sinh(a*xi)*np.sinh(a_c*xi)/(np.sinh(a)*np.sinh(a_c)) + np.sinh(gamma*xi)*np.sinh(gamma_c*xi)/(np.sinh(gamma)*np.sinh(gamma_c)) - np.sinh(a*xi)*np.sinh(gamma_c*xi)/(np.sinh(a)*np.sinh(gamma_c)) - np.sinh(gamma*xi)*np.sinh(a_c*xi)/(np.sinh(gamma)*np.sinh(a_c)), xi)
-		D_eff[o, s] = factor*integral*105/2
+		D_eff[o, s] = factor*integral#*105/2
 
 
 plt.plot(Omega, np.real(D_eff[:, 40]))
 plt.plot(Omega, np.imag(D_eff[:, 40]))
 
-np.save("data/D_eff_2", D_eff)
-
+np.save("data_test/D_eff_2", D_eff)
+prev = np.load("data_test/D_eff.npy")
+plt.plot(Omega, np.real(prev[:, 40]), "--")
 plt.xscale("log")
 #plt.yscale("log")
 plt.show()
