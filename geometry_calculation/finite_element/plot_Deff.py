@@ -12,6 +12,7 @@ D_parallels = np.load("data/D_parallels_kappa.npy")
 
 
 kappas = np.arange(0.25, 2.25+1e-3, 0.25)
+kappas  = np.array([1.2,  1.4, 1.6, 1.8, 2.0])
 Sc = 1.2
 omega = 1
 F0 = 3

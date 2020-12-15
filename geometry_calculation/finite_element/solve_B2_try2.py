@@ -185,6 +185,8 @@ for i in range(len(k)):
 		sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i], 1j*omega*k[i], BC0[i], BC1[i], False)
 	else:
 		print(BC0[i], BC1[i])
+		plt.plot(xi[:-2], term1)
+		plt.show()
 		sol[:,i] = laplace(N, xi, f[:,i], derivatives[:, i],  0, BC0[i], BC1[i], True)
 		plt.plot(xi, np.real(sol[:,i]))
 		plt.plot(xi, kappa*kappa*xi*xi/8 - kappa*kappa/8, "--")

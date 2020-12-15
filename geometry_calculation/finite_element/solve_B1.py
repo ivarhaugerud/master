@@ -1,7 +1,7 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backward, f, Bc0, Bc1):
+def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backward, f, Bc0, Bc1, k):
 	#define general parameters
 	phi = np.zeros((N, len(x)))
 	N_pos = np.linspace(min(x), max(x), N)
@@ -45,10 +45,12 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 
 	A_p *= 1/Delta_x
 	A   *= Delta_x/6
+	couple_forward = np.ones(len(N_pos))
+	couple_backward = couple_forward
 
 	for i in range(n-1):
-		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward
-		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] += couple_backward
+		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward  * np.power(-1, abs(k[i]+1))
+		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] += couple_backward * np.power(-1, abs(k[i]))
 
 	#calculate source vector
 	for j in range(n):
@@ -77,9 +79,10 @@ xi    = np.linspace(-1, 1, int(1e5))
 #system parameters
 kappa = 1
 Sc = 1.2
-Omega = 0.5
+omega = 0.5
 F0 = 3
 Pe = F0*Sc
+kappa = 0.5#np.sqrt(2*omega/Sc)-0.1#0.8
 
 #implicitly defined parameters
 gamma   = np.sqrt(1j*omega/Sc)
@@ -99,12 +102,15 @@ B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(
 
 #define source terms
 q = np.zeros((len(k), len(xi)), dtype="complex")
+q[np.argmin(abs(k+2)), :] = kappa*xi*np.conj(ux0)*np.conj(B0_deriv)/4 - np.conj(uy1)*np.conj(B0_deriv)/4
 q[np.argmin(abs(k+1)), :] = -Pe*np.conj(ux1)/2 - kappa*kappa*xi*np.conj(B0_deriv)/2 + 2*np.conj(B0_deriv_deriv)/2
+q[np.argmin(abs(k-0)), :] = kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_deriv) - uy1*np.conj(B0_deriv) - np.conj(uy1)*B0_deriv
 q[np.argmin(abs(k-1)), :] = -Pe*ux1/2          - kappa*kappa*xi*B0_deriv/2          + 2*B0_deriv_deriv/2 
+q[np.argmin(abs(k-2)), :] = kappa*xi*ux0*B0_deriv/4 - uy1*B0_deriv/4
 
 #works for differential equation with constant terms, now just need coupeling to work as well
 n = len(k) #number of vectors
-N = 250
+N = 350
 N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
@@ -128,21 +134,18 @@ Bc1 = np.zeros(n, dtype="complex") #BC at xi =  1
 Bc0[np.argmin(abs(k-0))] = -kappa
 Bc1[np.argmin(abs(k-0))] =  kappa
 
-sol, coeff_f0g1 = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_forward, q, Bc0, Bc1)
+sol, coeff_f0g1 = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_forward, q, Bc0, Bc1, k)
 
 
 for i in range(int(len(k))):
 	if np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i-1,0]+sol[-i,0])))/2 > tol:
 		print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[i-1,:]+sol[-i-1,:]) - np.imag(sol[i-1,0]+sol[-i-1,0]))))
 
-f0_g1 = sol/2
+f0_g1 = sol
 
 #reset source term for new solution
+"""
 q = np.zeros((len(k), len(xi)), dtype="complex")
-q[np.argmin(abs(k+2)), :] = kappa*xi*np.conj(ux0)*np.conj(B0_deriv)/4 - np.conj(uy1)*np.conj(B0_deriv)/4
-q[np.argmin(abs(k-0)), :] = kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_deriv) - uy1*np.conj(B0_deriv) - np.conj(uy1)*B0_deriv
-q[np.argmin(abs(k-2)), :] = kappa*xi*ux0*B0_deriv/4 - uy1*B0_deriv/4
-
 couple_backward *= -1
 couple_forward  *= -1
 
@@ -150,16 +153,17 @@ couple_forward  *= -1
 Bc0 = np.zeros(n, dtype="complex")
 Bc1 = np.zeros(n, dtype="complex")
 
-sol, coeff_g0f1 = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_forward, q, Bc0, Bc1)
+sol, coeff_g0f1 = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_forward, q, Bc0, Bc1, k)
 
 for i in range(int(len(k)/2)+1):
 	if np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0])))/2 > tol:
 		print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0]))))
-
-g0_f1 = sol/2
-
-B_plus   = np.zeros((len(xi), len(k)), dtype="complex") #sin-solution
-B_minus  = np.zeros((len(xi), len(k)), dtype="complex") #cos-solution
+"""
+sol = np.zeros(np.shape(sol))
+g0_f1 = np.zeros(np.shape(sol))
+coeff_g0f1 = np.zeros(np.shape(coeff_f0g1))
+B_plus   = np.zeros((len(xi), len(k)), dtype="complex")  #sin-solution
+B_minus  = np.zeros((len(xi), len(k)), dtype="complex")  #cos-solution
 B_plus_coeff    = np.zeros((N, len(k)), dtype="complex") #sin-solution
 B_minus_coeff   = np.zeros((N, len(k)), dtype="complex") #sin-solution
 
@@ -196,7 +200,7 @@ plt.legend(loc="best")
 plt.title(r"$\cos{\kappa\eta}$-solution")
 plt.xlabel(r"x-axis $\xi$")
 plt.ylabel(r"Brenner field $B(\xi)$")
-plt.plot(xi, np.cosh(kappa*xi)/np.sinh(kappa)-1/np.tanh(kappa), "--")
+#plt.plot(xi, np.cosh(kappa*xi)/np.sinh(kappa)-1/np.tanh(kappa), "--")
 
 plt.savefig("figures/Brennerfield_cos.pdf")
 plt.figure(2)
@@ -231,5 +235,5 @@ A = F0*Pe*kappa_p*sinh(kappa_p)*tanh(gamma)/(gamma*(gamma**2 - rho**2)*cosh(kapp
 my_sol_homo = cosh(rho_p*xi)*A/(rho_p*sinh(rho_p))
 my_sol      = np.real(analytic_f1_solution+my_sol_homo-analytic_f1_solution[0]-my_sol_homo[0])
 
-plt.plot(xi, np.real(my_sol), "--", label="analytic solution")
+#plt.plot(xi, np.max(np.real(f0_g1[np.argmin(abs(k-1)), :]+f0_g1[-np.argmin(abs(k-1))-1, :]))*np.real(my_sol)/np.max(np.real(my_sol)), "--", label="analytic solution")
 plt.show()

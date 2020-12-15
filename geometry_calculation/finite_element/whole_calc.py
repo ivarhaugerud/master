@@ -144,10 +144,10 @@ N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
 #system parameters
-kappas = np.arange(0.25, 2.25+1e-3, 0.25)
-Sc = 1.2
-omega = 1
-F0 = 3
+kappas  = np.array([1.2,  1.4, 1.6, 1.8, 2.0])
+Sc = 1+1e-2
+omega = 5/(2*np.pi)
+F0 = 10
 Pe = F0*Sc
 D_parallels = np.zeros(len(kappas))
 
