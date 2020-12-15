@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import scipy.integrate as scpi 
 
-def coupled_finite_element_solver_couple(N, n, x, alpha, couple_forward, couple_backward, f, Bc0, Bc1):
+def coupled_finite_element_solver_couple(N, n, x, alpha, couple_forward, couple_backward, f, Bc0, Bc1, k):
 	#define general parameters
 	phi = np.zeros((N, len(x)))
 	N_pos = np.linspace(min(x), max(x), N)
@@ -46,10 +46,12 @@ def coupled_finite_element_solver_couple(N, n, x, alpha, couple_forward, couple_
 
 	A_p *= 1/Delta_x
 	A   *= Delta_x/6
+	couple_forward = np.ones(len(N_pos))
+	couple_backward = couple_forward
 
 	for i in range(n-1):
-		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward
-		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] += couple_backward
+		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward  * np.power(-1, abs(k[i]+1))
+		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] += couple_backward * np.power(-1, abs(k[i]))
 
 	#calculate source vector
 	for j in range(n):
@@ -144,10 +146,10 @@ N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
 #system parameters
-kappas  = np.array([1.2,  1.4, 1.6, 1.8, 2.0])
-Sc = 1+1e-2
+kappas  = np.logspace(-1, 1, 10)
 omega = 5/(2*np.pi)
 F0 = 10
+Sc = 2
 Pe = F0*Sc
 D_parallels = np.zeros(len(kappas))
 
@@ -174,6 +176,9 @@ for w in range(len(kappas)):
 	q = np.zeros((len(k), len(xi)), dtype="complex")
 	q[np.argmin(abs(k+1)), :] = -Pe*np.conj(ux1)/2 - kappa*kappa*xi*np.conj(B0_deriv)/2 + 2*np.conj(B0_deriv_deriv)/2
 	q[np.argmin(abs(k-1)), :] = -Pe*ux1/2          - kappa*kappa*xi*B0_deriv/2          + 2*B0_deriv_deriv/2 
+	q[np.argmin(abs(k+2)), :] = kappa*xi*np.conj(ux0)*np.conj(B0_deriv)/4 - np.conj(uy1)*np.conj(B0_deriv)/4
+	q[np.argmin(abs(k-0)), :] = kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_deriv) - uy1*np.conj(B0_deriv) - np.conj(uy1)*B0_deriv
+	q[np.argmin(abs(k-2)), :] = kappa*xi*ux0*B0_deriv/4 - uy1*B0_deriv/4
 
 	#coupleing between vectors
 	couple_backward =  np.zeros((N, N), dtype="complex")
@@ -195,35 +200,16 @@ for w in range(len(kappas)):
 	Bc0[np.argmin(abs(k-0))] = -kappa
 	Bc1[np.argmin(abs(k-0))] =  kappa
 
-	sol, coeff_f0g1 = coupled_finite_element_solver_couple(N, n, xi, p_np2, couple_backward, couple_forward, q, Bc0, Bc1)
+	sol, coeff_f0g1 = coupled_finite_element_solver_couple(N, n, xi, p_np2, couple_backward, couple_forward, q, Bc0, Bc1, k)
 
 
 	for i in range(int(len(k))):
 		if np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i-1,0]+sol[-i,0])))/2 > tol:
 			print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[i-1,:]+sol[-i-1,:]) - np.imag(sol[i-1,0]+sol[-i-1,0]))))
 
-	f0_g1 = sol/2
-
-	#reset source term for new solution
-	q = np.zeros((len(k), len(xi)), dtype="complex")
-	q[np.argmin(abs(k+2)), :] = kappa*xi*np.conj(ux0)*np.conj(B0_deriv)/4 - np.conj(uy1)*np.conj(B0_deriv)/4
-	q[np.argmin(abs(k-0)), :] = kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_deriv) - uy1*np.conj(B0_deriv) - np.conj(uy1)*B0_deriv
-	q[np.argmin(abs(k-2)), :] = kappa*xi*ux0*B0_deriv/4 - uy1*B0_deriv/4
-
-	couple_backward *= -1
-	couple_forward  *= -1
-
-	#boundary conditions
-	Bc0 = np.zeros(n, dtype="complex")
-	Bc1 = np.zeros(n, dtype="complex")
-
-	sol, coeff_g0f1 = coupled_finite_element_solver_couple(N, n, xi, p_np2, couple_backward, couple_forward, q, Bc0, Bc1)
-
-	for i in range(int(len(k)/2)+1):
-		if np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0])))/2 > tol:
-			print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0]))))
-
-	g0_f1 = sol/2
+	f0_g1 = sol
+	g0_f1 = np.zeros(np.shape(f0_g1))
+	coeff_g0f1 = np.zeros(np.shape(coeff_f0g1))
 
 	B_plus   = np.zeros((len(xi), len(k)), dtype="complex") #sin-solution
 	B_minus  = np.zeros((len(xi), len(k)), dtype="complex") #cos-solution
@@ -339,8 +325,7 @@ for w in range(len(kappas)):
 		if abs(k[i]) > 1e-4:
 			sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i], 1j*omega*k[i], BC0[i], BC1[i], False)
 		else:
-			sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i],  0, BC0[i], BC1[i], True)
-			sol[:, i] = kappa*kappa*xi*xi/8
+			sol[:,i] = np.zeros(len(xi))
 
 	B_2 = sol
 	B0_deriv      = np.zeros((len(xi), len(k)), dtype="complex")

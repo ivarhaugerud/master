@@ -41,9 +41,9 @@ def finite_element_solver(N, x, f, double_deriv, a, Bc0, Bc1, laplace):
 		A[i, i+1]   += 1
 		A[i+1, i+1] += 2
 
-	if laplace:
-		A_p[0,-1]    += 1
-		A_p[-1,0]    += 1
+	#if laplace:
+	#	A_p[0,-1]    += 1
+	#	A_p[-1,0]    += 1
 
 	A_p *= 1/Delta_x
 	A   *= a*Delta_x/6 # a=k^2
@@ -56,6 +56,7 @@ def finite_element_solver(N, x, f, double_deriv, a, Bc0, Bc1, laplace):
 	b[-1] = -Delta_x*(f[np.argmin(abs(x-(N_pos[-1])))] + 2*f[np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/6
 
 	#if derivative is non-zero at boundary
+	plt.plot(N_pos, b)
 	b[0]   += -Bc0
 	b[-1]  +=  Bc1
 	sol = np.linalg.solve(A+A_p, b-double_deriv)
@@ -83,6 +84,7 @@ Sc = 1.2
 omega = 0.5
 F0 = 3
 Pe = F0*Sc
+kappa = 0.5#np.sqrt(2*omega/Sc)-0.1#0.8
 
 #implicitly defined parameters
 gamma   = np.sqrt(1j*omega/Sc)
@@ -140,7 +142,6 @@ for i in range(len(k)):
 
 for i in range(len(k)):
 	f[:, i]  = 0.5*kappa*kappa*xi*B0_deriv[:, i] + 0.5*(3+kappa*kappa*xi*xi)*B0_deriv_deriv[:, i] + Pe*ux2[:, i]
-	
 	if i != 0:
 		f[:, i] += Pe*0.5*(ux1[:,  o1]*kappa*B_minus[:, i-1])
 
@@ -184,17 +185,15 @@ for i in range(len(k)):
 	if abs(k[i]) > 1e-4:
 		sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i], 1j*omega*k[i], BC0[i], BC1[i], False)
 	else:
-		print(BC0[i], BC1[i])
-		plt.plot(xi[:-2], term1)
-		plt.show()
-		sol[:,i] = laplace(N, xi, f[:,i], derivatives[:, i],  0, BC0[i], BC1[i], True)
-		plt.plot(xi, np.real(sol[:,i]))
-		plt.plot(xi, kappa*kappa*xi*xi/8 - kappa*kappa/8, "--")
-		plt.show()
-		#sol[:, i] = kappa*kappa*xi*xi/8
-
-for i in range(len(k)):
-	plt.plot(xi, np.real(sol[:, i]))
+		#when looking at the source terms for n=0, we see that there are actually no contributions..., so we just take the homogeneous solution to satisfy the BCs
+		sol[:,i] =  np.zeros(len(xi))
+plt.show()
+for i in range(int(len(k)/2+1)):
+	plt.plot(xi, np.real(sol[:, i]+sol[:, -i-1]), label=r"$\omega=$"+str(abs(k[i])))
+plt.legend(loc="best")
+plt.xlabel(r"Vertical position $\xi$")
+plt.ylabel(r"Second order Brenner field $B^{(2)}$")
+plt.savefig("figures/second_order_B.pdf")
 plt.show()
 
 for i in range(len(k)):
