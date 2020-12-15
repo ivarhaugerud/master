@@ -144,7 +144,6 @@ for i in range(int(len(k))):
 f0_g1 = sol
 
 #reset source term for new solution
-"""
 q = np.zeros((len(k), len(xi)), dtype="complex")
 couple_backward *= -1
 couple_forward  *= -1
@@ -158,10 +157,10 @@ sol, coeff_g0f1 = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward
 for i in range(int(len(k)/2)+1):
 	if np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0])))/2 > tol:
 		print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0]))))
-"""
-sol = np.zeros(np.shape(sol))
-g0_f1 = np.zeros(np.shape(sol))
-coeff_g0f1 = np.zeros(np.shape(coeff_f0g1))
+#sol = np.zeros(np.shape(sol))
+#g0_f1 = np.zeros(np.shape(sol))
+#coeff_g0f1 = np.zeros(np.shape(coeff_f0g1))
+
 B_plus   = np.zeros((len(xi), len(k)), dtype="complex")  #sin-solution
 B_minus  = np.zeros((len(xi), len(k)), dtype="complex")  #cos-solution
 B_plus_coeff    = np.zeros((N, len(k)), dtype="complex") #sin-solution
