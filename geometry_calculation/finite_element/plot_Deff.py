@@ -30,16 +30,13 @@ xi = np.linspace(-1, 1, int(1e5))
 factor = Sc*Sc*Sc*Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(omega*omega*omega*(Sc-1)*(Sc-1))
 D_para0 = 1+factor*0.5*sci.trapz(np.sinh(a*xi)*np.sinh(a_c*xi)/(np.sinh(a)*np.sinh(a_c)) + np.sinh(gamma*xi)*np.sinh(gamma_c*xi)/(np.sinh(gamma)*np.sinh(gamma_c)) - np.sinh(a*xi)*np.sinh(gamma_c*xi)/(np.sinh(a)*np.sinh(gamma_c)) - np.sinh(gamma*xi)*np.sinh(a_c*xi)/(np.sinh(gamma)*np.sinh(a_c)), xi)
 
-eps = 0.1
-D_parallels *= eps*eps
 filename = "figures/data_para_vs_kappa.pdf"
 plt.scatter(kappas, D_parallels, s=4)
 plt.plot(kappas, D_parallels, "-", linewidth=1)
-#plt.yscale("log")
+plt.yscale("log")
 plt.xscale("log")
 tol = 0.2*min(kappas)
-plt.plot([np.sqrt(2)*gamma_r, np.sqrt(2)*gamma_r], [-100, 1e5])
-plt.axis([min(kappas)-tol, max(kappas)+tol, min(D_parallels)*0.8, max(D_parallels)*1.2])
+plt.axis([min(kappas)-tol, max(kappas)*1.1, min(D_parallels)*0.8, max(D_parallels)*1.2])
 plt.xlabel(r"Wave number $\kappa$", fontsize=8)
 plt.ylabel(r"2nd order Parallel Diffusion $D_\parallel^{(2)}$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
@@ -48,16 +45,18 @@ plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
-D_para = np.real(D_parallels)
+eps = 0.3
+D_para = eps*eps*np.real(D_parallels)
 D_para += np.real(D_para0)
 
 filename = "figures/data_para_tot_vs_kappa.pdf"
 plt.scatter(kappas, D_para, s=4)
 plt.plot(kappas, D_para, "-", linewidth=1)
+plt.plot(kappas, np.ones(len(kappas))*D_para0, "-")
 #plt.yscale("log")
 plt.xscale("log")
 plt.xlabel(r"Wave number $\kappa$", fontsize=8)
-plt.ylabel(r"2nd order Parallel Diffusion $D_\parallel^{(2)}$", fontsize=8)
+plt.ylabel(r"Total Parallel Diffusion $D_\parallel + O(\epsilon^4)$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
 plt.savefig(filename, bbox_inches="tight")

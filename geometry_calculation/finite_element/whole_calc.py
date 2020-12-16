@@ -46,8 +46,6 @@ def coupled_finite_element_solver_couple(N, n, x, alpha, couple_forward, couple_
 
 	A_p *= 1/Delta_x
 	A   *= Delta_x/6
-	couple_forward = np.ones(len(N_pos))
-	couple_backward = couple_forward
 
 	for i in range(n-1):
 		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward  * np.power(-1, abs(k[i]+1))
@@ -74,7 +72,7 @@ def coupled_finite_element_solver_couple(N, n, x, alpha, couple_forward, couple_
 	return u, sol
 
 
-def finite_element_solver(N, x, f, double_deriv, a, Bc0, Bc1, laplace):
+def finite_element_solver(N, x, f, double_deriv, a):
 	#define general parameters
 	phi = np.zeros((N, len(x)))
 	N_pos = np.linspace(min(x), max(x), N)
@@ -111,10 +109,6 @@ def finite_element_solver(N, x, f, double_deriv, a, Bc0, Bc1, laplace):
 		A[i, i+1]   += 1
 		A[i+1, i+1] += 2
 
-	if laplace:
-		A_p[0,0]    += 1
-		A_p[-1, -1] += 1
-
 	A_p *= 1/Delta_x
 	A   *= a*Delta_x/6 # a=k^2
 
@@ -126,9 +120,7 @@ def finite_element_solver(N, x, f, double_deriv, a, Bc0, Bc1, laplace):
 	b[-1] = -Delta_x*(f[np.argmin(abs(x-(N_pos[-1])))] + 2*f[np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/6
 
 	#if derivative is non-zero at boundary
-	b[0]   += -Bc0
-	b[-1]  +=  Bc1
-	sol = np.linalg.solve(A+A_p, b-double_deriv)
+	sol = np.linalg.solve(A+A_p, b+double_deriv)
 
 	#transfer back solution to regular basis
 	for i in range(N):
@@ -148,8 +140,8 @@ Delta = N_pos[1]-N_pos[0]
 #system parameters
 kappas  = np.logspace(-1, 1, 10)
 omega = 5/(2*np.pi)
-F0 = 10
-Sc = 2
+F0 = 3
+Sc = 0.01
 Pe = F0*Sc
 D_parallels = np.zeros(len(kappas))
 
@@ -228,7 +220,6 @@ for w in range(len(kappas)):
 			B_minus[:, i] = g0_f1[i,:]
 			B_minus_coeff[:, i] = coeff_g0f1[i*N:(i+1)*N]
 			B_plus_coeff[:, i]  = coeff_f0g1[i*N:(i+1)*N]
-
 
 	#SECOND ORDER 
 
@@ -315,15 +306,10 @@ for w in range(len(kappas)):
 
 	derivatives = term1 + term2 + term3
 	sol = np.zeros((len(xi), len(k)), dtype="complex")
-	BC0 = np.zeros(len(k))
-	BC1 = np.zeros(len(k))
-
-	BC0[np.argmin(abs(k-0))] = -kappa*kappa/4
-	BC1[np.argmin(abs(k-0))] =  kappa*kappa/4
 
 	for i in range(len(k)):
 		if abs(k[i]) > 1e-4:
-			sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i], 1j*omega*k[i], BC0[i], BC1[i], False)
+			sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i], 1j*omega*k[i])
 		else:
 			sol[:,i] = np.zeros(len(xi))
 
@@ -348,13 +334,13 @@ for w in range(len(kappas)):
 	B0_deriv[:, np.argmin(abs(k+1))] = np.conj((Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma)))/2
 
 	for i in range(len(k)):
-		D_eff_xi[:, np.argmin(abs(new_k-k[i]))] -=  kappa*B_minus[:, i]/2 + kappa*xi*B_minus_grad[:,i]/2
+		D_eff_xi[:, np.argmin(abs(new_k-k[i]))] +=  kappa*B_minus[:, i] + kappa*xi*B_minus_grad[:,i]
 
 	for i in range(len(k)):
 		for j in range(len(k)):
-			D_eff_xi[:, np.argmin(abs(new_k -k[i]-k[j]))] += B0_deriv[:,i]*B0_deriv[:,j]*(5+kappa*kappa*xi*xi)/2
-			D_eff_xi[:, np.argmin(abs(new_k -k[i]-k[j]))] += (kappa*kappa*B_plus[:, i]*B_plus[:, j] + B_plus_grad[:,i]*B_plus_grad[:,j] + kappa*kappa*B_minus[:, i]*B_minus[:, j] + B_minus_grad[:,i]*B_minus_grad[:,j])/2
-			D_eff_xi[:, np.argmin(abs(new_k -k[i]-k[j]))] += 2*B0_deriv[:, i]*B_2_grad[:,j] + B0_deriv[:,i]*(B_plus_grad[:,j] - kappa*kappa*xi*B_plus[:, j])
+			D_eff_xi[:, np.argmin(abs(new_k -k[i]-k[j]))] += 0.5* (B0_deriv[:,i]*B0_deriv[:,j]*(5+kappa*kappa*xi*xi)/2)
+			D_eff_xi[:, np.argmin(abs(new_k -k[i]-k[j]))] += 0.5* ((kappa*kappa*B_plus[:, i]*B_plus[:, j] + B_plus_grad[:,i]*B_plus_grad[:,j] + kappa*kappa*B_minus[:, i]*B_minus[:, j] + B_minus_grad[:,i]*B_minus_grad[:,j])/2)
+			D_eff_xi[:, np.argmin(abs(new_k -k[i]-k[j]))] += 0.5* (2*B0_deriv[:, i]*B_2_grad[:,j] - B0_deriv[:,i]*(B_plus_grad[:,j] + kappa*kappa*xi*B_plus[:, j]))
 
 	for i in range(len(new_k)):
 		D_eff[i] = scpi.trapz(D_eff_xi[:, i], xi)/2
@@ -362,11 +348,17 @@ for w in range(len(kappas)):
 
 	D_parallels[w] = scpi.trapz(np.real(total_D), t)/(max(t)-min(t))
 	np.save("data/total_D_kappa"+str(kappa)[:4], D_eff)
-	#plt.plot(new_k, D_eff)
-	#plt.show()
 
+	plt.figure(1)
+	plt.plot(new_k, D_eff)
+	plt.xlabel(r"frequency [$\omega$]", fontsize=12)
+	plt.ylabel(r"Amplitude", fontsize=12)
+	plt.savefig("figures/fourier_D.pdf")
 
-	#plt.plot(t, total_D)
-	#plt.show()
+	plt.figure(2)
+	plt.plot(t, total_D)
+	plt.xlabel(r"time [$t$]", fontsize=12)
+	plt.ylabel(r"Brenner field", fontsize=12)
+	plt.savefig("figures/Brenner_field_vs_t.pdf")
 
 np.save("data/D_parallels_kappa", D_parallels, "o")

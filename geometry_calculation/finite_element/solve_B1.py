@@ -45,8 +45,6 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 
 	A_p *= 1/Delta_x
 	A   *= Delta_x/6
-	couple_forward = np.ones(len(N_pos))
-	couple_backward = couple_forward
 
 	for i in range(n-1):
 		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward  * np.power(-1, abs(k[i]+1))
@@ -65,7 +63,6 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 		b[N*j+N-1]  += Bc1[j]
 
 	sol = np.linalg.solve(A+A_p, b)
-
 	#transfer back solution to regular basis
 	for j in range(n):
 		for i in range(N):
@@ -77,12 +74,11 @@ k     = np.array([-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7])
 xi    = np.linspace(-1, 1, int(1e5))
 
 #system parameters
-kappa = 1
-Sc = 1.2
-omega = 0.5
+omega = 5/(2*np.pi)
 F0 = 3
+Sc = 0.5
 Pe = F0*Sc
-kappa = 0.5#np.sqrt(2*omega/Sc)-0.1#0.8
+kappa = 0.1
 
 #implicitly defined parameters
 gamma   = np.sqrt(1j*omega/Sc)
@@ -126,6 +122,7 @@ couple_backward[0, 0]    = Delta*(ux0[np.argmin(abs(xi-(N_pos[0])))]  + ux0[np.a
 couple_backward[-1, -1]  = Delta*(ux0[np.argmin(abs(xi-(N_pos[-1])))] + ux0[np.argmin(abs(xi-(N_pos[-1] - Delta/2)))])/6
 couple_backward         *= kappa 
 couple_forward = np.conj(couple_backward)
+#plt.plot(N_pos, couple_forward)
 
 #boundary conditions
 Bc0 = np.zeros(n, dtype="complex") #BC at xi = -1
@@ -157,9 +154,10 @@ sol, coeff_g0f1 = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward
 for i in range(int(len(k)/2)+1):
 	if np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0])))/2 > tol:
 		print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0]))))
-#sol = np.zeros(np.shape(sol))
-#g0_f1 = np.zeros(np.shape(sol))
-#coeff_g0f1 = np.zeros(np.shape(coeff_f0g1))
+
+sol = np.zeros(np.shape(sol))
+g0_f1 = np.zeros(np.shape(sol))
+coeff_g0f1 = np.zeros(np.shape(coeff_f0g1))
 
 B_plus   = np.zeros((len(xi), len(k)), dtype="complex")  #sin-solution
 B_minus  = np.zeros((len(xi), len(k)), dtype="complex")  #cos-solution
