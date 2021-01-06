@@ -23,7 +23,7 @@ f1 = 3
 F0 = f1/nu
 Sc = nu
 gamma = np.sqrt(1j*omega/Sc)
-timesteps = tau/dt
+timesteps = int(tau/dt)
 
 exp_u2 = np.zeros(len(kappas))
 periods = 2
@@ -74,68 +74,39 @@ for i in range(len(Lx)):
 
     u_x = RegularGridInterpolator((x,y,t), ux)
     u_y = RegularGridInterpolator((x,y,t), uy)
-"""
-x = len(velocity[0,:,0])
-y = len(velocity[:,0,0])
 
-a  = int(y/2)
-b  = int(x/2)
-b2 = int(b/2)
-l  = x
-print(a, b, b2, l)
 
-frame = np.zeros((y+2, x+2, 2))
-
-#so that we have zero around the edges
-frame[1:-1, 1:-1, :] = velocity[:,:,:]
-#so that it is periodic in x
-frame[1:-1, 0, :]    = velocity[:, -1, :]
-frame[1:-1, -1, :]   = velocity[:, 0, :]
-
-x_axis = np.linspace(-b, b, x+2)
-y_axis = np.linspace(-a, a, y+2)
 
 #to check if flow-field is correct
 #plt.quiver(x_axis[:int(b/2)], y_axis[:int(a/2)], frame[:int(a/2),:int(b/2),1], frame[:int(a/2),:int(b/2), 0])
 #plt.show()
 
-#interpoalte function using splines in 2D
-u_x = sci.RectBivariateSpline(y_axis, x_axis, frame[:,:,1])
-u_y = sci.RectBivariateSpline(y_axis, x_axis, frame[:,:,0])
-#argument is (y,x)
 
 
 N  = int(1e3)    #number of random walkers
-Nt = int(1e4)  #number of timesteps
-T  = int(1e6)
-
-time = np.linspace(0, T, Nt)
-dt = T/Nt
-
 prev_pos = np.zeros((2, N))
 pos = np.zeros((2, N))
 
-pos[1,:] = np.random.uniform(-a, a, N)
+pos[1,:] = np.random.uniform(-1+epsilon, 1-epsilon, N)
 
-U = (np.mean(np.mean(frame[:, :b2, 1])) + np.mean(np.mean(frame[:, -b2:, 1])) + np.mean(np.mean(frame[b:-b, b2:-b2, 1])))/3
-print(a*U)
-Pe = 1
+U = np.sqrt(exp_u2[j])
+Pe = 5
 D = a*U/Pe
 alpha = np.sqrt(2*D*dt)
+period  = 2*np.pi/omega
+periods = 100
+t = np.linspace(0, periods*period, int(periods*timesteps))
+l = Lx[i]
+datafiles = 1000
 
-for t in range(Nt-1):
-    pos[0, :] = pos[0, :] + dt * u_x(pos[1, :], pos[0, :]%l, grid=False)  + alpha*np.random.normal(loc=0, scale=1, size=N)
-    pos[1, :] = pos[1, :] + dt * u_y(pos[1, :], pos[0, :]%l, grid=False)  + alpha*np.random.normal(loc=0, scale=1, size=N)
+for i in range(timesteps):
+    pos[0, :] = pos[0, :] + dt * u_x( (pos[0, :]+l)%l, pos[1, :], (t[i]+perio)%period)  + alpha*np.random.normal(loc=0, scale=1, size=N)
+    pos[1, :] = pos[1, :] + dt * u_y( (pos[0, :]+l)%l, pos[1, :], (t[i]+perio)%period)  + alpha*np.random.normal(loc=0, scale=1, size=N)
 
-    pos[1, np.where( abs(pos[1, :]) > a)] = prev_pos[1, np.where( abs(pos[1, :]) > a)] #checks if y-coordinate outside
-
-    #check if inside box
-    pos[:, np.where(  np.invert(((abs(pos[0, :])%l<b2) |  (abs(pos[0, :])%l>b2+b))) & (np.abs(pos[1, :]) > a - b) )] = prev_pos[:, np.where( np.invert(((abs(pos[0, :])%l<b2) |  (abs(pos[0, :])%l>b2+b))) & (np.abs(pos[1, :]) > a - b) )]
+    pos[1, np.where( abs(pos[1, :]) > 1+epsilon*np.cos(pos[0,:]))] = prev_pos[1, np.where( abs(pos[1, :]) > 1+epsilon*np.cos(pos[0,:]))] #checks if y-coordinate outside
 
     #update previous position
-    prev_pos[:, :] = pos[:, :]
+    prev_pos = pos
 
-    if int(t+2) % int(1000) == 0:
-        np.save('../data/RW_rough_' +str(t+2), pos[:, :])
-        print(t+2, "Here")
-"""
+    if int(i) % int(len(t)/datafilesa) == 0:
+        np.save('data/RW_positions_' +str(i), pos[:, :])
