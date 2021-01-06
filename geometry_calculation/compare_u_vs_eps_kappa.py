@@ -37,7 +37,6 @@ f1 = 3
 F0 = f1/nu
 Sc = nu
 gamma = np.sqrt(1j*omega/Sc)
-Pe = F0/D 
 
 exp_u2 = np.zeros((len(epsilon), len(kappas)))
 periods = 2
