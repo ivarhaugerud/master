@@ -6,14 +6,14 @@ import seaborn as sns
 from scipy import integrate
 import h5py
 
-dirr = "../results_oscwavychannel/run_12_11/"
+dirr = "flow_fields/"
 
 #simulation paramters
-dt = 0.01
+dt = 0.0025
 tau = 5.0 
 
 epsilon = 0.2
-kappas = np.array([0.1,  0.7, 1.5])
+kappas = np.array([0.1, 0.7, 1.5])
 Lx = 2*np.pi/kappas
 
 omega = 2*np.pi/tau
@@ -32,18 +32,19 @@ names = []
 for j in range(len(kappas)):
     res = int(100*(1+float(epsilon)))
     try:
-        filename = "Lx"+str(Lx[j])[:4]+"_tau"+str(tau)+"_eps"+str(str(epsilon)[:4])+"_nu1.2_D0.3_fzero0.0_fone3.0_res"+str(res)+"_dt0.01/"
+        filename = "Lx"+str(Lx[j])[:4]+"_tau"+str(tau)+"_eps"+str(str(epsilon)[:4])+"_nu16.0_D1.0_fzero0.0_fone3.0_res"+str(res)+"_dt0.0025/"
         tdat = np.loadtxt(dirr + filename + "tdata.dat")
         names.append(filename)
 
     except:
-        filename = "Lx"+str(Lx[j])[:4]+"_tau"+str(tau)+"_eps"+str(str(epsilon)[:3])+"_nu1.2_D0.3_fzero0.0_fone3.0_res"+str(res)+"_dt0.01/"
+        filename = "Lx"+str(Lx[j])[:4]+"_tau"+str(tau)+"_eps"+str(str(epsilon)[:3])+"_nu16.0_D1.0_fzero0.0_fone3.0_res"+str(res)+"_dt0.0025/"
         tdat = np.loadtxt(dirr + filename + "tdata.dat")
         names.append(filename)
 
     t = tdat[:,0]
-    u2 = tdat[:,4]
+    u2 = tdat[:,8]
     exp_u2[j] = integrate.trapz(u2[-timesteps:], t[-timesteps:])/(tau)
+    print(exp_u2[j])
 
 for i in range(len(Lx)):
     name = names[i] + "u.h5"
