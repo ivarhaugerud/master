@@ -20,7 +20,7 @@ period  = 2*np.pi/omega
 
 periods = 100
 datafiles = 5000
-"""
+
 skip = 100
 for i in range(int(datafiles/skip)):
 	plt.clf()
@@ -28,20 +28,19 @@ for i in range(int(datafiles/skip)):
 	plt.scatter(pos[0, :], pos[1, :])
 	plt.pause(0.01)
 plt.show()
-"""
+
 var = np.zeros(datafiles)
 
 t = np.linspace(0, period*periods, datafiles)
 x = np.zeros(datafiles)
 y = np.zeros(datafiles)
 
-for i in range(436):
-	pos = np.load("data/run_08_01/RW_positions_"+str(int(i*10))+".npy")
-	x[i] = pos[0, i]
-	y[i] = pos[1, i]
+for i in range(datafiles):
+	pos = np.load("data/run_09_01/RW_positions_"+str(int(i*10))+".npy")
+	x[i] = pos[0, 5]
+	y[i] = pos[1, 5]
 	var[i] = np.std(pos[0, :])
 
-var = var*5
 
 plt.plot(np.trim_zeros(x), np.trim_zeros(y), "o")
 plt.show()

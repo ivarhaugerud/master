@@ -70,20 +70,22 @@ for i in range(len(Lx)):
     interpolation = {}
 
     U = np.sqrt(exp_u2[i])
-    a = 1
-    Pe = 5
-    D = a*U/Pe
-    alpha = np.sqrt(2*D*dt)
+    U_scale = 2*l
 
     for j in range(timesteps):
         u = np.array(list(f["VisualisationVector"][str(periods_of_flow*timesteps-j)])) 
         # Interpolate uneven grid onto an even grid
 
-        ux_grid  = griddata((geometry[:,0], geometry[:,1]), u[:,0]/U, (X, Y), method='nearest')
-        uy_grid  = griddata((geometry[:,0], geometry[:,1]), u[:,1]/U, (X, Y), method='nearest')
+        ux_grid  = griddata((geometry[:,0], geometry[:,1]), U_scale*u[:,0]/U, (X, Y), method='nearest')
+        uy_grid  = griddata((geometry[:,0], geometry[:,1]), U_scale*u[:,1]/U, (X, Y), method='nearest')
 
         interpolation["x-"+str(j)]  = sci.RectBivariateSpline(y, x, ux_grid)
         interpolation["y-"+str(j)]  = sci.RectBivariateSpline(y, x, uy_grid)
+        print(j, timesteps)
+
+    Pe = 10
+    D = U_scale/Pe
+    alpha = np.sqrt(2*D*dt)
 
     for k in range(periods*timesteps):
         pos[0, :] = pos[0, :] + dt * interpolation["x-"+str(int((k+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False) + alpha*np.random.normal(loc=0, scale=1, size=N)
@@ -94,4 +96,4 @@ for i in range(len(Lx)):
         prev_pos = np.copy(pos)
 
         if int(k) % int(periods*timesteps/datafiles) == 0:
-            np.save('data/run_08_01/RW_positions_' +str(k), pos[:, :])
+            np.save('data/run_09_01/RW_positions_' +str(k), pos[:, :])
