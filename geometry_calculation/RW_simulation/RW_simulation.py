@@ -13,9 +13,8 @@ dirr = "flow_fields/"
 dt = 0.01
 tau = 5.0 
 timesteps = int(tau/dt)
-print(timesteps)
-periods = 100
-datafiles = 5000
+periods = 2000
+datafiles = periods*100
 
 #geometry parameters
 epsilon = 0.2
@@ -51,6 +50,7 @@ for j in range(len(kappas)):
     time = tdat[:,0]
     u2 = tdat[:,8]
     exp_u2[j] = integrate.trapz(u2[-timesteps:], time[-timesteps:])/(tau)
+    print("U = ", exp_u2[j])
 
 for i in range(len(Lx)):
     kappa = kappas[i]
@@ -70,7 +70,7 @@ for i in range(len(Lx)):
     interpolation = {}
 
     U = np.sqrt(exp_u2[i])
-    U_scale = 2*l
+    U_scale = 100
 
     for j in range(timesteps):
         u = np.array(list(f["VisualisationVector"][str(periods_of_flow*timesteps-j)])) 
@@ -83,17 +83,17 @@ for i in range(len(Lx)):
         interpolation["y-"+str(j)]  = sci.RectBivariateSpline(y, x, uy_grid)
         print(j, timesteps)
 
-    Pe = 10
+    Pe = 0.025
     D = U_scale/Pe
     alpha = np.sqrt(2*D*dt)
 
     for k in range(periods*timesteps):
-        pos[0, :] = pos[0, :] + dt * interpolation["x-"+str(int((k+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False) + alpha*np.random.normal(loc=0, scale=1, size=N)
-        pos[1, :] = pos[1, :] + dt * interpolation["y-"+str(int((k+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False) + alpha*np.random.normal(loc=0, scale=1, size=N)
+        pos[0, :] = pos[0, :] + dt * interpolation["x-"+str(int((k+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False)# + alpha*np.random.normal(loc=0, scale=1, size=N)
+        pos[1, :] = pos[1, :] + dt * interpolation["y-"+str(int((k+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False)# + alpha*np.random.normal(loc=0, scale=1, size=N)
 
         pos[:, np.where( pos[1, :] >   1+epsilon*np.cos(kappa*pos[0,:]))] = prev_pos[:, np.where( pos[1, :] >  1+epsilon*np.cos(kappa*pos[0,:]))] #checks if y-coordinate outside
         pos[:, np.where( pos[1, :] <  -1-epsilon*np.cos(kappa*pos[0,:]))] = prev_pos[:, np.where( pos[1, :] < -1-epsilon*np.cos(kappa*pos[0,:]))] #checks if y-coordinate outside
         prev_pos = np.copy(pos)
 
         if int(k) % int(periods*timesteps/datafiles) == 0:
-            np.save('data/run_09_01/RW_positions_' +str(k), pos[:, :])
+            np.save('data/run_10_01/RW_positions_' +str(k), pos[:, :])
