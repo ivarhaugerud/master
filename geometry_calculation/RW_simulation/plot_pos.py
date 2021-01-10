@@ -22,8 +22,8 @@ periods = 2000
 datafiles = periods*100
 skip = int(periods*timesteps/datafiles)
 
-U_scale = 50
-Pe = 10
+U_scale = 1
+Pe = 0.5
 D = U_scale/Pe
 
 """	
@@ -32,7 +32,7 @@ for i in range(int(datafiles/skip)):
 	plt.clf()
 	pos = np.load("data/run_08_01/RW_positions_"+str(int(skip*i))+".npy")
 	plt.scatter(pos[0, :], pos[1, :])
-	plt.pause(0.01)
+	plt.pause(0.01)	
 plt.show()
 """
 var = np.zeros(datafiles)
@@ -42,7 +42,8 @@ x = np.zeros(datafiles)
 y = np.zeros(datafiles)
 
 for i in range(datafiles):
-	pos = np.load("data/run_10_01/RW_positions_"+str(int(i*skip))+".npy")
+	plt.clf()
+	pos = np.load("data/run_12_01/RW_positions_"+str(int(i*skip))+".npy")
 	#plt.scatter(pos[0, :], pos[1, :])
 	#plt.pause(0.01)
 	x[i] = pos[0, 5]
@@ -50,8 +51,8 @@ for i in range(datafiles):
 	var[i] = np.std(pos[0, :])
 #plt.show()
 
-plt.plot(np.trim_zeros(x), np.trim_zeros(y), "o")
-plt.show()
+#plt.plot(np.trim_zeros(x), np.trim_zeros(y))
+#plt.show()
 
 plt.plot(t[:len(np.trim_zeros(var))]/tau, np.trim_zeros(var))
 plt.xlabel("time [periods]")
@@ -63,3 +64,7 @@ plt.xlabel("time [periods]")
 plt.ylabel("variance")
 plt.show()
 
+plt.plot(t/tau, np.gradient(var, t/tau))
+plt.xlabel("time [periods]")
+plt.ylabel("variance")
+plt.show()
