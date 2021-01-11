@@ -1,4 +1,5 @@
 from sympy import * 
+order = 3 
 
 #define variables
 xi = symbols("xi")
@@ -12,25 +13,38 @@ uy1 = (kappa*P_1*sinh(kappa)/(gamma*gamma))*(sinh(kappa_p*xi)/sinh(kappa_p) - si
 P1  = P_1*cosh(kappa*xi)
 
 P = (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p)))
-P = series(P, kappa_p, n=3).removeO()
+P = series(P, kappa_p, n=order).removeO()
 P = P.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
-P = series(P, kappa, n=3).removeO()
-P = simplify(series(P, gamma, n=3).removeO())
+P = series(P, kappa, n=order).removeO()
+P = simplify(series(P, gamma, n=order).removeO())
 print("P (1): ", P)
 
 uy1 = uy1.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
-uy1 = series(uy1, kappa_p, n=3).removeO()
+uy1 = series(uy1, kappa_p, n=order).removeO()
 uy1 = uy1.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
-uy1 = series(uy1, kappa, n=3).removeO()
-uy1 = simplify(series(uy1, gamma, n=3).removeO())
+uy1 = series(uy1, kappa, n=order).removeO()
+uy1 = simplify(series(uy1, gamma, n=order).removeO())
 print("\n uy (1): ", uy1)
 
 ux1 = ux1.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
-ux1 = series(ux1, kappa_p, n=3).removeO()
+ux1 = series(ux1, kappa_p, n=order).removeO()
 ux1 = ux1.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
-ux1 = series(ux1, kappa, n=3).removeO()
-ux1 = simplify(series(ux1, gamma, n=3).removeO())
+ux1 = series(ux1, kappa, n=order).removeO()
+ux1 = simplify(series(ux1, gamma, n=order).removeO())
 ux1 = simplify(ux1.subs(P_1, P))
-ux1 = simplify(series(ux1, kappa, n=3).removeO())
+ux1 = simplify(series(ux1, kappa, n=order).removeO())
 print("\n ux (1): ", ux1)
+
+i, Pe = symbols("i, Pe")
+B0 = Pe*F0*tanh(gamma)/(gamma**3) + Pe*F0*tanh(gamma)/(gamma**3 * (Sc-1))*(sinh(xi*sqrt(i*omega))/(sqrt(i*omega)*sinh(sqrt(i*omega))) - sinh(gamma*xi)/(gamma*sinh(gamma)))
+B0 = simplify(series(B0, gamma, n=order).removeO())
+print("\n B0 (0): ", B0)
+
+
+B0_grad = Pe*F0*tanh(gamma)/(gamma**3 * (Sc-1))*(sinh(xi*sqrt(i*omega))/sinh(sqrt(i*omega)) - sinh(gamma*xi)/sinh(gamma))
+B0_grad = simplify(series(B0_grad, gamma, n=order).removeO())
+print("\n B0_grad (0): ", B0_grad)
+
+u0 = simplify(series(u0, gamma, n=order).removeO())
+print("\n u (0): ", u0)
 
