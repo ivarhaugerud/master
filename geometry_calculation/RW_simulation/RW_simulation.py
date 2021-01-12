@@ -13,8 +13,8 @@ dirr = "flow_fields/Lx62.8_tau5.0_eps0.2_nu16.0_D1.0_fzero0.0_fone10.0_res100_dt
 dt = 0.01
 tau = 5.0 
 timesteps = int(tau/dt)
-periods = 4000
-datafiles = periods*100
+periods = 16000
+datafiles = periods*25
 
 #geometry parameters
 epsilon = 0.2

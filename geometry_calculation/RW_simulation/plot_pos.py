@@ -18,8 +18,8 @@ gamma = np.sqrt(1j*omega/Sc)
 timesteps = int(tau/dt)
 period  = 2*np.pi/omega
 
-periods = 4000
-datafiles = periods*100
+periods = 16000
+datafiles = periods*25
 skip = int(periods*timesteps/datafiles)
 
 U_scale = 1
@@ -43,14 +43,14 @@ y = np.zeros(datafiles)
 
 for i in range(datafiles):
 	plt.clf()
-	pos = np.load("data/Lx8_97/RW_positions_"+str(int(i*skip))+".npy")
+	pos = np.load("data/Lx62_8/RW_positions_"+str(int(i*skip))+".npy")
 	#plt.scatter(pos[0, :], pos[1, :])
 	#plt.pause(0.01)
 	x[i] = pos[0, 5]
 	y[i] = pos[1, 5]
 	var[i] = np.square(np.std(pos[0, :]))/D
 
-np.save("data/Lx8_97_var", var)
+np.save("data/Lx62_8_var", var)
 #plt.show()
 
 #plt.plot(np.trim_zeros(x), np.trim_zeros(y))
