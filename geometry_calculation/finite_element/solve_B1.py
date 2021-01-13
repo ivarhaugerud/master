@@ -53,10 +53,10 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	#calculate source vector
 	for j in range(n):
 		for i in range(N):
-			b[j*N+i] = Delta_x*(2*f[j, np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + 2*f[j, np.argmin(abs(x-(N_pos[i])))] + 2*f[j, np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/6
+			b[j*N+i] = -Delta_x*(2*f[j, np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + 2*f[j, np.argmin(abs(x-(N_pos[i])))] + 2*f[j, np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/6
 
-		b[j*N+0]   = Delta_x*(f[j, np.argmin(abs(x-(N_pos[0 ])))] + 2*f[j, np.argmin(abs(x-(N_pos[0] + Delta_x/2)))])/6
-		b[j*N+N-1] = Delta_x*(f[j, np.argmin(abs(x-(N_pos[-1])))] + 2*f[j, np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/6
+		b[j*N+0]   = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[0 ])))] + 2*f[j, np.argmin(abs(x-(N_pos[0] + Delta_x/2)))])/6
+		b[j*N+N-1] = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[-1])))] + 2*f[j, np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/6
 
 		#if derivative is non-zero at boundary
 		b[N*j+0]    -= Bc0[j]
@@ -133,7 +133,7 @@ Bc1 = np.zeros(n, dtype="complex") #BC at xi =  1
 Bc0[np.argmin(abs(k-0))] =  kappa
 Bc1[np.argmin(abs(k-0))] = -kappa
 
-f0_g1, coeff_f0g1 = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_forward, q, Bc0, Bc1, k)
+f0_g1, coeff_f0g1 = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_forward, -q, Bc0, Bc1, k)
 
 for i in range(int(len(k))):
 	if np.max(abs(np.imag(f0_g1[i,:]+f0_g1[-i-1,:]) - np.imag(f0_g1[i-1,0]+f0_g1[-i,0])))/2 > tol:
