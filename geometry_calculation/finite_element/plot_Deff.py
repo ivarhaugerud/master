@@ -18,10 +18,10 @@ num_kappas = np.load("../RW_simulation/data/D_eff_vs_kappa.npy")
 kappas = np.array([0.4, 0.7, 1.0, 1.3, 1.6])
 omega = 5/(2*np.pi)
 nu = 16
-F0 = 10
-D  = 1/3
-Sc = nu/D
+F0 = 3
+Sc = nu
 Pe = 3
+D  = 1/Pe
 
 gamma   = np.sqrt(1j*omega/Sc)
 gamma_r = np.real(gamma)
@@ -50,7 +50,7 @@ plt.show()
 
 eps = 0.2
 D_para = eps*eps*np.real(D_parallels)
-D_para += np.real(D_para0)/1.612
+D_para += np.real(D_para0)
 
 filename = "figures/data_para_tot_vs_kappa.pdf"
 plt.scatter(kappas, D_para, s=4)

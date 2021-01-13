@@ -47,8 +47,9 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	A   *= Delta_x/6
 
 	for i in range(n-1):
-		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward  * np.power(-1, abs(k[i]+1))
-		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] += couple_backward * np.power(-1, abs(k[i]))
+		print(np.power(-1, abs(k[i]+1)), np.power(-1, abs(k[i])))
+		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] -= couple_forward  * np.power(-1, abs(k[i]))
+		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] -= couple_backward * np.power(-1, abs(k[i]+1))
 
 	#calculate source vector
 	for j in range(n):
@@ -75,10 +76,12 @@ xi    = np.linspace(-1, 1, int(1e5))
 
 #system parameters
 omega = 5/(2*np.pi)
-F0 = 3
+nu = 16
+Sc = nu
+F0 = 10
 U = 1
 Pe = 3
-kappa = 0.1
+kappa = 0.4
 
 #implicitly defined parameters
 gamma   = np.sqrt(1j*omega/Sc)
@@ -98,15 +101,15 @@ B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(
 
 #define source terms
 q = np.zeros((len(k), len(xi)), dtype="complex")
-q[np.argmin(abs(k+2)), :] = kappa*xi*np.conj(ux0)*np.conj(B0_deriv)/4 - np.conj(uy1)*np.conj(B0_deriv)/4
-q[np.argmin(abs(k+1)), :] = -Pe*np.conj(ux1)/2 - kappa*kappa*xi*np.conj(B0_deriv)/2 + 2*np.conj(B0_deriv_deriv)/2
-q[np.argmin(abs(k-0)), :] = kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_deriv) - uy1*np.conj(B0_deriv) - np.conj(uy1)*B0_deriv
-q[np.argmin(abs(k-1)), :] = -Pe*ux1/2          - kappa*kappa*xi*B0_deriv/2          + 2*B0_deriv_deriv/2 
-q[np.argmin(abs(k-2)), :] = kappa*xi*ux0*B0_deriv/4 - uy1*B0_deriv/4
+q[np.argmin(abs(k+2)), :] = Pe*kappa*xi*np.conj(ux0)*np.conj(B0_deriv)/4 - Pe*np.conj(uy1)*np.conj(B0_deriv)/4
+q[np.argmin(abs(k+1)), :] = Pe*np.conj(ux1)/2 + kappa*kappa*xi*np.conj(B0_deriv)/2 - 2*np.conj(B0_deriv_deriv)/2
+q[np.argmin(abs(k-0)), :] = kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_deriv)/4 - uy1*np.conj(B0_deriv)/4 - np.conj(uy1)*B0_deriv/4
+q[np.argmin(abs(k-1)), :] = Pe*ux1/2          + kappa*kappa*xi*B0_deriv/2          - 2*B0_deriv_deriv/2 
+q[np.argmin(abs(k-2)), :] = Pe*kappa*xi*ux0*B0_deriv/4                   - Pe*uy1*B0_deriv/4
 
 #works for differential equation with constant terms, now just need coupeling to work as well
 n = len(k) #number of vectors
-N = 350
+N = 150
 N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
@@ -128,18 +131,42 @@ couple_forward = np.conj(couple_backward)
 Bc0 = np.zeros(n, dtype="complex") #BC at xi = -1
 Bc1 = np.zeros(n, dtype="complex") #BC at xi =  1
 
-Bc0[np.argmin(abs(k-0))] = -kappa
-Bc1[np.argmin(abs(k-0))] =  kappa
+Bc0[np.argmin(abs(k-0))] =  kappa
+Bc1[np.argmin(abs(k-0))] = -kappa
 
-sol, coeff_f0g1 = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_forward, q, Bc0, Bc1, k)
-
+f0_g1, coeff_f0g1 = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_forward, q, Bc0, Bc1, k)
 
 for i in range(int(len(k))):
-	if np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i-1,0]+sol[-i,0])))/2 > tol:
-		print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[i-1,:]+sol[-i-1,:]) - np.imag(sol[i-1,0]+sol[-i-1,0]))))
+	if np.max(abs(np.imag(f0_g1[i,:]+f0_g1[-i-1,:]) - np.imag(f0_g1[i-1,0]+f0_g1[-i,0])))/2 > tol:
+		print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(f0_g1[i-1,:]+f0_g1[-i-1,:]) - np.imag(f0_g1[i-1,0]+f0_g1[-i-1,0]))))
 
-f0_g1 = sol
+Z = np.argmin(abs(k-0))
+"""
+plt.plot(N_pos, coeff_f0g1[N*Z:N*(1+Z)])
+plt.show()
 
+plt.plot(N_pos, np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos))
+plt.show()
+"""
+
+RHS = np.real(p_np2[Z]*f0_g1[Z, :] + kappa*ux0*f0_g1[Z-1, :] + kappa*np.conj(ux0)*f0_g1[Z+1, :] - q[Z,:])
+plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
+plt.plot(xi, RHS)
+plt.show()
+
+Z = np.argmin(abs(k-1))
+RHS = np.real(p_np2[Z]*f0_g1[Z, :] - kappa*ux0*f0_g1[Z-1, :] - kappa*np.conj(ux0)*f0_g1[Z+1, :] - q[Z,:])
+plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
+plt.plot(xi, RHS)
+plt.show()
+
+Z = np.argmin(abs(k-2))
+RHS = p_np2[Z]*f0_g1[Z, :] + kappa*ux0*f0_g1[Z-1, :] + kappa*np.conj(ux0)*f0_g1[Z+1, :] - q[Z,:]
+plt.plot(N_pos, np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos))
+plt.plot(xi, RHS)
+plt.show()
+
+print(A)
 #reset source term for new solution
 q = np.zeros((len(k), len(xi)), dtype="complex")
 couple_backward *= -1
@@ -213,6 +240,8 @@ np.save("data/B_minus_coeff", B_minus_coeff)
 np.save("data/B_plus_coeff", B_plus_coeff)
 np.save("data/k", k)
 
+
+"""
 from numpy import *
 rho_p   = sqrt(1j*omega+kappa*kappa)
 rho     = sqrt(1j*omega)
@@ -234,3 +263,4 @@ my_sol      = np.real(analytic_f1_solution+my_sol_homo-analytic_f1_solution[0]-m
 
 #plt.plot(xi, np.max(np.real(f0_g1[np.argmin(abs(k-1)), :]+f0_g1[-np.argmin(abs(k-1))-1, :]))*np.real(my_sol)/np.max(np.real(my_sol)), "--", label="analytic solution")
 plt.show()
+"""

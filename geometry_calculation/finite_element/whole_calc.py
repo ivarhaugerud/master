@@ -141,9 +141,9 @@ Delta = N_pos[1]-N_pos[0]
 kappas = np.array([0.4, 0.7, 1.0, 1.3, 1.6])
 nu = 16
 omega = 5/(2*np.pi)
-F0 = 10
+F0 = 3
 D = 1/3
-Sc = 1/nu
+Sc = nu
 Pe = 3
 
 D_parallels = np.zeros(len(kappas))
@@ -365,3 +365,4 @@ for w in range(len(kappas)):
 	plt.savefig("figures/Brenner_field_vs_t.pdf")
 
 np.save("data/D_parallels_kappa", D_parallels, "o")
+plt.show()
