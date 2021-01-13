@@ -18,10 +18,10 @@ num_kappas = np.load("../RW_simulation/data/D_eff_vs_kappa.npy")
 kappas = np.array([0.4, 0.7, 1.0, 1.3, 1.6])
 omega = 5/(2*np.pi)
 nu = 16
-F0 = 3
-Sc = nu
+F0 = 10
 Pe = 3
 D  = 1/Pe
+Sc = nu/D
 
 gamma   = np.sqrt(1j*omega/Sc)
 gamma_r = np.real(gamma)

@@ -124,7 +124,6 @@ couple_backward[0, 0]    = Delta*(ux0[np.argmin(abs(xi-(N_pos[0])))]  + ux0[np.a
 couple_backward[-1, -1]  = Delta*(ux0[np.argmin(abs(xi-(N_pos[-1])))] + ux0[np.argmin(abs(xi-(N_pos[-1] - Delta/2)))])/6
 couple_backward         *= kappa/2
 couple_forward = np.conj(couple_backward)
-#plt.plot(N_pos, couple_forward)
 
 #boundary conditions
 Bc0 = np.zeros(n, dtype="complex") #BC at xi = -1
