@@ -101,14 +101,14 @@ B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(
 #define source terms
 q = np.zeros((len(k), len(xi)), dtype="complex")
 q[np.argmin(abs(k+2)), :] = Pe*kappa*xi*np.conj(ux0)*np.conj(B0_deriv)/4 - Pe*np.conj(uy1)*np.conj(B0_deriv)/4
-q[np.argmin(abs(k+1)), :] = Pe*np.conj(ux1)/2 + kappa*kappa*xi*np.conj(B0_deriv)/2 - 2*np.conj(B0_deriv_deriv)/2
-q[np.argmin(abs(k-0)), :] = kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_deriv)/4 - uy1*np.conj(B0_deriv)/4 - np.conj(uy1)*B0_deriv/4
-q[np.argmin(abs(k-1)), :] = Pe*ux1/2          + kappa*kappa*xi*B0_deriv/2          - 2*B0_deriv_deriv/2 
+q[np.argmin(abs(k+1)), :] -= Pe*np.conj(ux1)/2 + kappa*kappa*xi*np.conj(B0_deriv)/2 - 2*np.conj(B0_deriv_deriv)/2
+q[np.argmin(abs(k-0)), :] = Pe*kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_deriv)/4 - Pe*uy1*np.conj(B0_deriv)/4 - Pe*np.conj(uy1)*B0_deriv/4
+q[np.argmin(abs(k-1)), :] -= Pe*ux1/2          + kappa*kappa*xi*B0_deriv/2          - 2*B0_deriv_deriv/2 
 q[np.argmin(abs(k-2)), :] = Pe*kappa*xi*ux0*B0_deriv/4                   - Pe*uy1*B0_deriv/4
 
 #works for differential equation with constant terms, now just need coupeling to work as well
 n = len(k) #number of vectors
-N = 150
+N = 300
 N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
@@ -154,10 +154,14 @@ plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos),
 plt.plot(xi, RHS)
 
 
+for i in range(int(len(k)/2)+1):
+	plt.plot(xi, f0_g1[i, :]+f0_g1[-i-1, :], label=(str(k[-i-1])))
+plt.legend(loc="best")
+plt.show()
 Z = np.argmin(abs(k-1))
 plt.figure(1)
 plt.title(str(1))
-RHS = np.real(p_np2[Z]*f0_g1[Z, :] - kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2 + q[Z,:])
+RHS = np.real(p_np2[Z]*f0_g1[Z, :] + (- kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2 + q[Z,:]))
 plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
 plt.plot(xi, RHS)
 
@@ -167,6 +171,29 @@ plt.title(str(2))
 RHS = np.real(p_np2[Z]*f0_g1[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2 - q[Z,:])
 plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
 plt.plot(xi, RHS)
+
+
+Z = np.argmin(abs(k-3))
+plt.figure(3)
+plt.title(str(3))
+RHS = np.real(p_np2[Z]*f0_g1[Z, :] - kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2 + q[Z,:])
+plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
+plt.plot(xi, RHS)
+
+Z = np.argmin(abs(k-4))
+plt.figure(4)
+plt.title(str(4))
+RHS = np.real(p_np2[Z]*f0_g1[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2 - q[Z,:])
+plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
+plt.plot(xi, RHS)
+
+Z = np.argmin(abs(k-5))
+plt.figure(5)
+plt.title(str(5))
+RHS = np.real(p_np2[Z]*f0_g1[Z, :] - kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2 + q[Z,:])
+plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
+plt.plot(xi, RHS)
+
 plt.show()
 
 print(A)
