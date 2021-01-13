@@ -47,9 +47,8 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	A   *= Delta_x/6
 
 	for i in range(n-1):
-		print(np.power(-1, abs(k[i]+1)), np.power(-1, abs(k[i])))
-		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] -= couple_forward  * np.power(-1, abs(k[i]))
-		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] -= couple_backward * np.power(-1, abs(k[i]+1))
+		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward  * np.power(-1, abs(k[i]+1))
+		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] += couple_backward * np.power(-1, abs(k[i]))
 
 	#calculate source vector
 	for j in range(n):
@@ -123,7 +122,7 @@ for i in range(N-1):
 
 couple_backward[0, 0]    = Delta*(ux0[np.argmin(abs(xi-(N_pos[0])))]  + ux0[np.argmin(abs(xi-(N_pos[0]  + Delta/2)))])/6
 couple_backward[-1, -1]  = Delta*(ux0[np.argmin(abs(xi-(N_pos[-1])))] + ux0[np.argmin(abs(xi-(N_pos[-1] - Delta/2)))])/6
-couple_backward         *= kappa 
+couple_backward         *= kappa/2 
 couple_forward = np.conj(couple_backward)
 #plt.plot(N_pos, couple_forward)
 
@@ -140,7 +139,6 @@ for i in range(int(len(k))):
 	if np.max(abs(np.imag(f0_g1[i,:]+f0_g1[-i-1,:]) - np.imag(f0_g1[i-1,0]+f0_g1[-i,0])))/2 > tol:
 		print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(f0_g1[i-1,:]+f0_g1[-i-1,:]) - np.imag(f0_g1[i-1,0]+f0_g1[-i-1,0]))))
 
-Z = np.argmin(abs(k-0))
 """
 plt.plot(N_pos, coeff_f0g1[N*Z:N*(1+Z)])
 plt.show()
@@ -148,21 +146,26 @@ plt.show()
 plt.plot(N_pos, np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos))
 plt.show()
 """
-
-RHS = np.real(p_np2[Z]*f0_g1[Z, :] + kappa*ux0*f0_g1[Z-1, :] + kappa*np.conj(ux0)*f0_g1[Z+1, :] - q[Z,:])
+Z = np.argmin(abs(k-0))
+plt.figure(0)
+plt.title(str(0))
+RHS = np.real(p_np2[Z]*f0_g1[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2 - q[Z,:])
 plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
 plt.plot(xi, RHS)
-plt.show()
+
 
 Z = np.argmin(abs(k-1))
-RHS = np.real(p_np2[Z]*f0_g1[Z, :] - kappa*ux0*f0_g1[Z-1, :] - kappa*np.conj(ux0)*f0_g1[Z+1, :] - q[Z,:])
+plt.figure(1)
+plt.title(str(1))
+RHS = np.real(p_np2[Z]*f0_g1[Z, :] - kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2 + q[Z,:])
 plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
 plt.plot(xi, RHS)
-plt.show()
 
 Z = np.argmin(abs(k-2))
-RHS = p_np2[Z]*f0_g1[Z, :] + kappa*ux0*f0_g1[Z-1, :] + kappa*np.conj(ux0)*f0_g1[Z+1, :] - q[Z,:]
-plt.plot(N_pos, np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos))
+plt.figure(2)
+plt.title(str(2))
+RHS = np.real(p_np2[Z]*f0_g1[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2 - q[Z,:])
+plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
 plt.plot(xi, RHS)
 plt.show()
 
