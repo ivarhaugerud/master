@@ -53,10 +53,10 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	#calculate source vector
 	for j in range(n):
 		for i in range(N):
-			b[j*N+i] = -Delta_x*(2*f[j, np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + 2*f[j, np.argmin(abs(x-(N_pos[i])))] + 2*f[j, np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/6
+			b[j*N+i] = Delta_x*(2*f[j, np.argmin(abs(x-(N_pos[i]+Delta_x/2)))] + 2*f[j, np.argmin(abs(x-(N_pos[i])))] + 2*f[j, np.argmin(abs(x-(N_pos[i]-Delta_x/2)))])/6
 
-		b[j*N+0]   = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[0 ])))] + 2*f[j, np.argmin(abs(x-(N_pos[0] + Delta_x/2)))])/6
-		b[j*N+N-1] = -Delta_x*(f[j, np.argmin(abs(x-(N_pos[-1])))] + 2*f[j, np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/6
+		b[j*N+0]   = Delta_x*(f[j, np.argmin(abs(x-(N_pos[0 ])))] + 2*f[j, np.argmin(abs(x-(N_pos[0] + Delta_x/2)))])/6
+		b[j*N+N-1] = Delta_x*(f[j, np.argmin(abs(x-(N_pos[-1])))] + 2*f[j, np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/6
 
 		#if derivative is non-zero at boundary
 		b[N*j+0]    -= Bc0[j]
@@ -70,7 +70,7 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	return u, sol
 
 tol   = 1e-6
-k     = np.array([-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7])
+k     = np.array([-9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 xi    = np.linspace(-1, 1, int(1e5))
 
 #system parameters
@@ -80,7 +80,7 @@ Sc = nu
 F0 = 10
 U = 1
 Pe = 3
-kappa = 0.4
+kappa = 10
 
 #implicitly defined parameters
 gamma   = np.sqrt(1j*omega/Sc)
@@ -101,14 +101,14 @@ B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(
 #define source terms
 q = np.zeros((len(k), len(xi)), dtype="complex")
 q[np.argmin(abs(k+2)), :] = Pe*kappa*xi*np.conj(ux0)*np.conj(B0_deriv)/4 - Pe*np.conj(uy1)*np.conj(B0_deriv)/4
-q[np.argmin(abs(k+1)), :] -= Pe*np.conj(ux1)/2 + kappa*kappa*xi*np.conj(B0_deriv)/2 - 2*np.conj(B0_deriv_deriv)/2
+q[np.argmin(abs(k+1)), :] = Pe*np.conj(ux1)/2 + kappa*kappa*xi*np.conj(B0_deriv)/2 - 2*np.conj(B0_deriv_deriv)/2
 q[np.argmin(abs(k-0)), :] = Pe*kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_deriv)/4 - Pe*uy1*np.conj(B0_deriv)/4 - Pe*np.conj(uy1)*B0_deriv/4
-q[np.argmin(abs(k-1)), :] -= Pe*ux1/2          + kappa*kappa*xi*B0_deriv/2          - 2*B0_deriv_deriv/2 
+q[np.argmin(abs(k-1)), :] = Pe*ux1/2          + kappa*kappa*xi*B0_deriv/2          - 2*B0_deriv_deriv/2 
 q[np.argmin(abs(k-2)), :] = Pe*kappa*xi*ux0*B0_deriv/4                   - Pe*uy1*B0_deriv/4
 
 #works for differential equation with constant terms, now just need coupeling to work as well
 n = len(k) #number of vectors
-N = 300
+N = 200
 N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
@@ -122,7 +122,7 @@ for i in range(N-1):
 
 couple_backward[0, 0]    = Delta*(ux0[np.argmin(abs(xi-(N_pos[0])))]  + ux0[np.argmin(abs(xi-(N_pos[0]  + Delta/2)))])/6
 couple_backward[-1, -1]  = Delta*(ux0[np.argmin(abs(xi-(N_pos[-1])))] + ux0[np.argmin(abs(xi-(N_pos[-1] - Delta/2)))])/6
-couple_backward         *= kappa/2 
+couple_backward         *= kappa/2
 couple_forward = np.conj(couple_backward)
 #plt.plot(N_pos, couple_forward)
 
@@ -146,29 +146,32 @@ plt.show()
 plt.plot(N_pos, np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos))
 plt.show()
 """
-Z = np.argmin(abs(k-0))
-plt.figure(0)
-plt.title(str(0))
-RHS = np.real(p_np2[Z]*f0_g1[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2 - q[Z,:])
-plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
-plt.plot(xi, RHS)
-
 
 for i in range(int(len(k)/2)+1):
 	plt.plot(xi, f0_g1[i, :]+f0_g1[-i-1, :], label=(str(k[-i-1])))
 plt.legend(loc="best")
 plt.show()
+
+
+Z = np.argmin(abs(k-0))
+plt.figure(0)
+plt.title(str(0))
+RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
+plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
+plt.plot(xi, RHS)
+
+
 Z = np.argmin(abs(k-1))
 plt.figure(1)
 plt.title(str(1))
-RHS = np.real(p_np2[Z]*f0_g1[Z, :] + (- kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2 + q[Z,:]))
+RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] - kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
 plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
 plt.plot(xi, RHS)
 
 Z = np.argmin(abs(k-2))
 plt.figure(2)
 plt.title(str(2))
-RHS = np.real(p_np2[Z]*f0_g1[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2 - q[Z,:])
+RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
 plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
 plt.plot(xi, RHS)
 
@@ -176,21 +179,21 @@ plt.plot(xi, RHS)
 Z = np.argmin(abs(k-3))
 plt.figure(3)
 plt.title(str(3))
-RHS = np.real(p_np2[Z]*f0_g1[Z, :] - kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2 + q[Z,:])
+RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] - kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
 plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
 plt.plot(xi, RHS)
 
 Z = np.argmin(abs(k-4))
 plt.figure(4)
 plt.title(str(4))
-RHS = np.real(p_np2[Z]*f0_g1[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2 - q[Z,:])
+RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
 plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
 plt.plot(xi, RHS)
 
 Z = np.argmin(abs(k-5))
 plt.figure(5)
 plt.title(str(5))
-RHS = np.real(p_np2[Z]*f0_g1[Z, :] - kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2 + q[Z,:])
+RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] - kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
 plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
 plt.plot(xi, RHS)
 
