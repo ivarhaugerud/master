@@ -71,15 +71,15 @@ sol_y = (P_1*kappa*sinh(kappa)/(2*gamma*gamma*tanh(kappa_p)))*(kappa_p*xi*cosh(k
 print("\n\n\n")
 print("-----------------------------------------------------------------")
 print("series expansion in kappa and gamma")
-order = 3
+order = 2
 
-my_sol_non_eta = my_sol_non_eta.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+#my_sol_non_eta = my_sol_non_eta.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
 my_sol_non_eta = series(my_sol_non_eta, kappa_p, n=order).removeO()
 my_sol_non_eta = my_sol_non_eta.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 my_sol_non_eta = simplify(series(my_sol_non_eta, kappa, n=order).removeO())
 my_sol_non_eta = simplify(series(my_sol_non_eta, gamma, n=order).removeO())
 print("taylor ux no eta: ", my_sol_non_eta)
-print(simplify(my_sol_non_eta.subs(xi, 1)))
+#print(simplify(my_sol_non_eta.subs(xi, 1)))
 
 
 #my_sol_eta = my_sol_eta.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
@@ -91,11 +91,11 @@ print("\n\n taylor ux with eta: ", sol_x_eta)
 #print(simplify(sol_x_eta.subs(xi, 1)))
 
 
-sol_y = series(sol_y, kappa_p, n=order).removeO()
+#sol_y = series(sol_y, kappa_p, n=order).removeO()
 sol_y = sol_y.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 sol_y = simplify(series(sol_y, kappa, n=order).removeO())
 sol_y = simplify(series(sol_y, gamma, n=order).removeO())
 print("\n\n taylor ux no eta: ", sol_y)
-print(simplify(sol_y.subs(xi, 1)))
+#print(simplify(sol_y.subs(xi, 1)))
 
 #gamma**2*(kappa**2*(105*kappa**2*xi**6 - 1470*kappa**2*xi**4 + 837*kappa**2*xi**2 - 16*kappa**2 + 1050*xi**4 - 3360*xi**2 + 1470) + 25200) + kappa**2*(4200*kappa**2*xi**4 - 2520*kappa**2*xi**2 + 10500*xi**2 + 2100)
