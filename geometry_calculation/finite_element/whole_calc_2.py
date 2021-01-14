@@ -132,17 +132,17 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	return u, sol
 
 tol   = 1e-6
-k     = np.array([-9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+k     = np.array([-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7])
 xi    = np.linspace(-1, 1, int(1e5))
 
 #system parameters
-nu = 16
+nu = 1.1
 omega = 5/(2*np.pi)
-F0 = 10
-D = 1/3
-Sc = nu/D
-Pe = 3
-kappas = np.array([0.4, 1.0, 1.6])
+F0 = 3
+D = 0.3
+Sc = nu#/D
+Pe = 1/D
+kappas = np.arange(0.1, 2.5, 0.4)
 D_parallels = np.zeros(len(kappas))
 
 for K in range(len(kappas)):
@@ -173,7 +173,7 @@ for K in range(len(kappas)):
 
 	#works for differential equation with constant terms, now just need coupeling to work as well
 	n = len(k) #number of vectors
-	N = 50
+	N = 150
 	N_pos = np.linspace(-1, 1, N)
 	Delta = N_pos[1]-N_pos[0]
 
@@ -226,15 +226,8 @@ for K in range(len(kappas)):
 
 
 	#analytic results up to first order
-	ux0  = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma)
-	ux1  = ((P_1*kappa*np.cosh(kappa)/(gamma*gamma))*(np.cosh(kappa*xi)/np.cosh(kappa) - np.cosh(kappa_p *xi)/np.cosh(kappa_p)) + (F0*np.tanh(gamma)/gamma)*(np.cosh(kappa_p*xi)/np.cosh(kappa_p) - xi*np.sinh(gamma*xi)/np.sinh(gamma)))/2
-	uy1  = ((kappa*P_1*np.sinh(kappa)/(gamma*gamma))*(np.sinh(kappa_p*xi)/np.sinh(kappa_p) - np.sinh(kappa*xi)/np.sinh(kappa)))/2
 	ux2  = (P_1*kappa*kappa*np.sinh(kappa)*(xi*np.sinh(kappa*xi)/np.sinh(kappa) - np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma) + F0*np.cosh(gamma*xi)*(1-xi*xi)/(4*np.cosh(gamma)) + P_1*kappa_p*kappa_p*np.sinh(kappa)*(np.cosh(gamma*xi)/np.cosh(gamma)-xi*np.sinh(kappa_p*xi)/np.sinh(kappa_p))/(2*gamma*gamma))/2
 	ux2 -= scpi.trapz(ux2, xi)/2
-
-	B0             = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))) + Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*rho*rho)
-	B0_deriv       = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))
-	B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(rho*xi)/np.sinh(rho) - gamma*np.cosh(gamma*xi)/np.sinh(gamma))
 
 	#define source terms
 	q = np.zeros((len(k), len(xi)), dtype="complex")
@@ -297,18 +290,23 @@ for K in range(len(kappas)):
 		B2_0_deriv[:, i]          = interp1d(N_pos, np.gradient(sol_coeff[:,i], N_pos), kind='cubic')(xi)
 
 	for i in range(len(k)):
-		#D_eff_xi[:, np.argmin(abs(new_k -k[i]))] += kappa*xi*B1_min_deriv[:, i] + kappa*B_minus[:, i]
+		D_eff_xi[:, np.argmin(abs(new_k -k[i]))] += kappa*xi*B1_min_deriv[:, i] + kappa*B_minus[:, i]
 		for j in range(len(k)):
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_plus[:,j]*B_plus[:,i]   +  B1_plus_deriv[:, i]*B1_plus_deriv[:, j])
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_minus[:,j]*B_minus[:,i]  + B1_min_deriv[:, i] *B1_min_deriv[:, j])
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 2*b0_deriv[:, i]*B2_0_deriv[:,j] - b0_deriv[:, i]*B1_plus_deriv[:,j] - b0_deriv[:,i]*kappa*kappa*xi*B_plus[:, j]
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += (5+kappa*kappa*xi*xi)*b0_deriv[:, i]*b0_deriv[:, j]
-			
+	
+	for i in range(len(new_k)):
+		print(np.max(np.imag(D_eff_xi[:, i]+D_eff_xi[:,-i-1])))
+
 	for i in range(len(new_k)):
 		D_eff[i] = scpi.trapz(D_eff_xi[:, i], xi)/2
 		total_D += np.exp(1j*omega*new_k[i]*t)*D_eff[i]
 
-	D_parallels[K] = scpi.trapz(np.real(total_D), t)/(max(t)-min(t))
+	print("HERE:", np.max(np.imag(total_D)))
+
+	D_parallels[K] = scpi.trapz(np.real(total_D), t)/(2*np.pi/omega)
 	np.save("data/total_D_kappa"+str(kappa)[:4], D_eff)
 
 	plt.figure(1)
