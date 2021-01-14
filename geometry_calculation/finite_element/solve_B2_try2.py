@@ -56,7 +56,7 @@ def finite_element_solver(N, x, f, double_deriv, a, Bc0, Bc1, laplace):
 	b[-1] = -Delta_x*(f[np.argmin(abs(x-(N_pos[-1])))] + 2*f[np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/6
 
 	#if derivative is non-zero at boundary
-	plt.plot(N_pos, b)
+	#plt.plot(N_pos, b)
 	b[0]   += -Bc0
 	b[-1]  +=  Bc1
 	sol = np.linalg.solve(A+A_p, b-double_deriv)
@@ -79,12 +79,13 @@ N_pos = np.linspace(-1, 1, N)
 Delta = N_pos[1]-N_pos[0]
 
 #system parameters
-kappa = 1
-Sc = 1.2
-omega = 0.5
-F0 = 3
-Pe = F0*Sc
-kappa = 0.5#np.sqrt(2*omega/Sc)-0.1#0.8
+omega = 5/(2*np.pi)
+nu = 16
+Sc = nu
+F0 = 10
+U = 1
+Pe = 3
+kappa = 10
 
 #implicitly defined parameters
 gamma   = np.sqrt(1j*omega/Sc)
@@ -138,7 +139,7 @@ term3 = np.zeros((N, len(k)), dtype="complex")
 factor1 = np.zeros((len(xi), len(k)), dtype="complex")
 
 for i in range(len(k)):
-	factor1[:, i] = uy1[:, i] -kappa*xi*ux1[:, i]
+	factor1[:, i] = -uy1[:, i] + kappa*xi*ux1[:, i]
 
 for i in range(len(k)):
 	f[:, i]  = 0.5*kappa*kappa*xi*B0_deriv[:, i] + 0.5*(3+kappa*kappa*xi*xi)*B0_deriv_deriv[:, i] + Pe*ux2[:, i]
@@ -178,16 +179,16 @@ sol = np.zeros((len(xi), len(k)), dtype="complex")
 BC0 = np.zeros(len(k))
 BC1 = np.zeros(len(k))
 
-BC0[np.argmin(abs(k-0))] = -kappa*kappa/4
-BC1[np.argmin(abs(k-0))] =  kappa*kappa/4
-
 for i in range(len(k)):
 	if abs(k[i]) > 1e-4:
 		sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i], 1j*omega*k[i], BC0[i], BC1[i], False)
 	else:
+		plt.plot(xi, f[:, i])
+		plt.plot(N_pos, derivatives[:, i])
+		plt.show()
 		#when looking at the source terms for n=0, we see that there are actually no contributions..., so we just take the homogeneous solution to satisfy the BCs
 		sol[:,i] =  np.zeros(len(xi))
-plt.show()
+
 for i in range(int(len(k)/2+1)):
 	plt.plot(xi, np.real(sol[:, i]+sol[:, -i-1]), label=r"$\omega=$"+str(abs(k[i])))
 plt.legend(loc="best")

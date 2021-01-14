@@ -174,6 +174,8 @@ for i in range(len(k)):
 	if abs(k[i]) > 1e-4:
 		sol[:,i] = finite_element_solver(N, xi, f[:,i], double_deriv[:,i], 1j*omega*k[i], BC0[i], BC1[i], False)
 	else:
+		plt.plot(f[:,i])
+		plt.show()
 		sol[:,i] = finite_element_solver(N, xi, f[:,i], double_deriv[:,i], 1j*omega*k[i], BC0[i], BC1[i], True)
 for i in range(len(k)):
 	plt.plot(xi, np.real(sol[:, i]))
