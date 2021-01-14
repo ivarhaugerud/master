@@ -273,6 +273,9 @@ for K in range(len(kappas)):
 	total_D  = np.zeros(len(t),                dtype="complex")
 	D_eff    = np.zeros(len(new_k),            dtype="complex")
 
+	rel_freq = np.arange(0, max(k)+1e-3, 1)
+	n = len(rel_freq)
+
 	b0                  = np.zeros((len(xi), n), dtype="complex")
 	b0_deriv            = np.zeros((len(xi), n), dtype="complex")
 	b0_deriv_deriv      = np.zeros((len(xi), n), dtype="complex")
@@ -281,28 +284,24 @@ for K in range(len(kappas)):
 	B1_plus_deriv_deriv = np.zeros((len(xi), n), dtype="complex")
 	B2_0_deriv          = np.zeros((len(xi), n), dtype="complex")
 
-	b0[:, np.argmin(abs(k-1))]    = B0/2 
-	b0[:, np.argmin(abs(k+1))]    = np.conj(B0)/2 
-
-	b0_deriv[:, np.argmin(abs(k-1))] = B0_deriv/2 
-	b0_deriv[:, np.argmin(abs(k+1))] = np.conj(B0_deriv)/2 
-
-	b0_deriv_deriv[:, np.argmin(abs(k-1))] = B0_deriv_deriv/2 
-	b0_deriv_deriv[:, np.argmin(abs(k+1))] = np.conj(B0_deriv_deriv)/2 
+	b0[:, np.argmin(abs(rel_freq-1))]    = 2*np.real(B0) - 2*np.imag(B0)
+	b0_deriv[:, np.argmin(abs(rel_freq-1))] = 2*np.real(B0_deriv) - 2*np.imag(B0_deriv) 
+	b0_deriv_deriv[:, np.argmin(abs(rel_freq-1))] = 2*np.real(B0_deriv_deriv) - 2*np.imag(B0_deriv_deriv) 
 
 	for i in range(n):
-		B1_min_deriv[:, i]        = interp1d(N_pos, np.gradient(B_minus_coeff[:,i], N_pos), kind='cubic')(xi)
-		B1_plus_deriv[:, i]       = interp1d(N_pos, np.gradient(B_plus_coeff[:,i], N_pos), kind='cubic')(xi)
-		B1_plus_deriv_deriv[:, i] = interp1d(N_pos, np.gradient(np.gradient(B_plus_coeff[:,i], N_pos), N_pos), kind='cubic')(xi)
-		B2_0_deriv[:, i]          = interp1d(N_pos, np.gradient(sol_coeff[:,i], N_pos), kind='cubic')(xi)
+		B1_min_deriv[:, i]        = 2*interp1d(N_pos, np.gradient(np.real(B_minus_coeff[:,i]), N_pos), kind='cubic')(xi) - 2*interp1d(N_pos, np.gradient(np.imag(B_minus_coeff[:,i]), N_pos), kind='cubic')(xi)
+		B1_plus_deriv[:, i]       = 2*interp1d(N_pos, np.gradient(np.real(B_plus_coeff[:,i]), N_pos), kind='cubic')(xi) - 2*interp1d(N_pos, np.gradient(np.imag(B_plus_coeff[:,i]), N_pos), kind='cubic')(xi)
+		B1_plus_deriv_deriv[:, i] = 2*interp1d(N_pos, np.gradient(np.gradient(np.real(B_plus_coeff[:,i]), N_pos), N_pos), kind='cubic')(xi) - 2*interp1d(N_pos, np.gradient(np.gradient(np.imag(B_plus_coeff[:,i]), N_pos), N_pos), kind='cubic')(xi)
+		B2_0_deriv[:, i]          = 2*interp1d(N_pos, np.gradient(np.real(sol_coeff[:,i]), N_pos), kind='cubic')(xi) - 2*interp1d(N_pos, np.gradient(np.imag(sol_coeff[:,i]), N_pos), kind='cubic')(xi)
 
-	for i in range(len(k)):
-		#D_eff_xi[:, np.argmin(abs(new_k -k[i]))] += kappa*xi*B1_min_deriv[:, i] + kappa*B_minus[:, i]
-		for j in range(len(k)):
+	for i in range(n):
+		D_eff_xi[:, np.argmin(abs(new_k -k[i]))] += kappa*xi*B1_min_deriv[:, i] + kappa*B_minus[:, i]
+		for j in range(n):
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_plus[:,j]*B_plus[:,i]   +  B1_plus_deriv[:, i]*B1_plus_deriv[:, j])
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_minus[:,j]*B_minus[:,i]  + B1_min_deriv[:, i] *B1_min_deriv[:, j])
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 2*b0_deriv[:, i]*B2_0_deriv[:,j] - b0_deriv[:, i]*B1_plus_deriv[:,j] - b0_deriv[:,i]*kappa*kappa*xi*B_plus[:, j]
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += (5+kappa*kappa*xi*xi)*b0_deriv[:, i]*b0_deriv[:, j]
+			
 			
 	for i in range(len(new_k)):
 		D_eff[i] = scpi.trapz(D_eff_xi[:, i], xi)/2
