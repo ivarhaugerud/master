@@ -132,13 +132,13 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	return u, sol
 
 tol   = 1e-6
-k     = np.array([-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7])
+k     = np.array([-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6])
 xi    = np.linspace(-1, 1, int(1e5))
 
 #system parameters
-nu = 16
+nu = 1.2
 omega = 5/(2*np.pi)
-F0 = 10
+F0 = 3
 D = 0.3
 Sc = nu#/D
 Pe = 1/D
@@ -173,7 +173,7 @@ for K in range(len(kappas)):
 
 	#works for differential equation with constant terms, now just need coupeling to work as well
 	n = len(k) #number of vectors
-	N = 150
+	N = 50
 	N_pos = np.linspace(-1, 1, N)
 	Delta = N_pos[1]-N_pos[0]
 
@@ -290,11 +290,11 @@ for K in range(len(kappas)):
 		B2_0_deriv[:, i]          = interp1d(N_pos, np.gradient(sol_coeff[:,i], N_pos), kind='cubic')(xi)
 
 	for i in range(len(k)):
-		#D_eff_xi[:, np.argmin(abs(new_k -k[i]))] += -0.5*(kappa*xi*B1_min_deriv[:, i] + kappa*B_minus[:, i])
+		D_eff_xi[:, np.argmin(abs(new_k -k[i]))] += kappa*xi*B1_min_deriv[:, i] + kappa*B_minus[:, i]
 		for j in range(len(k)):
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_plus[:,j]*B_plus[:,i]    + B1_plus_deriv[:, i]*B1_plus_deriv[:, j])
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_minus[:,j]*B_minus[:,i]  + B1_min_deriv[:, i] *B1_min_deriv[:, j])
-			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += b0_deriv[:, i]*(2*B2_0_deriv[:,j] - B1_plus_deriv[:,j] - kappa*xi*B_plus[:, j])
+			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += b0_deriv[:, i]*(2*B2_0_deriv[:,j] - B1_plus_deriv[:,j] - kappa*kappa*xi*B_plus[:, j])
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5*(1+kappa*kappa*xi*xi)*b0_deriv[:, i]*b0_deriv[:, j]
 	
 	for i in range(len(new_k)):

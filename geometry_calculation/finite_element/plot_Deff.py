@@ -13,9 +13,9 @@ D_parallels = np.load("data/D_parallels_kappa.npy")
 print(D_parallels)
 
 num_kappas = np.load("../RW_simulation/data/D_eff_vs_kappa.npy")
-nu = 16
+nu = 1.2
 omega = 5/(2*np.pi)
-F0 = 10
+F0 = 3
 D = 0.3
 Sc = nu#/D
 Pe = 1/D
