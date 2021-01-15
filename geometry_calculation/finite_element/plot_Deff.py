@@ -13,9 +13,9 @@ D_parallels = np.load("data/D_parallels_kappa.npy")
 print(D_parallels)
 
 num_kappas = np.load("../RW_simulation/data/D_eff_vs_kappa.npy")
-nu = 1.1
+nu = 16
 omega = 5/(2*np.pi)
-F0 = 3
+F0 = 10
 D = 0.3
 Sc = nu#/D
 Pe = 1/D
@@ -39,7 +39,7 @@ plt.plot(kappas, D_parallels, "-", linewidth=1)
 #plt.yscale("log")
 #plt.xscale("log")
 tol = 0.2*min(kappas)
-plt.axis([min(kappas)-tol, max(kappas)*1.1, min(D_parallels)*0.8, max(D_parallels)*1.2])
+#plt.axis([min(kappas)-tol, max(kappas)*1.1, min(D_parallels)*0.8, max(D_parallels)*1.2])
 plt.xlabel(r"Wave number $\kappa$", fontsize=8)
 plt.ylabel(r"2nd order Parallel Diffusion $D_\parallel^{(2)}$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
@@ -58,8 +58,8 @@ plt.plot(kappas, D_para, "-", linewidth=1)
 plt.plot(kappas, np.ones(len(kappas))*D_para0, "-")
 #plt.yscale("log")
 #plt.xscale("log")
-#kappas = np.array([0.1, 0.4, 0.7, 1.0, 1.3, 1.6])
-#plt.plot(kappas, num_kappas[:, 0])
+kappas = np.array([0.1, 0.4, 0.7, 1.0, 1.3, 1.6])
+plt.plot(kappas, num_kappas[:, 0])
 plt.xlabel(r"Wave number $\kappa$", fontsize=8)
 plt.ylabel(r"Total Parallel Diffusion $D_\parallel + O(\epsilon^4)$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
