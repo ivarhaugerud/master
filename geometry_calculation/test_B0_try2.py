@@ -5,19 +5,21 @@ import scipy.integrate as sci
 Pe = 1
 F0 = 3
 pi = np.pi
-N = int(1000)
 xi = np.linspace(-1, 1, int(1e4))
 
+Schmidt = 1.2
+Sc = Schmidt
 Omega   = np.logspace(-3, 3, 60)
-Schmidt = np.logspace(-3, 3, 60)
+Ds       = np.logspace(-3, 3, 60)
 #paramters = np.zeros((2, len(Omega)))
 #paramters[0, :] = Omega
 #paramters[1, :] = Schmidt
 
-D_eff   = np.zeros((len(Omega), len(Schmidt)), dtype="complex")
+D_eff   = np.zeros((len(Omega), len(Ds)), dtype="complex")
 
-for s in range(len(Schmidt)):
-	Sc = Schmidt[s]
+for s in range(len(Ds)):
+	D = Ds[s]
+	Pe = 1/D
 	for o in range(len(Omega)):
 		omega = Omega[o]
 

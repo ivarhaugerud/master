@@ -4,69 +4,74 @@ import matplotlib.pyplot as plt
 dt = 0.01
 tau = 5.0 
 
-epsilon = 0.2
+epsilon = 0.0
+U_scale = 1
+Pe = 3.0
+D = U_scale/Pe
+
 kappas = np.array([0.4])
 Lx = 2*np.pi/kappas
 
 omega = 2*np.pi/tau
-nu = 1.2
-D = 1
-f1 = 3
-F0 = f1/nu
+nu = 0.5
+F0 = 3/nu
 Sc = nu
 gamma = np.sqrt(1j*omega/Sc)
 timesteps = int(tau/dt)
-period  = 2*np.pi/omega
+period    = tau
 
-periods = 16000
+periods = 100
 datafiles = periods*25
 skip = int(periods*timesteps/datafiles)
+datafiles *= 2
 
-U_scale = 1
-Pe = 3
-D = U_scale/Pe
+import scipy.integrate as sci
+gamma_c = np.conj(gamma)
+a       = np.sqrt(1j*omega)
+a_c     = np.conj(a)
+xi      = np.linspace(-1, 1, int(1e5))
 
-"""	
-skip = 100
-for i in range(int(datafiles/skip)):
-	plt.clf()
-	pos = np.load("data/run_08_01/RW_positions_"+str(int(skip*i))+".npy")
-	plt.scatter(pos[0, :], pos[1, :])
-	plt.pause(0.01)	
-plt.show()datafiles
-"""
-var = np.zeros(datafiles)
+factor  = Sc*Sc*Sc*Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(omega*omega*omega*(Sc-1)*(Sc-1))
+D_para0 = 1 + factor*0.5 * sci.trapz( np.sinh(a*xi)*np.sinh(a_c*xi)/(np.sinh(a)*np.sinh(a_c)) + np.sinh(gamma*xi)*np.sinh(gamma_c*xi)/(np.sinh(gamma)*np.sinh(gamma_c)) - np.sinh(a*xi)*np.sinh(gamma_c*xi)/(np.sinh(a)*np.sinh(gamma_c)) - np.sinh(gamma*xi)*np.sinh(a_c*xi)/(np.sinh(gamma)*np.sinh(a_c)), xi)
+ux = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(gamma*gamma)
+
+print("D_parallel: ", D_para0)
+print("U_avg: ", 0.5*sci.trapz(ux*np.conj(ux), xi))
+
+var  = np.zeros(datafiles)
+mean = np.zeros(datafiles)
 
 t = np.linspace(0, period*periods, datafiles)
 x = np.zeros(datafiles)
 y = np.zeros(datafiles)
 
 for i in range(datafiles):
-	plt.clf()
-	pos = np.load("data/Lx62_8/RW_positions_"+str(int(i*skip))+".npy")
+	#plt.clf()
+	pos = np.load("flow_fields/zero_eps/nu_0.5/pos/RW_positions_"+str(int(i*skip))+".npy")
 	#plt.scatter(pos[0, :], pos[1, :])
-	#plt.pause(0.01)
+	#plt.pause(0.5)
+	#plt.axis([-3.5, 3.5, -1, 1])
 	x[i] = pos[0, 5]
 	y[i] = pos[1, 5]
-	var[i] = np.square(np.std(pos[0, :]))/D
+	var[i]  = np.square(np.std(pos[0, :]))/D
+	mean[i] = np.mean(pos[0, :])
 
-np.save("data/Lx62_8_var", var)
+np.save("flow_fields/zero_eps/nu_0.5/pos/var", var)
 #plt.show()
 
-#plt.plot(np.trim_zeros(x), np.trim_zeros(y))
-#plt.show()
+plt.plot(t, mean)
+plt.show()
 
-plt.plot(t[:len(np.trim_zeros(var))]/tau, np.trim_zeros(var))
+plt.plot(x, y)
+plt.show()
+
+plt.plot(t/tau, var)
 plt.xlabel("time [periods]")
 plt.ylabel("variance")
 plt.show()
 
-plt.plot(t[1:len(np.trim_zeros(var))]/tau, np.trim_zeros(var[1:])/t[1:len(np.trim_zeros(var))])
-plt.xlabel("time [periods]")
-plt.ylabel("variance")
-plt.show()
-
-plt.plot(t/tau, np.gradient(var, t/tau))
+plt.plot(t[1:len(var)]/tau, var[1:]/t[1:len(var)])
+plt.plot(t/tau, np.ones(len(t))*D_para0)
 plt.xlabel("time [periods]")
 plt.ylabel("variance")
 plt.show()

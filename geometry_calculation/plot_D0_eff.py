@@ -24,10 +24,10 @@ matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-D_eff = 105*np.load("data/D_eff.npy")/2
+D_eff = 105*np.load("data_test/D_eff.npy")/2
 
-omega   = np.logspace(-4, 4, 81)
-schmidt = np.logspace(-4, 4, 81)
+omega   = np.logspace(-3, 3, 60)
+schmidt = np.logspace(-3, 3, 60)
 print(schmidt)
 
 
