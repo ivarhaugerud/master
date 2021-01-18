@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-dt = 0.01
-tau = 5.0 
+dt = 0.002
+tau = 3.0 
 
 epsilon = 0.0
 U_scale = 1
@@ -13,17 +13,16 @@ kappas = np.array([0.4])
 Lx = 2*np.pi/kappas
 
 omega = 2*np.pi/tau
-nu = 0.5
+nu = 4.0
 F0 = 3/nu
 Sc = nu
 gamma = np.sqrt(1j*omega/Sc)
 timesteps = int(tau/dt)
 period    = tau
 
-periods = 100
+periods = 5000
 datafiles = periods*25
 skip = int(periods*timesteps/datafiles)
-datafiles *= 2
 
 import scipy.integrate as sci
 gamma_c = np.conj(gamma)
@@ -47,7 +46,7 @@ y = np.zeros(datafiles)
 
 for i in range(datafiles):
 	#plt.clf()
-	pos = np.load("flow_fields/zero_eps/nu_0.5/pos/RW_positions_"+str(int(i*skip))+".npy")
+	pos = np.load("flow_fields/zero_eps/mu_4.0/pos/RW_positions_"+str(int(i*skip))+".npy")
 	#plt.scatter(pos[0, :], pos[1, :])
 	#plt.pause(0.5)
 	#plt.axis([-3.5, 3.5, -1, 1])

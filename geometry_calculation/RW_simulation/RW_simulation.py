@@ -9,12 +9,13 @@ from scipy.interpolate import griddata
 
 #dirr = "flow_fields/Lx62.8_tau5.0_eps0.2_nu16.0_D1.0_fzero0.0_fone10.0_res100_dt0.01/"
 #Lx1.0_tau5.0_eps0.0_nu0.5_D1.0_fzero0.0_fone3.0_res100_dt0.01
-dirr = "flow_fields/zero_eps/nu_0.5/"
+dirr = "flow_fields/zero_eps/mu_4.0/"
 #simulation paramters
-dt = 0.01
-tau = 5.0 
-timesteps = int(tau/dt)
-periods   = 100
+dt = 0.001
+tau = 3.0 
+skip = 2
+timesteps = int(tau/(dt))
+periods   = 5000
 datafiles = periods*25
 
 #geometry parameters
@@ -24,10 +25,9 @@ Lx      = 2*np.pi/kappas
 
 #flow parameters
 omega = 2*np.pi/tau
-nu = 0.5
+nu = 4.0
 D  = 1.0/3.0
 F0 = 3
-Sc = 1/nu
 periods_of_flow = 3
 
 exp_u2 = np.zeros(len(kappas))
@@ -46,19 +46,25 @@ for j in range(len(kappas)):
     tdat = np.loadtxt(dirr + "tdata.dat")
 
     time = tdat[:,0]
-    u2 = tdat[:,8]
+    u2   = tdat[:,4]
+    print(np.mean(u2), np.mean(tdat[:,8]))
     exp_u2[j] = integrate.trapz(u2[-timesteps:], time[-timesteps:])/(tau)
+    #plt.plot(time, u2)
     print("U = ", exp_u2[j])
+    #plt.show()
+
+timesteps = int(timesteps/skip)
 
 for i in range(len(Lx)):
     kappa = kappas[i]
     l = Lx[i]
     name = dirr + "u.h5"
+    print("before reading")
     f = h5py.File(name, 'r')
 
     #index of all lattice-points, 0 could be any timestep as this is indep of time
     geometry = np.array(list(f["Mesh"]["0"]["mesh"]["geometry"]))
-
+    print("after saving geometry")
     Nx = int(600)
     Ny = int(700)
     x = np.linspace(0, l, Nx)
@@ -71,7 +77,7 @@ for i in range(len(Lx)):
     U_scale = 1
 
     for j in range(timesteps):
-        u = np.array(list(f["VisualisationVector"][str(periods_of_flow*timesteps-j)])) 
+        u = np.array(list(f["VisualisationVector"][str(periods_of_flow*skip*timesteps-skip*j-1)])) 
         # Interpolate uneven grid onto an even grid
 
         ux_grid  = griddata((geometry[:,0], geometry[:,1]), U_scale*u[:,0]/U, (X, Y), method='nearest')
@@ -79,22 +85,23 @@ for i in range(len(Lx)):
 
         interpolation["x-"+str(j)]  = sci.RectBivariateSpline(y, x, ux_grid)
         interpolation["y-"+str(j)]  = sci.RectBivariateSpline(y, x, uy_grid)
-        print(j, timesteps)
+        print(j, str(periods_of_flow*skip*timesteps-skip*j-1), timesteps, 2*timesteps)
+        #print(np.max(u[:,0]), np.max(np.max(ux_grid)))
 
     Pe = 3.0
     D  = U_scale/Pe
     alpha = np.sqrt(2*D*dt)
 
-    for k in range(2*periods*timesteps):
-        if k % 2 == 0:
+    for k in range(periods*timesteps):
+        #if k % 2 == 0:
             #print("even:", str(int((k/2+timesteps)%timesteps)))
-            pos[0, :] += alpha*np.random.normal(loc=0, scale=1, size=N) + 0.5* dt * interpolation["x-"+str(int((k/2+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False)
-            pos[1, :] += alpha*np.random.normal(loc=0, scale=1, size=N) + 0.5* dt * interpolation["y-"+str(int((k/2+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False)
+        pos[0, :] += alpha*np.random.normal(loc=0, scale=1, size=N) + 0.5* dt * interpolation["x-"+str(int((k+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False)
+        pos[1, :] += alpha*np.random.normal(loc=0, scale=1, size=N) + 0.5* dt * interpolation["y-"+str(int((k+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False)
 
-        else:
-            #print("odd:", str(int(((k-1)/2+timesteps)%timesteps)), str(int(((k+1)/2+timesteps)%timesteps)))
-            pos[0, :] += alpha*np.random.normal(loc=0, scale=1, size=N) + 0.5* (dt * interpolation["x-"+str(int(((k+1)/2+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False) + dt * interpolation["x-"+str(int(((k-1)/2+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False))
-            pos[1, :] += alpha*np.random.normal(loc=0, scale=1, size=N) + 0.5* (dt * interpolation["y-"+str(int(((k+1)/2+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False) + dt * interpolation["y-"+str(int(((k-1)/2+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False))
+        #else:
+        #    #print("odd:", str(int(((k-1)/2+timesteps)%timesteps)), str(int(((k+1)/2+timesteps)%timesteps)))
+        #    pos[0, :] += alpha*np.random.normal(loc=0, scale=1, size=N) + 0.5* (dt * interpolation["x-"+str(int(((k+1)/2+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False) + dt * interpolation["x-"+str(int(((k-1)/2+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False))
+        #    pos[1, :] += alpha*np.random.normal(loc=0, scale=1, size=N) + 0.5* (dt * interpolation["y-"+str(int(((k+1)/2+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False) + dt * interpolation["y-"+str(int(((k-1)/2+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False))
 
         pos[:, np.where( pos[1, :] >   1+epsilon*np.cos(kappa*pos[0,:]))] = prev_pos[:, np.where( pos[1, :] >  1+epsilon*np.cos(kappa*pos[0,:]))] #checks if y-coordinate outside
         pos[:, np.where( pos[1, :] <  -1-epsilon*np.cos(kappa*pos[0,:]))] = prev_pos[:, np.where( pos[1, :] < -1-epsilon*np.cos(kappa*pos[0,:]))] #checks if y-coordinate outside
