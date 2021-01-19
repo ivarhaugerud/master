@@ -36,11 +36,11 @@ prev_pos[1,:] = np.copy(pos[1,:])
 
 xi = np.linspace(-1, 1, int(1e5))
 nu = 0.5
-F0 = 3.0
+F0 = 3.0/nu
 omega = 2*np.pi/tau 
 Sc = nu
 gamma = np.sqrt(1j*omega/Sc)
-ux = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(gamma*gamma)
+ux = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(gamma*gamma)/2
 U_ana = integrate.trapz(ux*np.conj(ux), xi)
 
 
@@ -51,15 +51,14 @@ for j in range(len(kappas)):
 
     time = tdat[:,0]
     u2   = tdat[:,4]
-    print(np.mean(u2), np.mean(tdat[:,8]))
     exp_u2[j] = integrate.trapz(u2[-timesteps:], time[-timesteps:])/(tau)
-    print(np.mean(u2[-timesteps:]))
+    #print(np.mean(u2[-timesteps:]))
     plt.plot(time, u2)
     plt.plot(time[-timesteps:], u2[-timesteps:])
-    print("U = ", np.sqrt(exp_u2[j]))
-    print("U_ana = ", np.sqrt(U_ana))
+    print("U = ", (exp_u2[j]))
+    print("U_ana = ", (U_ana))
     plt.show()
-
+"""
 timesteps = int(timesteps/skip)
 
 for i in range(len(Lx)):
@@ -110,3 +109,4 @@ for i in range(len(Lx)):
         if int(k) % int(periods*timesteps/datafiles) == 0:
             #np.save('data/Lx62_8/RW_positions_' +str(k), pos[:, :])
             np.save(dirr+'pos_2/RW_positions_' +str(k), pos[:, :])
+"""

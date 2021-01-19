@@ -5,27 +5,26 @@ import scipy.integrate as sci
 T = 3
 omega = 2*np.pi/T
 epsilon = 0.0
-U_scale = 1/2.0
-Dm = 1/3.0
-Pe = U_scale/Dm
+U_scale = 5
+Pe = 20 
+Dm = U_scale/Pe
 
 periods = 5000
 datafiles = periods*25
 half_way = int(datafiles/2)
-t = np.linspace(0, 0.5*T*periods, datafiles)
+t = np.linspace(0, T*periods, datafiles)
 
 nus = np.array([0.5, 4.0])
 
 var    = np.zeros((len(nus), datafiles))
 D_para = np.zeros((len(nus), datafiles-1))
 D      = np.zeros((len(nus), 2))
-
-
-
 D_ana = np.zeros(len(nus))
+
+
 for i in range(len(nus)):
-	Sc = nus[i]#*Pe
-	F0 = 3#/nus[i]
+	Sc = nus[i]#/Dm
+	F0 = 3/nus[i]
 	gamma   = np.sqrt(1j*omega/Sc)
 	gamma_c = np.conj(gamma)
 	a       = np.sqrt(1j*omega)
@@ -33,10 +32,10 @@ for i in range(len(nus)):
 	xi      = np.linspace(-1, 1, int(1e5))
 
 	factor  = Sc*Sc*Sc*Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(omega*omega*omega*(Sc-1)*(Sc-1))
-	D_ana[i] = 1 + np.real(factor * 0.5 * sci.trapz( np.sinh(a*xi)*np.sinh(a_c*xi)/(np.sinh(a)*np.sinh(a_c)) + np.sinh(gamma*xi)*np.sinh(gamma_c*xi)/(np.sinh(gamma)*np.sinh(gamma_c)) - np.sinh(a*xi)*np.sinh(gamma_c*xi)/(np.sinh(a)*np.sinh(gamma_c)) - np.sinh(gamma*xi)*np.sinh(a_c*xi)/(np.sinh(gamma)*np.sinh(a_c)), xi))
+	D_ana[i] = Dm*(1 + np.real(factor * 0.5 * sci.trapz( np.sinh(a*xi)*np.sinh(a_c*xi)/(np.sinh(a)*np.sinh(a_c)) + np.sinh(gamma*xi)*np.sinh(gamma_c*xi)/(np.sinh(gamma)*np.sinh(gamma_c)) - np.sinh(a*xi)*np.sinh(gamma_c*xi)/(np.sinh(a)*np.sinh(gamma_c)) - np.sinh(gamma*xi)*np.sinh(a_c*xi)/(np.sinh(gamma)*np.sinh(a_c)), xi)))
 
 for i in range(len(nus)):
-	var[i, :] = np.load("flow_fields/zero_eps/mu_"+str(nus[i]) +"/pos/var.npy")/Dm #*np.sqrt(2)
+	var[i, :] = np.load("flow_fields/zero_eps/mu_"+str(nus[i]) +"/pos_2/var.npy")
 """
 
 for i in range(len(nus)):

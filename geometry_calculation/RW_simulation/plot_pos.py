@@ -6,21 +6,23 @@ dt = 0.002
 tau = 3.0 
 
 epsilon = 0.0
-U_scale = 1/4.0
-D       = 2.0/(3.0)
-Pe      = U_scale/D
+U_scale = 5
+Pe = 20
+D       = U_scale/Pe 
+
+#Pe      = #U_scale/D
 
 kappas = np.array([0.4])
 Lx = 2*np.pi/kappas
 
 omega = 2*np.pi/tau
-nu = 4.0
+nu = 4.0	
 F0 = 3/nu
 Sc = nu
 gamma = np.sqrt(1j*omega/Sc)
 timesteps = int(tau/dt)
 period    = tau
-
+print(D)
 periods = 5000
 datafiles = periods*25
 skip = int(periods*timesteps/datafiles)
@@ -47,7 +49,7 @@ y = np.zeros(datafiles)
 
 for i in range(datafiles):
 	#plt.clf()
-	pos = np.load(dirr+"pos/RW_positions_"+str(int(i*skip))+".npy")
+	pos = np.load(dirr+"pos_2/RW_positions_"+str(int(i*skip))+".npy")
 	#plt.title(str(t[int(i)]))
 	#plt.scatter(pos[0, :], pos[1, :])
 	#plt.axis([-4, 4, -1, 1])
@@ -60,7 +62,7 @@ for i in range(datafiles):
 print(np.mean(var[int(datafiles/2):]/t[int(datafiles/2):]))
 print(np.mean(np.std((var[int(datafiles/2):]/t[int(datafiles/2):]))))
 
-np.save(dirr+"pos/var", var)
+np.save(dirr+"pos_2/var", var)
 
 plt.plot(t, mean)
 plt.show()
@@ -68,7 +70,6 @@ plt.show()
 plt.plot(x, y)
 plt.show()
 
-var = np.load(dirr+"pos/var.npy")
 plt.plot(t/tau, var)
 plt.xlabel("time [periods]")
 plt.ylabel("variance")
