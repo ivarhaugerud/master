@@ -1,5 +1,5 @@
 from sympy import * 
-order = 3 
+order = 2
 
 #define variables
 xi = symbols("xi")

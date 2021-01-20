@@ -21,6 +21,16 @@ D_para = np.zeros((len(nus), datafiles-1))
 D      = np.zeros((len(nus), 2))
 D_ana = np.zeros(len(nus))
 
+x = np.linspace(1e-4, 1, int(1e3))
+gamma = np.sqrt(1j*x)
+
+
+plt.plot(x, abs(np.real(np.tanh(np.conj(gamma))/gamma + 1j*np.tanh(gamma)/gamma)))
+plt.plot(x, x*(2/3-34*x*x/315))
+plt.plot(x, x*x*x*x*x*x, "--")
+#plt.yscale("log")
+#plt.xscale("log")
+plt.show()
 
 for i in range(len(nus)):
 	Sc = nus[i]#/Dm
@@ -29,13 +39,20 @@ for i in range(len(nus)):
 	gamma_c = np.conj(gamma)
 	a       = np.sqrt(1j*omega)
 	a_c     = np.conj(a)
+	rho = a 
+	rho_c = a_c
 	xi      = np.linspace(-1, 1, int(1e5))
 
 	factor  = Sc*Sc*Sc*Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(omega*omega*omega*(Sc-1)*(Sc-1))
-	D_ana[i] = Dm*(1 + np.real(factor * 0.5 * sci.trapz( np.sinh(a*xi)*np.sinh(a_c*xi)/(np.sinh(a)*np.sinh(a_c)) + np.sinh(gamma*xi)*np.sinh(gamma_c*xi)/(np.sinh(gamma)*np.sinh(gamma_c)) - np.sinh(a*xi)*np.sinh(gamma_c*xi)/(np.sinh(a)*np.sinh(gamma_c)) - np.sinh(gamma*xi)*np.sinh(a_c*xi)/(np.sinh(gamma)*np.sinh(a_c)), xi)))
-
+	#print("num: ", 0.5 * sci.trapz( np.sinh(a*xi)*np.sinh(a_c*xi)/(np.sinh(a)*np.sinh(a_c)) + np.sinh(gamma*xi)*np.sinh(gamma_c*xi)/(np.sinh(gamma)*np.sinh(gamma_c)) - np.sinh(a*xi)*np.sinh(gamma_c*xi)/(np.sinh(a)*np.sinh(gamma_c)) - np.sinh(gamma*xi)*np.sinh(a_c*xi)/(np.sinh(gamma)*np.sinh(a_c)), xi))
+	#print("ana: ",  (1/(rho*rho+gamma*gamma))*(-rho/np.tanh(rho)+rho_c/np.tanh(rho_c)+gamma_c/np.tanh(gamma_c) - gamma/np.tanh(gamma))  + (rho/np.tanh(rho) - rho_c/np.tanh(rho_c))/(2*rho*rho) + (gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c))/(2*gamma*gamma) )
+	#print(  ((1-Sc)/(2*rho*rho*(1+Sc)))*(rho/np.tanh(rho) - rho_c/np.tanh(rho_c)) - ((1-Sc)/(2*gamma*gamma*(1+Sc)))*(gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c))   )
+	D_ana[i] = (1 + np.real(factor * 0.5 * sci.trapz( np.sinh(a*xi)*np.sinh(a_c*xi)/(np.sinh(a)*np.sinh(a_c)) + np.sinh(gamma*xi)*np.sinh(gamma_c*xi)/(np.sinh(gamma)*np.sinh(gamma_c)) - np.sinh(a*xi)*np.sinh(gamma_c*xi)/(np.sinh(a)*np.sinh(gamma_c)) - np.sinh(gamma*xi)*np.sinh(a_c*xi)/(np.sinh(gamma)*np.sinh(a_c)), xi)))
+	print(rho_c/rho)
+	print(D_ana[i])
+	print(1+Sc*Sc*Sc*Pe*Pe*F0*F0/(2*omega*omega*omega*(Sc*Sc-1))*(np.tanh(gamma_c)/gamma + 1j*np.tanh(gamma)/gamma - 1j*np.tanh(gamma)*np.tanh(gamma_c)/(rho*np.tanh(rho_c)) - np.tanh(gamma)*np.tanh(gamma_c)/(rho*np.tanh(rho))))
 for i in range(len(nus)):
-	var[i, :] = np.load("flow_fields/zero_eps/mu_"+str(nus[i]) +"/pos_2/var.npy")
+	var[i, :] = np.load("flow_fields/zero_eps/mu_"+str(nus[i]) +"/pos_2/var.npy")/Dm
 """
 
 for i in range(len(nus)):
