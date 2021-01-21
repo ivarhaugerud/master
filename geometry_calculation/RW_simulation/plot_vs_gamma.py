@@ -16,7 +16,7 @@ t = np.linspace(0, T*periods, datafiles)
 nus = np.array([0.5, 4.0])
 U = np.zeros(len(nus))
 U[0] =  0.6204847210770329
-U[1] = 0.03586352057013804
+U[1] = 0.03588638734002204
 
 var    = np.zeros((len(nus), datafiles))
 D_para = np.zeros((len(nus), datafiles-1))

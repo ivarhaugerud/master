@@ -58,7 +58,7 @@ for j in range(len(kappas)):
     print("U = ", (exp_u2[j]))
     print("U_ana = ", (U_ana))
     plt.show()
-
+"""
 timesteps = int(timesteps/skip)
 
 for i in range(len(Lx)):
@@ -111,3 +111,4 @@ for i in range(len(Lx)):
         if int(k) % int(periods*timesteps/datafiles) == 0:
             #np.save('data/Lx62_8/RW_positions_' +str(k), pos[:, :])
             np.save(dirr+'pos_2/RW_positions_' +str(k), pos[:, :])
+"""
