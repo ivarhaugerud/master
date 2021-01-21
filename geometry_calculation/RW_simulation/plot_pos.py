@@ -1,14 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-dirr = "flow_fields/zero_eps/mu_0.5/"
-dt = 0.002
+dirr = "flow_fields/zero_eps/mu_4.0/"
+dt = 0.005
 tau = 3.0 
 
 epsilon = 0.0
-U_scale = 5
-Pe = 20
-D       = U_scale/Pe 
+U  = 0.6204847210770329
+U = 0.03586352057013804
+Pe = 10
+D  = U/Pe 
 
 #Pe      = #U_scale/D
 
@@ -22,7 +23,6 @@ Sc = nu
 gamma = np.sqrt(1j*omega/Sc)
 timesteps = int(tau/dt)
 period    = tau
-print(D)
 periods = 5000
 datafiles = periods*25
 skip = int(periods*timesteps/datafiles)
@@ -75,7 +75,7 @@ plt.xlabel("time [periods]")
 plt.ylabel("variance")
 plt.show()
 
-plt.plot(t[1:len(var)]/tau, var[1:]/t[1:len(var)])
+plt.plot(t[1:len(var)]/tau, var[1:]/t[1:len(var)]/D)
 plt.plot(t/tau, np.ones(len(t))*D_para0)
 plt.xlabel("time [periods]")
 plt.ylabel("variance")

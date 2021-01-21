@@ -7,11 +7,11 @@ from scipy import integrate
 import h5py
 from scipy.interpolate import griddata
 
-dirr = "flow_fields/zero_eps/mu_0.5/"
+dirr = "flow_fields/zero_eps/mu_4.0/"
 
 dt = 0.001
 tau = 3.0 
-skip = 2
+skip = 5
 timesteps = int(tau/(dt))
 periods   = 5000
 datafiles = periods*25
@@ -35,7 +35,7 @@ pos[1,:]      = np.random.uniform(-1+epsilon, 1-epsilon, N)
 prev_pos[1,:] = np.copy(pos[1,:])
 
 xi = np.linspace(-1, 1, int(1e5))
-nu = 0.5
+nu = 4.0
 F0 = 3.0/nu
 omega = 2*np.pi/tau 
 Sc = nu
@@ -58,7 +58,7 @@ for j in range(len(kappas)):
     print("U = ", (exp_u2[j]))
     print("U_ana = ", (U_ana))
     plt.show()
-"""
+
 timesteps = int(timesteps/skip)
 
 for i in range(len(Lx)):
@@ -79,34 +79,35 @@ for i in range(len(Lx)):
 
     interpolation = {}
 
-    U = np.sqrt(exp_u2[i])
-    U_scale = 5
-
     for j in range(timesteps):
         u = np.array(list(f["VisualisationVector"][str(periods_of_flow*skip*timesteps-skip*j-1)])) 
         # Interpolate uneven grid onto an even grid
 
-        ux_grid  = griddata((geometry[:,0], geometry[:,1]), U_scale*u[:,0]/U, (X, Y), method='nearest')
-        uy_grid  = griddata((geometry[:,0], geometry[:,1]), U_scale*u[:,1]/U, (X, Y), method='nearest')
+        ux_grid  = griddata((geometry[:,0], geometry[:,1]), u[:,0], (X, Y), method='nearest')
+        uy_grid  = griddata((geometry[:,0], geometry[:,1]), u[:,1], (X, Y), method='nearest')
 
         interpolation["x-"+str(j)]  = sci.RectBivariateSpline(y, x, ux_grid)
         interpolation["y-"+str(j)]  = sci.RectBivariateSpline(y, x, uy_grid)
         print(j, str(periods_of_flow*skip*timesteps-skip*j-1), timesteps, 2*timesteps)
 
-    Pe = 20
+    U = np.sqrt(exp_u2[i])
+    Pe = 10
     dt = dt*skip
-    D  = U_scale/Pe
+    D  = U/Pe
     alpha = np.sqrt(2*D*dt)
 
     for k in range(periods*timesteps):
         pos[0, :] += alpha*np.random.normal(loc=0, scale=1, size=N) + dt * interpolation["x-"+str(int((k+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False)
         pos[1, :] += alpha*np.random.normal(loc=0, scale=1, size=N)# + dt * interpolation["y-"+str(int((k+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False)
 
-        pos[:, np.where( pos[1, :] >   1+epsilon*np.cos(kappa*pos[0,:]))] = prev_pos[:, np.where( pos[1, :] >  1+epsilon*np.cos(kappa*pos[0,:]))] #checks if y-coordinate outside
-        pos[:, np.where( pos[1, :] <  -1-epsilon*np.cos(kappa*pos[0,:]))] = prev_pos[:, np.where( pos[1, :] < -1-epsilon*np.cos(kappa*pos[0,:]))] #checks if y-coordinate outside
+        #pos[:, np.where( pos[1, :] >   1+epsilon*np.cos(kappa*pos[0,:]))] = prev_pos[:, np.where( pos[1, :] >  1+epsilon*np.cos(kappa*pos[0,:]))] #checks if y-coordinate outside
+        #pos[:, np.where( pos[1, :] <  -1-epsilon*np.cos(kappa*pos[0,:]))] = prev_pos[:, np.where( pos[1, :] < -1-epsilon*np.cos(kappa*pos[0,:]))] #checks if y-coordinate outside
+
+
+        pos[:, np.where( abs(pos[1, :]) > 1)] = prev_pos[:, np.where( abs(pos[1, :]) >  1)] #checks if y-coordinate outside
+
         prev_pos = np.copy(pos)
 
         if int(k) % int(periods*timesteps/datafiles) == 0:
             #np.save('data/Lx62_8/RW_positions_' +str(k), pos[:, :])
             np.save(dirr+'pos_2/RW_positions_' +str(k), pos[:, :])
-"""
