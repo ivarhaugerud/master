@@ -19,6 +19,13 @@ P = series(P, kappa, n=order).removeO()
 P = simplify(series(P, gamma, n=order).removeO())
 print("P (1): ", P)
 
+order = 4
+A = gamma*cosh(gamma*xi)/sinh(gamma)
+A = simplify(series(A, gamma, n=order).removeO())
+print(A)
+order = 2
+
+
 uy1 = uy1.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
 uy1 = series(uy1, kappa_p, n=order).removeO()
 uy1 = uy1.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
