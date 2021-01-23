@@ -1,14 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-dirr = "flow_fields/zero_eps/mu_4.0/"
-dt = 0.005
-tau = 3.0 
+dirr = "flow_fields/non_zero_eps/Lx15.71_tau3.0_eps0.25_nu3.6_D1.0_fzero0.0_fone12.0_res100_dt0.006/"
+dt = 0.006
+tau = 3.0
 
-epsilon = 0.0
+epsilon = 0.25
 U  = 0.6204847210770329
-U = 0.03586352057013804
-Pe = 10
+U = 1.1772393257809046#0.03586352057013804
+U = 0.4743218639154592
+Pe = 6
 D  = U/Pe 
 
 #Pe      = #U_scale/D
@@ -17,13 +18,13 @@ kappas = np.array([0.4])
 Lx = 2*np.pi/kappas
 
 omega = 2*np.pi/tau
-nu = 4.0	
-F0 = 3/nu
+nu = 3.6	
+F0 = 12/nu
 Sc = nu
 gamma = np.sqrt(1j*omega/Sc)
 timesteps = int(tau/dt)
 period    = tau
-periods = 5000
+periods = 4000
 datafiles = periods*25
 skip = int(periods*timesteps/datafiles)
 
@@ -49,7 +50,7 @@ y = np.zeros(datafiles)
 
 for i in range(datafiles):
 	#plt.clf()
-	pos = np.load(dirr+"pos_2/RW_positions_"+str(int(i*skip))+".npy")
+	pos = np.load(dirr+"pos/RW_positions_"+str(int(i*skip))+".npy")
 	#plt.title(str(t[int(i)]))
 	#plt.scatter(pos[0, :], pos[1, :])
 	#plt.axis([-4, 4, -1, 1])
@@ -62,7 +63,7 @@ for i in range(datafiles):
 print(np.mean(var[int(datafiles/2):]/t[int(datafiles/2):]))
 print(np.mean(np.std((var[int(datafiles/2):]/t[int(datafiles/2):]))))
 
-np.save(dirr+"pos_2/var", var)
+np.save(dirr+"pos/var", var)
 
 plt.plot(t, mean)
 plt.show()
