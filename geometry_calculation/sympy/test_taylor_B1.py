@@ -4,16 +4,19 @@ from sympy import *
 xi = symbols("xi")
 omega, gamma, kappa, Sc, F0, Pe, rho, i = symbols("omega gamma kappa Sc F0 Pe rho i")
 
-
-sol = F0*(1-xi*xi - 2/(rho*rho) + 2*cosh(rho*xi)/(rho*sinh(rho)))/(4*rho*rho) + Pe*F0*(1/(rho*rho)+xi*sinh(rho*xi)/(2*sinh(rho)) - cosh(rho*xi)*(1+rho/tanh(rho))/(2*rho*sinh(rho)))/(rho*rho)
-difference = diff(diff(sol, xi), xi) - rho*rho*sol
+B0_deriv = Pe*F0*(sinh(rho*xi)/sinh(rho)-1)/(rho*rho)
+B_plus = F0*(1-xi*xi - 2/(rho*rho) + 2*cosh(rho*xi)/(rho*sinh(rho)))/(4*rho*rho) + Pe*F0*(1/(rho*rho)+xi*sinh(rho*xi)/(2*sinh(rho)) - cosh(rho*xi)*(1+rho/tanh(rho))/(2*rho*sinh(rho)))/(rho*rho)
+difference = diff(diff(B_plus, xi), xi) - rho*rho*B_plus
 difference = (simplify(expand(difference)))
 RHS = -F0*(1-xi*xi)/4 + Pe*F0*(rho*cosh(rho*xi)/sinh(rho) - 1)/(rho*rho)
-print(simplify(expand(difference - RHS)))
-print(simplify((diff(sol, xi).subs(xi, 1))))
+#RHS = (diff(B0_deriv, xi)) - F0*(1-xi*xi)/4 
+print("B_plus: ", simplify(expand(difference - RHS)))
+print("B_plus boundary: ", simplify((diff(B_plus, xi).subs(xi, 1))))
 
+#D_para = 0.5*diff(B)
 
 # SOLVING FOR B2
+"""
 A = F0*(1-Pe-rho*Pe/tanh(rho))/(2*rho*rho*rho*sinh(rho))
 RHS = (Pe*F0*kappa*(1-xi*xi)/(4))*(F0*(1-xi*xi-2/(rho*rho))/(4*rho*rho))# 
 RHS += Pe*F0*kappa*A*(1-xi*xi)*cosh(rho*xi)/4 
@@ -40,7 +43,6 @@ sol3 = A*cosh(kappa*xi)/(kappa*sinh(kappa))
 print("B0 homo: ", simplify(expand(simplify(diff(diff(sol3, xi), xi)-kappa*kappa*sol3))))
 
 sol2 += sol3
-print("BOUNDARY CONDITIONS B0 at xi=1:  ", simplify(expand(simplify((diff(sol1+sol2, xi).subs(xi,  1))))))
+print("BOUNDARY CONDITIONS B0 at xi= 1: ", simplify(expand(simplify((diff(sol1+sol2, xi).subs(xi,  1))))))
 print("BOUNDARY CONDITIONS B0 at xi=-1: ", simplify(expand(simplify((diff(sol1+sol2, xi).subs(xi, -1))))))
-
-
+"""
