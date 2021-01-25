@@ -13,12 +13,11 @@ D_parallels = np.load("data/D_parallels_kappa.npy")
 print(D_parallels)
 
 num_kappas = np.load("../RW_simulation/data/D_eff_vs_kappa.npy")
-nu = 1.2
-omega = 5/(2*np.pi)
-F0 = 3
-D = 0.3
-Sc = nu#/D
-Pe = 1/D
+nu = 3.6
+omega = 3/(2*np.pi)
+F0 = 12/nu
+Sc = nu
+Pe = 6
 kappas = np.arange(0.1, 2.5, 0.4)
 
 print(len(kappas), len(D_parallels))
@@ -48,7 +47,7 @@ plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
-eps = 0.2
+eps = 0.25
 D_para = eps*eps*np.real(D_parallels)
 D_para += np.real(D_para0)
 
@@ -58,8 +57,9 @@ plt.plot(kappas, D_para, "-", linewidth=1)
 plt.plot(kappas, np.ones(len(kappas))*D_para0, "-")
 #plt.yscale("log")
 #plt.xscale("log")
-kappas = np.array([0.1, 0.4, 0.7, 1.0, 1.3, 1.6])
-plt.plot(kappas, num_kappas[:, 0])
+kappas = np.array([0.4, 0.5, 0.66, 1])
+D_RW = np.load("../RW_simulation/data/D_eff_vs_kappa.npy")
+plt.plot(kappas, D_RW[:, 0])
 plt.xlabel(r"Wave number $\kappa$", fontsize=8)
 plt.ylabel(r"Total Parallel Diffusion $D_\parallel + O(\epsilon^4)$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)

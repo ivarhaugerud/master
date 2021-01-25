@@ -136,12 +136,11 @@ k     = np.array([-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6])
 xi    = np.linspace(-1, 1, int(1e5))
 
 #system parameters
-nu = 1.2
-omega = 5/(2*np.pi)
-F0 = 3
-D = 0.3
+nu = 3.6
+omega = 3/(2*np.pi)
+F0 = 12/nu
 Sc = nu#/D
-Pe = 1/D
+Pe = 6
 kappas = np.arange(0.1, 2.5, 0.4)
 D_parallels = np.zeros(len(kappas))
 
@@ -283,6 +282,7 @@ for K in range(len(kappas)):
 	b0_deriv_deriv[:, np.argmin(abs(k-1))] = B0_deriv_deriv/2 
 	b0_deriv_deriv[:, np.argmin(abs(k+1))] = np.conj(B0_deriv_deriv)/2 
 
+	"""
 	for i in range(n):
 		B1_min_deriv[:, i]        = interp1d(N_pos, np.gradient(B_minus_coeff[:,i], N_pos), kind='cubic')(xi)
 		B1_plus_deriv[:, i]       = interp1d(N_pos, np.gradient(B_plus_coeff[:,i], N_pos), kind='cubic')(xi)
@@ -297,6 +297,16 @@ for K in range(len(kappas)):
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += b0_deriv[:, i]*(2*B2_0_deriv[:,j] - B1_plus_deriv[:,j] - kappa*kappa*xi*B_plus[:, j])
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5*(1+kappa*kappa*xi*xi)*b0_deriv[:, i]*b0_deriv[:, j]
 	
+	"""
+	for i in range(len(k)):
+		D_eff_xi[:, np.argmin(abs(new_k-k[i]))] +=  kappa*B_minus[:, i] + kappa*xi*B1_min_deriv[:,i]
+
+	for i in range(len(k)):
+		for j in range(len(k)):
+			D_eff_xi[:, np.argmin(abs(new_k -k[i]-k[j]))] += 0.5* (b0_deriv[:,i]*b0_deriv[:,j]*(5+kappa*kappa*xi*xi)/2)
+			D_eff_xi[:, np.argmin(abs(new_k -k[i]-k[j]))] += 0.5* ((kappa*kappa*B_plus[:, i]*B_plus[:, j] + B1_plus_deriv[:,i]*B1_plus_deriv[:,j] + kappa*kappa*B1_min_deriv[:, i]*B1_min_deriv[:, j] + B1_min_deriv[:,i]*B1_min_deriv[:,j])/2)
+			D_eff_xi[:, np.argmin(abs(new_k -k[i]-k[j]))] += 0.5* (2*b0_deriv[:, i] - b0_deriv[:,i]*(B1_plus_deriv[:,j] + kappa*kappa*xi*B_plus[:, j]))
+
 	for i in range(len(new_k)):
 		print(np.max(np.imag(D_eff_xi[:, i]+D_eff_xi[:,-i-1])))
 
