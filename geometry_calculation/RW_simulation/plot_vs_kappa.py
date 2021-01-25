@@ -27,7 +27,8 @@ factor  = Sc*Sc*Sc*Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(omega*omega*omeg
 D_ana = np.ones(len(t))*(1 + np.real(factor * 0.5 * sci.trapz( np.sinh(a*xi)*np.sinh(a_c*xi)/(np.sinh(a)*np.sinh(a_c)) + np.sinh(gamma*xi)*np.sinh(gamma_c*xi)/(np.sinh(gamma)*np.sinh(gamma_c)) - np.sinh(a*xi)*np.sinh(gamma_c*xi)/(np.sinh(a)*np.sinh(gamma_c)) - np.sinh(gamma*xi)*np.sinh(a_c*xi)/(np.sinh(gamma)*np.sinh(a_c)), xi)))
 
 
-kappas = np.array([0.4, 0.5, 0.66, 1])
+kappas = np.array([0.4, 0.5, 0.667, 1])
+print(2*np.pi/kappas)
 exp_u2 = np.zeros(len(kappas))
 Lxs    = 2*np.pi/kappas
 files = ["flow_fields/non_zero_eps/Lx15.71_tau3.0_eps0.25_nu3.6_D1.0_fzero0.0_fone12.0_res100_dt0.006/",
@@ -68,8 +69,8 @@ for i in range(len(kappas)):
 	D[i, 0] = np.mean(D_para[i, half_way:])
 	D[i, 1] = np.std(D_para[i, half_way:])
 
-D[0, 0] = np.mean(D_para[0, int(3*half_way/2):])
-D[0, 1] =  np.std(D_para[0, int(3*half_way/2):])
+#D[0, 0] = np.mean(D_para[0, int(3*half_way/2):])
+#D[0, 1] =  np.std(D_para[0, int(3*half_way/2):])
 
 plt.errorbar(kappas, D[:,0], yerr=D[:,1], fmt="o")
 plt.show()

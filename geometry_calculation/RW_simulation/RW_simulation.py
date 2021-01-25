@@ -10,12 +10,12 @@ from scipy.interpolate import griddata
 dt = 0.006
 tau = 3.0 
 timesteps = int(tau/(dt))
-periods   = 4000
-datafiles = periods*25
+periods   = 10000
+datafiles = periods*20
 
 #geometry parameters
 epsilon = 0.25
-Lx      = np.array([9.42])
+Lx = np.array([1.05, 2.09, 6.28, 9.42, 12.56, 15.71, 25.13])
 kappas  = 2*np.pi/Lx
 
 #flow parameters
@@ -24,8 +24,8 @@ exp_u2 = np.zeros(len(kappas))
 
 dirr = []
 
-dirr.append("flow_fields/non_zero_eps/Lx15.71_tau3.0_eps0.25_nu3.6_D1.0_fzero0.0_fone12.0_res100_dt0.006/")
-#dirr.append("flow_fields/non_zero_eps/Lx"+str(Lx[1])+"_tau3.0_eps0.25_nu1.2_D1.0_fzero0.0_fone3.0_res100_dt0.001/")
+for i in range(len(Lx)):
+    dirr.append("flow_fields/non_zero_eps/Lx"+str(Lx[i])+"_tau3.0_eps0.25_nu3.6_D1.0_fzero0.0_fone12.0_res100_dt0.006/")
 
 #for RW simulation 
 N  = int(1e3)    #number of random walkers
@@ -45,32 +45,22 @@ U_ana = integrate.trapz(ux*np.conj(ux), xi)
 
 
 for j in range(len(kappas)):
-    res = int(100)
-    filename = dirr
     tdat = np.loadtxt(dirr[j] +"tdata.dat")
 
     time = tdat[:,0]
     u2   = tdat[:,4]
     exp_u2[j] = integrate.trapz(u2[-timesteps:], time[-timesteps:])/(tau)
-    #print(np.mean(u2[-timesteps:]))
-    plt.plot(time, u2)
-    plt.plot(time[-timesteps:], u2[-timesteps:])
-    print(kappas[j], "U = ", (exp_u2[j]))
-    print("U_ana = ", (U_ana))
-    plt.show()
-
 
 for i in range(len(Lx)):
     kappa = kappas[i]
     l = Lx[i]
     name = dirr[i] + "u.h5"
-    print("before reading")
     f = h5py.File(name, 'r')
 
     #index of all lattice-points, 0 could be any timestep as this is indep of time
     geometry = np.array(list(f["Mesh"]["0"]["mesh"]["geometry"]))
-    print("after saving geometry")
-    Nx = int(60)
+
+    Nx = int(600)
     Ny = int(700)
     x = np.linspace(0, l, Nx)
     y = np.linspace(-1-epsilon, 1+epsilon, Ny)
@@ -87,7 +77,7 @@ for i in range(len(Lx)):
 
         interpolation["x-"+str(j)]  = sci.RectBivariateSpline(y, x, ux_grid)
         interpolation["y-"+str(j)]  = sci.RectBivariateSpline(y, x, uy_grid)
-        print(j, str(int(periods_of_flow*timesteps)-j-1), timesteps, timesteps)
+        print(Lx[i], j, str(int(periods_of_flow*timesteps)-j-1))
 
     U = np.sqrt(exp_u2[i])
     Pe = 6
@@ -103,5 +93,6 @@ for i in range(len(Lx)):
         prev_pos = np.copy(pos)
 
         if int(k) % int(periods*timesteps/(datafiles)) == 0:
-            #np.save('data/Lx62_8/RW_positions_' +str(k), pos[:, :])
-            np.save(dirr[i]+"/pos/RW_positions_" +str(k), pos[:, :])
+            np.save(dirr[i]+"pos/RW_positions_" +str(k), pos[:, :])
+
+    print("DONE WITH RUN FOR KAPPA: ", kappa)
