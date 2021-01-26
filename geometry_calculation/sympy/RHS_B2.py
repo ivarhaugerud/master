@@ -51,7 +51,7 @@ print("boundary P (1): ", simplify(expand(simplify(P1.subs(xi, 1)))))
 """
 #print(simplify(expand(simplify(ux20.subs(P_1, P1)))))
 
-B_deriv = Pe*F0*(sinh(rho*xi)/sinh(rho)-xi)/(rho*rho)
+B_deriv = Pe*F0*(sinh(rho*xi)/sinh(rho)-xi)/(2*rho*rho)
 B1 = F0*(1-xi*xi - 2/(rho*rho) + 2*cosh(rho*xi)/(rho*sinh(rho)))/(4*rho*rho) + Pe*F0*(1/(rho*rho)+xi*sinh(rho*xi)/(2*sinh(rho)) - cosh(rho*xi)*(1+rho/tanh(rho))/(2*rho*sinh(rho)))/(rho*rho)
 
 
@@ -76,5 +76,14 @@ print("RHS1: ", simplify((simplify(RHS1))))
 #RHS2 = (Pe/2)*(kappa*xi*ux0*)
 
 
-my_RHS1 = xi*sinh(rho*xi)/sinh(rho)*F0*Pe/2*(  kappa*kappa/(2*rho*tanh(rho)) + kappa*kappa/(2*rho*rho) - 1/(2*rho*rho*Pe) - 1) + cosh(rho*xi)/sinh(rho)*F0*Pe/(2*rho)*(rho/tanh(rho) + 2 - 1/Pe) + xi*xi*F0*kappa*kappa*Pe/(rho*rho)*(rho/4-1+1/(4*Pe)) + F0/(2*rho*rho)  -3*Pe*F0/(2*rho*rho)
-print("RHS1: ", simplify(expand(simplify(RHS1-my_RHS1))))
+# (Pe*kappa**2*rho*xi**2*cosh(rho*xi) + 2*Pe*kappa**2*xi*sinh(rho*xi) - 2*Pe*rho**2*xi*sinh(rho*xi) + 4*Pe*rho*cosh(rho*xi) - kappa**2*xi*sinh(rho*xi) - 2*rho*cosh(rho*xi))*sinh(rho)
+
+#my_RHS1 = F0*xi*sinh(rho*xi)*(Pe*rho*kappa*kappa /tanh(rho) + 2*Pe*(kappa*kappa/2-rho*rho)-kappa*kappa)/(4*rho*rho*sinh(rho)) + F0*cosh(rho*xi)*(Pe*rho/tanh(rho) + Pe/2-1)/(2*rho*sinh(rho)) + xi*xi*F0*kappa*kappa*(1-2*Pe)/(4*rho*rho) + F0*(1-3*Pe/2)/(2*rho*rho)
+my_RHS1 = F0*xi*sinh(rho*xi)*(kappa*kappa+Pe*(2*rho*rho-kappa*kappa) - Pe*rho*kappa*kappa/tanh(rho))/(4*rho*rho*sinh(rho)) + F0*cosh(rho*xi)*(1-Pe/2 - Pe*rho/tanh(rho))/(2*rho*sinh(rho)) + xi*xi*F0*kappa*kappa*(2*Pe-1)/(4*rho*rho)  + F0*(3*Pe/2 - 1)/(2*rho*rho)
+#my_RHS1 = rho*xi*sinh(rho*xi)
+#print("RHS1: ", simplify(expand(simplify(RHS1+my_RHS1))))
+
+sol1 = F0*(kappa*kappa+Pe*(2*rho*rho-kappa*kappa) - Pe*rho*kappa*kappa/tanh(rho))/(4*rho*rho*sinh(rho))*(xi*xi*cosh(rho*xi)/(4*rho)-xi*sinh(rho*xi)/(4*rho*rho)) + F0*(1-Pe/2 - Pe*rho/tanh(rho))/(2*rho*sinh(rho))*(xi*sinh(rho*xi)/(2*rho)) - F0*kappa*kappa*(2*Pe-1)/(4*rho*rho*rho*rho)*(2/(rho*rho)+xi*xi) - F0*(3*Pe/2 - 1)/(2*rho*rho*rho*rho)
+sol1 = xi*xi*cosh(rho*xi)*F0/(sinh(rho)*16*rho*rho*rho)*(kappa*kappa+Pe*(2*rho*rho-kappa*kappa)-Pe*rho*kappa*kappa/tanh(rho)) + xi*sinh(rho*xi)/sinh(rho)*F0/(4*rho*rho)*(1-Pe/2-Pe*rho/tanh(rho) - (kappa*kappa+Pe*(2*rho*rho-kappa*kappa)-Pe*rho*kappa*kappa/(tanh(rho)))/(4*rho*rho)) - F0*kappa*kappa*(2*Pe-1)*(xi*xi+2/(rho*rho))/(4*rho*rho*rho*rho) - F0*(3*Pe/2-1)/(2*rho*rho*rho*rho)
+#sol1 = (xi*xi*cosh(rho*xi)/(4*rho) - xi*sinh(rho*xi)/(4*rho*rho))*rho
+print("\n\n difference: ", simplify(expand(simplify(diff(diff(sol1,xi), xi) - rho*rho*sol1 - my_RHS1))))
