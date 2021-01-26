@@ -28,6 +28,9 @@ ux1 = series(ux1, kappa, n=order).removeO()
 ux1 = simplify(series(ux1, gamma, n=order).removeO())
 ux1 = simplify(series(ux1, kappa, n=order).removeO())
 print("\n ux (1): ", ux1)
+integal1 = simplify(expand(simplify(integrate(ux1, (xi, -1, 1)))))/4 #4 since integrating over sin^2(kn) and xi
+print("integral: ", integal1)
+
 
 
 #ux20 = ux20.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
@@ -38,6 +41,8 @@ ux20 = simplify(series(ux20, gamma, n=order+1).removeO())
 ux20 = simplify(series(ux20, kappa, n=order+1).removeO())
 print("\n ux (2): ", ux20)
 print("boundary ux_0 (2): ", simplify(expand(simplify(ux20.subs(xi, 1)))))
+integal2 = simplify(expand(simplify(integrate(ux20, (xi, -1, 1)))))/2
+print("integral: ", integal2)
 
 """
 P1  = ( F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p)))
@@ -85,5 +90,13 @@ my_RHS1 = F0*xi*sinh(rho*xi)*(kappa*kappa+Pe*(2*rho*rho-kappa*kappa) - Pe*rho*ka
 
 sol1 = F0*(kappa*kappa+Pe*(2*rho*rho-kappa*kappa) - Pe*rho*kappa*kappa/tanh(rho))/(4*rho*rho*sinh(rho))*(xi*xi*cosh(rho*xi)/(4*rho)-xi*sinh(rho*xi)/(4*rho*rho)) + F0*(1-Pe/2 - Pe*rho/tanh(rho))/(2*rho*sinh(rho))*(xi*sinh(rho*xi)/(2*rho)) - F0*kappa*kappa*(2*Pe-1)/(4*rho*rho*rho*rho)*(2/(rho*rho)+xi*xi) - F0*(3*Pe/2 - 1)/(2*rho*rho*rho*rho)
 sol1 = xi*xi*cosh(rho*xi)*F0/(sinh(rho)*16*rho*rho*rho)*(kappa*kappa+Pe*(2*rho*rho-kappa*kappa)-Pe*rho*kappa*kappa/tanh(rho)) + xi*sinh(rho*xi)/sinh(rho)*F0/(4*rho*rho)*(1-Pe/2-Pe*rho/tanh(rho) - (kappa*kappa+Pe*(2*rho*rho-kappa*kappa)-Pe*rho*kappa*kappa/(tanh(rho)))/(4*rho*rho)) - F0*kappa*kappa*(2*Pe-1)*(xi*xi+2/(rho*rho))/(4*rho*rho*rho*rho) - F0*(3*Pe/2-1)/(2*rho*rho*rho*rho)
-#sol1 = (xi*xi*cosh(rho*xi)/(4*rho) - xi*sinh(rho*xi)/(4*rho*rho))*rho
+
 print("\n\n difference: ", simplify(expand(simplify(diff(diff(sol1,xi), xi) - rho*rho*sol1 - my_RHS1))))
+
+RHS_2 = simplify(Pe*(ux20-integal1-integal2))/2
+my_RHS2  = Pe*(F0*gamma*gamma*(2*xi*xi-xi*xi*xi*xi-1)/8 + F0*(1-xi*xi)/4 + P_1*kappa*(1-xi*xi)*(2-gamma*gamma)/4 + F0*gamma*gamma/15 - P_1*kappa*(1-gamma*gamma/2)/3)/2
+my_sol   = Pe*F0*gamma*gamma*(24/(rho*rho*rho*rho) + 12*xi*xi/(rho*rho) - 4/(rho*rho) + xi*xi*xi*xi -2*xi*xi + 1)/(16*rho*rho) + Pe*(2/(rho*rho) + xi*xi - 1)*(F0 + P_1*kappa*(2-gamma*gamma))/(8*rho*rho) - Pe*(F0*gamma*gamma/15 - P_1*kappa*(1-gamma*gamma/2)/3)/(2*rho*rho)
+
+print(simplify(expand(RHS_2- my_RHS2)))
+
+print(simplify(expand(diff(diff(my_sol, xi), xi) - rho*rho*my_sol - RHS_2)))
