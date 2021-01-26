@@ -15,7 +15,7 @@ datafiles = periods*20
 
 #geometry parameters
 epsilon = 0.25
-Lx = np.array([1.05, 2.09, 6.28, 9.42, 12.56, 15.71, 25.13])
+Lx = np.array([12.56, 15.71, 25.13])
 kappas  = 2*np.pi/Lx
 
 #flow parameters
