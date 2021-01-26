@@ -95,8 +95,13 @@ print("\n\n difference: ", simplify(expand(simplify(diff(diff(sol1,xi), xi) - rh
 
 RHS_2 = simplify(Pe*(ux20-integal1-integal2))/2
 my_RHS2  = Pe*(F0*gamma*gamma*(2*xi*xi-xi*xi*xi*xi-1)/8 + F0*(1-xi*xi)/4 + P_1*kappa*(1-xi*xi)*(2-gamma*gamma)/4 + F0*gamma*gamma/15 - P_1*kappa*(1-gamma*gamma/2)/3)/2
-my_sol   = Pe*F0*gamma*gamma*(24/(rho*rho*rho*rho) + 12*xi*xi/(rho*rho) - 4/(rho*rho) + xi*xi*xi*xi -2*xi*xi + 1)/(16*rho*rho) + Pe*(2/(rho*rho) + xi*xi - 1)*(F0 + P_1*kappa*(2-gamma*gamma))/(8*rho*rho) - Pe*(F0*gamma*gamma/15 - P_1*kappa*(1-gamma*gamma/2)/3)/(2*rho*rho)
+sol2   = Pe*F0*gamma*gamma*(24/(rho*rho*rho*rho) + 12*xi*xi/(rho*rho) - 4/(rho*rho) + xi*xi*xi*xi -2*xi*xi + 1)/(16*rho*rho) + Pe*(2/(rho*rho) + xi*xi - 1)*(F0 + P_1*kappa*(2-gamma*gamma))/(8*rho*rho) - Pe*(F0*gamma*gamma/15 - P_1*kappa*(1-gamma*gamma/2)/3)/(2*rho*rho)
 
 print(simplify(expand(RHS_2- my_RHS2)))
 
-print(simplify(expand(diff(diff(my_sol, xi), xi) - rho*rho*my_sol - RHS_2)))
+print(simplify(expand(diff(diff(sol2, xi), xi) - rho*rho*sol2 - RHS_2)))
+
+sol = sol1+sol2
+sol += -cosh(rho*xi)*(-F0*Pe*kappa**2*rho**2 + 2*F0*Pe*rho**4*tanh(rho)**2 - 4*F0*Pe*rho**4 + F0*kappa**2*rho*tanh(rho) - F0*rho**3*(Pe*kappa**2 + 4*Pe - 4)*tanh(rho) + F0*(24*Pe*gamma**2 - 15*Pe*kappa**2 + 7*kappa**2)*tanh(rho)**2 + rho**2*(-F0*Pe*kappa**2 + F0*kappa**2 + 4*F0 - 4*P_1*Pe*gamma**2*kappa + 8*P_1*Pe*kappa)*tanh(rho)**2)/(sinh(rho)*16*rho**5*tanh(rho)**2)
+
+print(simplify(expand(simplify(diff(sol, xi).subs(xi, 1)))))
