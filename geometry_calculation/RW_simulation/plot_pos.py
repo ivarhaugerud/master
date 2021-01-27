@@ -7,7 +7,7 @@ timesteps = int(tau/(dt))
 periods   = 10000
 datafiles = periods*20
 period    = tau
-periods = 10000
+periods = 5000
 datafiles = periods*20
 skip = int(periods*timesteps/datafiles)
 
@@ -31,6 +31,6 @@ for l in range(len(Lx)):
 		var[i]  = np.square(np.std(pos[0, :]))
 		mean[i] = np.mean(pos[0, :])
 
-	np.save(dirr[l]+"var",   var)
-	np.save(dirr[l]+"mean", mean)
+	np.save(dirr[l]+"var2",   var)
+	np.save(dirr[l]+"mean2", mean)
 	print("saved ", Lx[l])

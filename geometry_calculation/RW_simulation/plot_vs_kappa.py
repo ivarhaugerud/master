@@ -6,9 +6,9 @@ from scipy import integrate as sci
 tau = 3
 dt = 0.006
 timesteps = int(tau/(dt))
-periods = 10000
+periods = 5000
 datafiles = periods*20
-half_way = int(datafiles/2)
+half_way = int(4*datafiles/5)
 skip = int(periods*timesteps/datafiles)
 
 t = np.linspace(0, tau*periods, datafiles)
@@ -46,9 +46,7 @@ t = t[1:]
 Pe = 1
 
 for i in range(len(kappas)):
-	print(np.shape(np.load(dirr[i]+"var.npy")))
-	var[i, :] = np.load(dirr[i]+"var.npy")[1:]
-	var[i, :] -= var[i, 0]
+	var[i, :] = np.load(dirr[i]+"var2.npy")[1:]
 	tdat = np.loadtxt(dirr[i] +"tdata.dat")[1:]
 	time = tdat[:,0]
 	u2   = tdat[:,4]
