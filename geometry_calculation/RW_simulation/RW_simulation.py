@@ -10,12 +10,13 @@ from scipy.interpolate import griddata
 dt = 0.006
 tau = 3.0 
 timesteps = int(tau/(dt))
-periods   = 10000
+periods   = 5000
 datafiles = periods*20
 
 #geometry parameters
 epsilon = 0.25
 Lx = np.array([12.56, 15.71, 25.13])
+Lx =  np.array([1.05, 2.09, 6.28, 9.42])
 kappas  = 2*np.pi/Lx
 
 #flow parameters
@@ -29,10 +30,6 @@ for i in range(len(Lx)):
 
 #for RW simulation 
 N  = int(1e3)    #number of random walkers
-prev_pos = np.zeros((2, N))
-pos      = np.zeros((2, N))
-pos[1,:]      = np.random.uniform(-1+epsilon, 1-epsilon, N)
-prev_pos[1,:] = np.copy(pos[1,:])
 
 xi = np.linspace(-1, 1, int(1e5))
 nu = 3.6
@@ -52,6 +49,10 @@ for j in range(len(kappas)):
     exp_u2[j] = integrate.trapz(u2[-timesteps:], time[-timesteps:])/(tau)
 
 for i in range(len(Lx)):
+    prev_pos = np.zeros((2, N))
+    pos      = np.zeros((2, N))
+    pos[1,:]      = np.random.uniform(-1+epsilon, 1-epsilon, N)
+    prev_pos[1,:] = np.copy(pos[1,:])
     kappa = kappas[i]
     l = Lx[i]
     name = dirr[i] + "u.h5"

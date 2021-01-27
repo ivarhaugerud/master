@@ -24,9 +24,9 @@ matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-D_eff = 105*np.load("data_test/D_eff.npy")/2
+D_eff = np.load("data_test/D_eff_2.npy")[:,:,0]*105/2
 
-omega   = np.logspace(-3, 3, 60)
+omega   = np.logspace(-3, 3, 30)
 schmidt = np.logspace(-3, 3, 60)
 print(schmidt)
 
@@ -34,14 +34,14 @@ print(schmidt)
 fig = plt.figure(1)
 x_, y_ = np.meshgrid(omega, schmidt)
 
-ax1 = plt.contourf(x_,y_, np.transpose((D_eff)), levels=np.linspace(0, 1, 101))
+ax1 = plt.contourf(x_,y_, np.transpose((D_eff)) )#, levels=np.linspace(0, 1, 101))
 cbar = fig.colorbar(ax1)
 #cbar.ax.locator_params(nbins=10)
 cbar.ax.set_ylabel(r'Geometric factor $\tilde{g}$', fontsize=14)
 plt.xscale('log')
 plt.yscale('log')
-plt.ylabel(r"Schmidth number Sc", fontsize=14)
-plt.xlabel(r"Driving frequency $\omega$", fontsize=14)
+plt.ylabel(r"Diffusion coefficient $D$", fontsize=14)
+plt.xlabel(r"Kinematic viscosity $\nu$", fontsize=14)
 plt.savefig("figures/D_0_eff.pdf", bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%("figures/D_0_eff.pdf", "figures/D_0_eff.pdf"))
 #plt.savefig("../figures/g_tilde_D0.pdf")

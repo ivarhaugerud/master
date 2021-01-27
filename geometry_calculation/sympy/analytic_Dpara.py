@@ -15,20 +15,19 @@ omega = (2*np.pi)/3
 F0 = 120/nu
 Sc = nu
 Pe = 6
-kappa = 0.4# np.arange(0.1, 2.5, 0.4)
+kappas = np.linspace(0.1, 2.5, 10)
 xi = np.linspace(-1, 1, int(1e4))
 
 rho = np.sqrt(1j*omega)
 gamma = np.sqrt(1j*omega/Sc)
 
 #kappa = np.linspace(0.01, 5, int(1e3))
-omega = np.linspace(0.1, 400, 100)
-D = np.zeros(len(omega))
+D = np.zeros(len(kappas))
 
-for i in range(len(omega)):
-	#kappa = omega[i]
-	rho = np.sqrt(1j*omega[i])
-	gamma = np.sqrt(1j*omega[i]/Sc)
+for i in range(len(kappas)):
+	kappa = kappas[i]
+	rho = np.sqrt(1j*omega)
+	gamma = np.sqrt(1j*omega/Sc)
 	kappa_p = np.sqrt(kappa*kappa+gamma*gamma)
 	P_1  = (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p)))
 
@@ -49,8 +48,9 @@ for i in range(len(omega)):
 	D[i] = sci.trapz(D_para, xi)/2
 plt.show()
 
-plt.plot(omega, D)
-plt.xscale("log")
-plt.yscale("log")
+plt.plot(kappas, D)
+np.save("data/analytic_Dpara", np.array([kappas, D]))
+#plt.xscale("log")
+#plt.yscale("log")
 
 plt.show()

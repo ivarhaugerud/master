@@ -12,18 +12,18 @@ matplotlib.rcParams['mathtext.fontset'] = 'stix'
 D_parallels = np.load("data/D_parallels_kappa.npy")
 print(D_parallels)
 
-num_kappas = np.load("../RW_simulation/data/D_eff_vs_kappa.npy")
+#num_kappas = np.load("../RW_simulation/data/D_eff_vs_kappa.npy")
 nu = 3.6
 omega = 3/(2*np.pi)
 F0 = 12/nu
 Sc = nu
 Pe = 6
-kappas = np.arange(0.1, 2.5, 0.4)
+kappas = np.linspace(0.1, 2.5, 10)
 
-print(len(kappas), len(D_parallels))
 gamma   = np.sqrt(1j*omega/Sc)
 gamma_r = np.real(gamma)
 print("resonance at", np.sqrt(2)*gamma_r)
+analytic = np.load("../sympy/data/analytic_Dpara.npy")
 
 gamma_c = np.conj(gamma)
 a = np.sqrt(1j*omega)
@@ -35,10 +35,6 @@ D_para0 = 1+factor*0.5*sci.trapz(np.sinh(a*xi)*np.sinh(a_c*xi)/(np.sinh(a)*np.si
 filename = "figures/data_para_vs_kappa.pdf"
 plt.scatter(kappas, D_parallels, s=4)
 plt.plot(kappas, D_parallels, "-", linewidth=1)
-#plt.yscale("log")
-#plt.xscale("log")
-tol = 0.2*min(kappas)
-#plt.axis([min(kappas)-tol, max(kappas)*1.1, min(D_parallels)*0.8, max(D_parallels)*1.2])
 plt.xlabel(r"Wave number $\kappa$", fontsize=8)
 plt.ylabel(r"2nd order Parallel Diffusion $D_\parallel^{(2)}$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
@@ -57,9 +53,8 @@ plt.plot(kappas, D_para, "-", linewidth=1)
 plt.plot(kappas, np.ones(len(kappas))*D_para0, "-")
 #plt.yscale("log")
 #plt.xscale("log")
-kappas = np.array([0.4, 0.5, 0.66, 1])
-D_RW = np.load("../RW_simulation/data/D_eff_vs_kappa.npy")
-plt.plot(kappas, D_RW[:, 0])
+plt.plot(analytic[0, :], np.ones(len(analytic[0, :]))*D_para0+eps*eps*analytic[1, :])
+
 plt.xlabel(r"Wave number $\kappa$", fontsize=8)
 plt.ylabel(r"Total Parallel Diffusion $D_\parallel + O(\epsilon^4)$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)

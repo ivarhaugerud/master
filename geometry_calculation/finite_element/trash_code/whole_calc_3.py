@@ -136,13 +136,12 @@ k     = np.array([-9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8,
 xi    = np.linspace(-1, 1, int(1e5))
 
 #system parameters
-nu = 16
+nu = 50
 omega = 5/(2*np.pi)
-F0 = 10
-D = 1/3
-Sc = nu/D
-Pe = 3
-kappas = np.array([0.4, 1.0, 1.6])
+F0 = 120
+Sc = nu
+Pe = 6
+kappas = np.array([0.1, 2.5, 10])
 D_parallels = np.zeros(len(kappas))
 
 for K in range(len(kappas)):
