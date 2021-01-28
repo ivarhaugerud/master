@@ -8,10 +8,10 @@ dt = 0.006
 timesteps = int(tau/(dt))
 periods = 5000
 datafiles = periods*20
-half_way = int(4*datafiles/5)
 skip = int(periods*timesteps/datafiles)
 
 t = np.linspace(0, tau*periods, datafiles)
+half_way = np.argmin(abs(t-13000))#int(3*datafiles/5)
 periods_of_flow = 8/3
 xi = np.linspace(-1, 1, int(1e5))
 Pe = 6.0
@@ -28,8 +28,12 @@ rho_c = a_c
 factor  = Sc*Sc*Sc*Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(omega*omega*omega*(Sc-1)*(Sc-1))
 D_ana = np.ones(len(t))*(1 + np.real(factor * 0.5 * sci.trapz( np.sinh(a*xi)*np.sinh(a_c*xi)/(np.sinh(a)*np.sinh(a_c)) + np.sinh(gamma*xi)*np.sinh(gamma_c*xi)/(np.sinh(gamma)*np.sinh(gamma_c)) - np.sinh(a*xi)*np.sinh(gamma_c*xi)/(np.sinh(a)*np.sinh(gamma_c)) - np.sinh(gamma*xi)*np.sinh(a_c*xi)/(np.sinh(gamma)*np.sinh(a_c)), xi)))
 
+
+
+"""
 #geometry parameters
-Lx =  np.array([1.05, 2.09, 6.28, 9.42, 12.56, 15.71, 25.13])
+print("resonance at kappa = ", np.real(gamma)*2)
+Lx =  np.array([1.05, 2.09, 6.28, 12.56, 15.71, 25.13]) #9.42,
 dirr = []
 
 for i in range(len(Lx)):
@@ -43,8 +47,6 @@ D_para = np.zeros((len(kappas), datafiles-1))
 D      = np.zeros((len(kappas), 2))
 t = t[1:]
 
-Pe = 1
-
 for i in range(len(kappas)):
 	var[i, :] = np.load(dirr[i]+"var2.npy")[1:]
 	tdat = np.loadtxt(dirr[i] +"tdata.dat")[1:]
@@ -52,9 +54,10 @@ for i in range(len(kappas)):
 	u2   = tdat[:,4]
 	exp_u2[i] = integrate.trapz(u2[-timesteps:], time[-timesteps:])/tau
 	Dm = np.sqrt(exp_u2[i])/Pe
+	print(Dm, exp_u2[i])
 	D_para[i, :] = var[i, :]/(Dm*t)
 	plt.plot(t, D_para[i, :], label=str(kappas[i])[:4])
-
+	#plt.plot(u2[:], label=str(exp_u2[i])[:4])
 plt.legend(loc="best")
 plt.show()
 
@@ -92,4 +95,5 @@ for l in range(len(Lx)):
 	plt.title("Lx = "+str(Lx[l]))
 	plt.plot(x, y)
 	plt.show()
+"""	
 

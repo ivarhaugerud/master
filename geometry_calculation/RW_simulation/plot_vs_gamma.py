@@ -39,9 +39,21 @@ for i in range(len(nus)):
 	factor  = Sc*Sc*Sc*Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(omega*omega*omega*(Sc-1)*(Sc-1))
 	D_ana[i] = (1 + np.real(factor * 0.5 * sci.trapz( np.sinh(a*xi)*np.sinh(a_c*xi)/(np.sinh(a)*np.sinh(a_c)) + np.sinh(gamma*xi)*np.sinh(gamma_c*xi)/(np.sinh(gamma)*np.sinh(gamma_c)) - np.sinh(a*xi)*np.sinh(gamma_c*xi)/(np.sinh(a)*np.sinh(gamma_c)) - np.sinh(gamma*xi)*np.sinh(a_c*xi)/(np.sinh(gamma)*np.sinh(a_c)), xi)))
 	
+num_D_para = np.zeros(len(nus))
+
 for i in range(len(nus)):
 	Dm = U[i]/Pe
 	var[i, :] = np.load("flow_fields/zero_eps/mu_"+str(nus[i]) +"/pos_2/var.npy")/Dm
+	#plt.plot(np.loadtxt("flow_fields/zero_eps/mu_"+str(nus[i]) +"/tdata.dat")[:, 8])
+
+	num_D_para[i] = sci.trapz(np.loadtxt("flow_fields/zero_eps/mu_"+str(nus[i]) +"/tdata.dat")[-3000:, 8], np.loadtxt("flow_fields/zero_eps/mu_"+str(nus[i]) +"/tdata.dat")[-3000:, 0])/T
+
+plt.plot(nus, num_D_para, "o", label="numerisk")
+plt.plot(nus, D_ana, "o", label="analytisk")
+plt.legend(loc="best")
+plt.xlabel("viskositet")
+plt.ylabel("D_eff")
+plt.show()
 
 var[-1, :] /= 10
 for i in range(len(nus)):
