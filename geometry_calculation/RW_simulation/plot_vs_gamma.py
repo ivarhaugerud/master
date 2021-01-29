@@ -5,7 +5,7 @@ import scipy.integrate as sci
 T = 3
 omega = 2*np.pi/T
 epsilon = 0.0
-Pe      = 10
+Pe      = 6
 xi      = np.linspace(-1, 1, int(1e5))
 
 periods = 5000
@@ -55,7 +55,6 @@ plt.xlabel("viskositet")
 plt.ylabel("D_eff")
 plt.show()
 
-var[-1, :] /= 10
 for i in range(len(nus)):
 	D_para[i, :] = var[i, 1:]/t[1:]
 	plt.plot(t[1:], D_para[i, :], label=str(nus[i]))

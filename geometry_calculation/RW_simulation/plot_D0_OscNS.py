@@ -9,7 +9,7 @@ xi      = np.linspace(-1, 1, int(1e5))
 datafiles = 500
 
 nus = np.array([1.5, 3, 5])
-datas = np.load("data/tdatas_zeroeps_Pe6.npy") 
+datas = np.load("data/tdatas_zeroeps.npy") 
 U = np.zeros(len(nus))
 D_ana = np.zeros(len(nus))
 num_D_para = np.zeros(len(nus))
@@ -49,4 +49,7 @@ plt.plot(nus, D_ana, "r-")
 plt.legend(loc="best")
 plt.xlabel("viskositet")
 plt.ylabel("D_eff")
+plt.show()
+
+plt.plot(nus, (D_ana-1)/(num_D_para-1))
 plt.show()
