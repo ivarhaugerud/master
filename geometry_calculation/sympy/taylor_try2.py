@@ -40,18 +40,9 @@ ux1 = simplify(series(ux1, gamma, n=order).removeO())
 print("\n ux (1): ", ux1)
 
 RHS = simplify(expand(2*diff(B0_deriv, xi) - Pe*ux1))
-sol_B1 = Pe*F0*(1-18/(rho*rho) - 9*xi*xi + rho*rho*xi*xi -7*rho*rho/30 - rho*rho*xi*xi*xi*xi/2)/(12*rho*rho)
-difference = diff(diff(sol_B1, xi), xi) -rho*rho*sol_B1 - RHS
-print("Check B1 particular solution: ", simplify(difference))
+new_B = -F0*Pe*(4 + rho*rho*xi*xi - 7*rho*rho/30 - xi**4 * rho*rho/2 + xi**4 * rho**4 /4 - 7*xi*xi*rho**4/20 + 31*rho**4/420 - rho**4*xi**6/20)/(24*rho*rho)
 
-homo_sol = 3*Pe*F0*(simplify(series(cosh(rho*xi)/(rho*rho*rho*sinh(rho)), rho, n=3).removeO()))/2
-#print(homo_sol)
-#print(diff(F0*Pe*(rho**4*(630*xi**4 - 1260*xi**2 + 294+2*xi**6 -31) + 2520*rho**2*(3*xi**2 - 1) + 15120)/(10080*rho**4)+sol_B1, xi).subs(xi, 1))
-#sol_B1 += F0*Pe*(rho**6*(-105*xi*xi*xi*xi+147*xi*xi+2*xi**6-31) +rho**4*(630*xi**4 - 1260*xi**2 + 294) + 2520*rho**2*(3*xi**2 - 1) + 15120)/(10080*rho**4)
-#new_B = F0*Pe*(-2 - rho*rho*xi*xi/2 + 7*rho*rho/60 + xi**4 * rho*rho/4)/(12*rho*rho)
-new_B = F0*Pe*(-2 - rho*rho*xi*xi/2 + 7*rho*rho/60 + xi**4 * rho*rho/4 - xi**4 * rho**4 /8 + 7*xi*xi*rho**4/40 - 31*rho**4/840 + rho**4*xi**6/420)/(12*rho*rho)
-
-print("test boundary: ", diff(new_B, xi).subs(xi, 1))
+print("\n test boundary: ", diff(new_B, xi).subs(xi, 1))
 difference = diff(diff(new_B, xi), xi) -rho*rho*new_B - RHS
-print("test solution: ", simplify((difference)))
+print("\n test solution: ", simplify((difference)))
 

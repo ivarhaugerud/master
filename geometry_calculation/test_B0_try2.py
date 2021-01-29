@@ -29,7 +29,6 @@ for s in range(len(Ds)):
 
 		D_ana = ((F0*F0*np.tanh(gamma)*np.tanh(gamma_c))/(gamma*gamma_c*(rho*rho-gamma*gamma)*(rho_c*rho_c-gamma_c*gamma_c)))*( (rho/np.tanh(rho) - rho_c/np.tanh(rho_c) )/(2*rho*rho) + (gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c) )/(2*gamma*gamma) + (rho_c/np.tanh(rho_c) - rho/np.tanh(rho) + gamma_c/np.tanh(gamma_c) - gamma/np.tanh(gamma) )/(gamma*gamma+rho*rho))
 		D_eff[o, s, 0] = D_ana
-		
 		"""
 		omega = omega/D
 		a_m_squared = np.zeros(M, dtype="complex")
@@ -49,9 +48,8 @@ for s in range(len(Ds)):
 
 		g_tilde *= 16*Pe*Pe*Sc*Sc*F0*F0/(pi*pi)
 		D_eff[o, s, 1] = 0.5*g_tilde #0.5 due to decomposisition of u in eq 2.6 in Bruus
+				#print(np.real(D_eff[o, s, 0]), np.real(D_eff[o, s, 1]))
 		"""
-		#print(np.real(D_eff[o, s, 0]), np.real(D_eff[o, s, 1]))
-
 
 fig = plt.figure(1)
 x_, y_ = np.meshgrid(Nu, Ds)

@@ -53,6 +53,10 @@ def finite_element_solver(N, x, alpha, f):
 	b[0]   = -Delta_x*(f[np.argmin(abs(x-(N_pos[0 ])))] + 2*f[np.argmin(abs(x-(N_pos[0] + Delta_x/2)))])/6
 	b[-1]  = -Delta_x*(f[np.argmin(abs(x-(N_pos[-1])))] + 2*f[np.argmin(abs(x-(N_pos[-1]- Delta_x/2)))])/6
 
+	#if derivative is non-zero at boundary
+	#b[N*j+0]    -= Bc0[j]
+	#b[N*j+N-1]  += Bc1[j]
+
 	sol = np.linalg.solve(A+A_p, b)
 	#transfer back solution to regular basis
 	for i in range(N):
@@ -128,18 +132,18 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	return u, sol
 
 tol   = 1e-6
-k     = np.array([-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8])
+k     = np.array([-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6])
 xi    = np.linspace(-1, 1, int(1e5))
 
 #system parameters
 nu = 3.6
-omega = (2*np.pi)/3.0
+omega = 3/(2*np.pi)
 F0 = 12/nu
-Sc = nu
+Sc = nu#/D
 Pe = 6
-#kappas = np.linspace(0.1, 2.5, 10)
-Lx = np.linspace(0.7, 27, 20)
-kappas = 2*np.pi/Lx
+kappas = np.arange(0.1, 2.5, 0.4)
+kappas =  np.linspace(0.1, 2, 15) #9.42,
+#kappas = 2*np.pi/Lx
 D_parallels = np.zeros(len(kappas))
 
 for K in range(len(kappas)):
@@ -151,25 +155,22 @@ for K in range(len(kappas)):
 	P_1     = (F0*gamma*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_p*np.tanh(kappa)/(kappa*np.tanh(kappa_p)))
 	p_np2   = 1j*omega*k + kappa*kappa
 
-	#analytic results
-	ux0 = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(gamma*gamma)/2
-	ux1 = ((P_1*kappa*np.cosh(kappa)/(gamma*gamma))*(np.cosh(kappa*xi)/np.cosh(kappa) - np.cosh(kappa_p *xi)/np.cosh(kappa_p)) + (F0*np.tanh(gamma)/gamma)*(np.cosh(kappa_p*xi)/np.cosh(kappa_p) - xi*np.sinh(gamma*xi)/np.sinh(gamma)))/2
-	uy1 = ((kappa*P_1*np.sinh(kappa)/(gamma*gamma))*(np.sinh(kappa_p*xi)/np.sinh(kappa_p) - np.sinh(kappa*xi)/np.sinh(kappa)))/2
+	#analytic results up to first order
+	ux0 = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(gamma*gamma)
+	ux1 = (P_1*kappa*np.cosh(kappa)/(gamma*gamma))*(np.cosh(kappa*xi)/np.cosh(kappa) - np.cosh(kappa_p *xi)/np.cosh(kappa_p)) + (F0*np.tanh(gamma)/gamma)*(np.cosh(kappa_p*xi)/np.cosh(kappa_p) - xi*np.sinh(gamma*xi)/np.sinh(gamma))
+	uy1 = (kappa*P_1*np.sinh(kappa)/(gamma*gamma))*(np.sinh(kappa_p*xi)/np.sinh(kappa_p) - np.sinh(kappa*xi)/np.sinh(kappa))
 
-	ux2  = (P_1*kappa*kappa*np.sinh(kappa)*(xi*np.sinh(kappa*xi)/np.sinh(kappa) - np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma) + F0*np.cosh(gamma*xi)*(1-xi*xi)/(4*np.cosh(gamma)) + P_1*kappa_p*kappa_p*np.sinh(kappa)*(np.cosh(gamma*xi)/np.cosh(gamma)-xi*np.sinh(kappa_p*xi)/np.sinh(kappa_p))/(2*gamma*gamma))/2
-	ux2 -= scpi.trapz(ux2, xi)/2 + scpi.trapz(ux1, xi)/4
-
-	B0             = (Pe*F0*np.tanh(gamma)/(2*gamma*gamma*gamma*(Sc-1)))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))) + Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*rho*rho)
-	B0_deriv       = (Pe*F0*np.tanh(gamma)/(2*gamma*gamma*gamma*(Sc-1)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))
-	B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(2*gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(rho*xi)/np.sinh(rho) - gamma*np.cosh(gamma*xi)/np.sinh(gamma))
+	B0             = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))) + Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*rho*rho)
+	B0_deriv       = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))
+	B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(rho*xi)/np.sinh(rho) - gamma*np.cosh(gamma*xi)/np.sinh(gamma))
 
 	#define source terms
 	q = np.zeros((len(k), len(xi)), dtype="complex")
-	q[np.argmin(abs(k+2)), :] = Pe*kappa*xi*np.conj(ux0)*np.conj(B0_deriv) - Pe*np.conj(uy1)*np.conj(B0_deriv)
-	q[np.argmin(abs(k+1)), :] = Pe*np.conj(ux1) + kappa*kappa*xi*np.conj(B0_deriv) - 2*np.conj(B0_deriv_deriv)
-	q[np.argmin(abs(k-0)), :] = Pe*kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_deriv)- Pe*uy1*np.conj(B0_deriv) - Pe*np.conj(uy1)*B0_deriv
-	q[np.argmin(abs(k-1)), :] = Pe*ux1          + kappa*kappa*xi*B0_deriv          - 2*B0_deriv_deriv 
-	q[np.argmin(abs(k-2)), :] = Pe*kappa*xi*ux0*B0_deriv                   - Pe*uy1*B0_deriv
+	q[np.argmin(abs(k+2)), :] = Pe*kappa*xi*np.conj(ux0)*np.conj(B0_deriv)/4 - Pe*np.conj(uy1)*np.conj(B0_deriv)/4
+	q[np.argmin(abs(k+1)), :] = Pe*np.conj(ux1)/2 + kappa*kappa*xi*np.conj(B0_deriv)/2 - 2*np.conj(B0_deriv_deriv)/2
+	q[np.argmin(abs(k-0)), :] = Pe*kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_deriv)/4 - Pe*uy1*np.conj(B0_deriv)/4 - Pe*np.conj(uy1)*B0_deriv/4
+	q[np.argmin(abs(k-1)), :] = Pe*ux1/2          + kappa*kappa*xi*B0_deriv/2          - 2*B0_deriv_deriv/2 
+	q[np.argmin(abs(k-2)), :] = Pe*kappa*xi*ux0*B0_deriv/4                   - Pe*uy1*B0_deriv/4
 
 	#works for differential equation with constant terms, now just need coupeling to work as well
 	n = len(k) #number of vectors
@@ -224,6 +225,11 @@ for K in range(len(kappas)):
 			B_minus_coeff[:, i] = coeff_g0f1[i*N:(i+1)*N]
 			B_plus_coeff[:, i]  = coeff_f0g1[i*N:(i+1)*N]
 
+
+	#analytic results up to first order
+	ux2  = (P_1*kappa*kappa*np.sinh(kappa)*(xi*np.sinh(kappa*xi)/np.sinh(kappa) - np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma) + F0*np.cosh(gamma*xi)*(1-xi*xi)/(4*np.cosh(gamma)) + P_1*kappa_p*kappa_p*np.sinh(kappa)*(np.cosh(gamma*xi)/np.cosh(gamma)-xi*np.sinh(kappa_p*xi)/np.sinh(kappa_p))/(2*gamma*gamma))/2
+	ux2 -= scpi.trapz(ux2, xi)/2
+
 	#define source terms
 	q = np.zeros((len(k), len(xi)), dtype="complex")
 	q[np.argmin(abs(k-1)), :] = 0.5*kappa*kappa*xi*B0_deriv          + 0.5*(3+kappa*kappa*xi*xi)*B0_deriv_deriv          + Pe*ux2
@@ -269,14 +275,14 @@ for K in range(len(kappas)):
 	B1_plus_deriv_deriv = np.zeros((len(xi), n), dtype="complex")
 	B2_0_deriv          = np.zeros((len(xi), n), dtype="complex")
 
-	b0[:, np.argmin(abs(k-1))]    = B0
-	b0[:, np.argmin(abs(k+1))]    = np.conj(B0)
+	b0[:, np.argmin(abs(k-1))]    = B0/2 
+	b0[:, np.argmin(abs(k+1))]    = np.conj(B0)/2 
 
-	b0_deriv[:, np.argmin(abs(k-1))] = B0_deriv
-	b0_deriv[:, np.argmin(abs(k+1))] = np.conj(B0_deriv)
+	b0_deriv[:, np.argmin(abs(k-1))] = B0_deriv/2 
+	b0_deriv[:, np.argmin(abs(k+1))] = np.conj(B0_deriv)/2 
 
-	b0_deriv_deriv[:, np.argmin(abs(k-1))] = B0_deriv_deriv 
-	b0_deriv_deriv[:, np.argmin(abs(k+1))] = np.conj(B0_deriv_deriv)
+	b0_deriv_deriv[:, np.argmin(abs(k-1))] = B0_deriv_deriv/2 
+	b0_deriv_deriv[:, np.argmin(abs(k+1))] = np.conj(B0_deriv_deriv)/2 
 
 	for i in range(n):
 		B1_min_deriv[:, i]        = interp1d(N_pos, np.gradient(B_minus_coeff[:,i], N_pos), kind='cubic')(xi)
@@ -284,9 +290,8 @@ for K in range(len(kappas)):
 		B1_plus_deriv_deriv[:, i] = interp1d(N_pos, np.gradient(np.gradient(B_plus_coeff[:,i], N_pos), N_pos), kind='cubic')(xi)
 		B2_0_deriv[:, i]          = interp1d(N_pos, np.gradient(sol_coeff[:,i], N_pos), kind='cubic')(xi)
 
-
 	for i in range(len(k)):
-		D_eff_xi[:, np.argmin(abs(new_k -k[i]))] += (kappa*xi*B1_min_deriv[:, i] + kappa*B_minus[:, i])
+		D_eff_xi[:, np.argmin(abs(new_k -k[i]))] += kappa*xi*B1_min_deriv[:, i] + kappa*B_minus[:, i]
 		for j in range(len(k)):
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_plus[:,j]*B_plus[:,i]    + B1_plus_deriv[:, i]*B1_plus_deriv[:, j])
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_minus[:,j]*B_minus[:,i]  + B1_min_deriv[:, i] *B1_min_deriv[:, j])
@@ -294,13 +299,15 @@ for K in range(len(kappas)):
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5*(1+kappa*kappa*xi*xi)*b0_deriv[:, i]*b0_deriv[:, j]
 	
 	for i in range(len(new_k)):
+		print(np.max(np.imag(D_eff_xi[:, i]+D_eff_xi[:,-i-1])))
+
+	for i in range(len(new_k)):
 		D_eff[i] = scpi.trapz(D_eff_xi[:, i], xi)/2
 		total_D += np.exp(1j*omega*new_k[i]*t)*D_eff[i]
 
-	#print("HERE:", np.max(np.imag(total_D)))
+	print("HERE:", np.max(np.imag(total_D)))
 
 	D_parallels[K] = scpi.trapz(np.real(total_D), t)/(2*np.pi/omega)
-	print(kappas[K], D_parallels[K])
 	np.save("data/total_D_kappa"+str(kappa)[:4], D_eff)
 
 	plt.figure(1)
@@ -315,5 +322,5 @@ for K in range(len(kappas)):
 	plt.ylabel(r"Brenner field", fontsize=12)
 	plt.savefig("figures/Brenner_field_vs_t.pdf")
 
-np.save("data/D_parallels_kappa", D_parallels)
+np.save("data/D_parallels_kappa", np.array([D_parallels, kappas]))
 plt.show()
