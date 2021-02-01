@@ -25,12 +25,28 @@ mean = np.zeros(datafiles)
 x = np.zeros(datafiles)
 y = np.zeros(datafiles)
 
+datafiles = 5000
+
+x = np.zeros(datafiles)
+y = np.zeros(datafiles)
+prev_pos = np.zeros((2, 1000))
 for l in range(len(visc)):
-	for i in range(datafiles):
+	for i in range(10):
+		plt.clf()
 		pos = np.load(dirr[l]+"pos/RW_positions_"+str(int(i*skip))+".npy")
 		var[i]  = np.square(np.std(pos[0, :]))
 		mean[i] = np.mean(pos[0, :])
+		x[i] = np.mean(pos[0, :]-prev_pos[0, :])
+		#y[i] = np.mean(pos[1, :]-prev_pos[1, :])
+		prev_pos = np.copy(pos)
+		plt.scatter(pos[0,:], pos[1, :])
+		#plt.axis([-5, 5, -1, 1])
+		plt.axis("equal")
+		plt.title(str(dt*i*skip/tau))
+		plt.pause(0.51)
+	plt.plot(x)
+	plt.show()
 
-	np.save(dirr[l]+"var",   var)
-	np.save(dirr[l]+"mean", mean)
-	print("saved ", Lx[l])
+	#np.save(dirr[l]+"var",   var)
+	#np.save(dirr[l]+"mean", mean)
+	#print("saved ", Lx[l])

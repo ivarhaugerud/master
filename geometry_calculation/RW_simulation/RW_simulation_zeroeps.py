@@ -43,6 +43,9 @@ for j in range(len(visc)):
     u2   = tdat[:,4]
     exp_u2[j] = integrate.trapz(u2[-timesteps:], time[-timesteps:])/(tau)
     exp_D[j] = integrate.trapz(tdat[-timesteps:, 8], time[-timesteps:])/(tau)
+    plt.plot(time, u2)
+    plt.plot(time, np.ones(len(time))*exp_u2[j])
+plt.show()
 
 plt.plot(visc, exp_u2)
 plt.show()
