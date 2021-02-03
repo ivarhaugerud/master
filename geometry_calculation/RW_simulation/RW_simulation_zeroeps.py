@@ -11,10 +11,10 @@ from scipy.interpolate import griddata
 dt           = 0.006
 tau          = 3.0 
 timesteps    = int(tau/(dt))
-periods      = 10000
-datafiles    = periods*20
+periods      = 20000
+datafiles    = periods*10
 N            = int(1e3)
-RW_timesteps = 25
+RW_timesteps = 10
 Pe           = 1
 
 #geometry parameters
@@ -31,9 +31,6 @@ dirr = []
 
 for i in range(len(visc)):
     dirr.append("flow_fields/zero_eps/Lx12.56_tau3.0_eps0.0_nu"+str(visc[i])+"_D1.0_fzero0.0_fone12.0_res100_dt0.006/")
-
-#for RW simulation 
-print(np.random.normal(loc=0, scale=1, size=(2, N)))
 
 
 for j in range(len(visc)):
@@ -53,7 +50,7 @@ plt.show()
 for i in range(len(visc)):
     prev_pos = np.zeros((2, N))
     pos      = np.zeros((2, N))
-    pos[1,:]      = np.random.uniform(-1+epsilon, 1-epsilon, N)
+    pos[1,:]      = np.random.uniform(-0.99, 0.99, N)
     prev_pos[1,:] = np.copy(pos[1,:])
     l = Lx
     name = dirr[i] + "u.h5"
@@ -62,7 +59,7 @@ for i in range(len(visc)):
     #index of all lattice-points, 0 could be any timestep as this is indep of time
     geometry = np.array(list(f["Mesh"]["0"]["mesh"]["geometry"]))
 
-    Nx = int(600)
+    Nx = int(10)
     Ny = int(700)
     x = np.linspace(0,  l, Nx)
     y = np.linspace(-1, 1, Ny)
@@ -75,10 +72,8 @@ for i in range(len(visc)):
         # Interpolate uneven grid onto an even grid
 
         ux_grid  = griddata((geometry[:,0], geometry[:,1]), u[:,0], (X, Y), method='nearest')
-        uy_grid  = griddata((geometry[:,0], geometry[:,1]), u[:,1], (X, Y), method='nearest')
 
         interpolation["x-"+str(j)]  = sci.RectBivariateSpline(y, x, ux_grid)
-        interpolation["y-"+str(j)]  = sci.RectBivariateSpline(y, x, uy_grid)
         print(visc[i], j, str(int(periods_of_flow*timesteps)-j-1))
 
     U = np.sqrt(exp_u2[i])
@@ -91,10 +86,10 @@ for i in range(len(visc)):
 
         for j in range(RW_timesteps):
             pos[:, :] += alpha*np.random.normal(loc=0, scale=1, size=(2, N))
-            pos[:, np.where( abs(pos[1, :]) >   1)] = prev_pos[:, np.where( abs(pos[1, :]) >  1)] #checks if y-coordinate outside
+            pos[:, np.where( abs(pos[1, :]) > 1)] = prev_pos[:, np.where( abs(pos[1, :]) >  1)] #checks if y-coordinate outside
             prev_pos = np.copy(pos)
     
         if int(k) % int(periods*timesteps/(datafiles)) == 0:
-            np.save(dirr[i]+"pos/RW_positions_" +str(k), pos[:, :])
+            np.save(dirr[i]+"pos2/RW_positions_" +str(k), pos[:, :])
 
     print("DONE WITH RUN FOR NU: ", visc[i])
