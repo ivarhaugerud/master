@@ -53,21 +53,21 @@ plt.plot(visc, num_D_para, "ro", label="numerisk brenner")
 plt.plot(visc, D_ana, "ko", label="analytisk")
 plt.plot(visc, num_D_para, "r-")
 plt.plot(visc, D_ana, "k-")
-plt.show()
+#plt.show()
 
 
 #simulation parameters
-periods      = 10000
-datafiles    = periods*20
+periods      = 20000
+datafiles    = periods*10
 t = np.linspace(0, tau*periods, datafiles)
-half_way     = int(3*datafiles/4)
+half_way     = int(2*datafiles/4)
 var    = np.zeros((len(visc), datafiles))
 
 
 for l in range(len(visc)):
 	var = np.load(dirr[l] + "/var.npy")
 	mean = np.load(dirr[l]+ "/mean.npy")
-	Dm = np.sqrt(exp_u2[l])/Pe
+	Dm = 1#np.sqrt(exp_u2[l])/Pe
 	plt.figure(2)
 	plt.plot(t/tau, var/Dm, label="visc="+str(visc[l]))
 
@@ -75,8 +75,8 @@ for l in range(len(visc)):
 	plt.plot(t[1:]/tau, var[1:]/(Dm*t[1:]), label="visc="+str(visc[l]))
 	plt.plot(t[half_way:]/tau, var[half_way:]/(Dm*t[half_way:]))
 
-	RW_D_para[0,l] = np.mean(var[half_way:]/(Dm*t[half_way:]))
-	RW_D_para[1,l] = np.std( var[half_way:]/(Dm*t[half_way:]))
+	RW_D_para[0,l] = np.mean(var[half_way:]/(2*Dm*t[half_way:]))
+	RW_D_para[1,l] = np.std( var[half_way:]/(2*Dm*t[half_way:]))
 
 plt.legend(loc="best")
 

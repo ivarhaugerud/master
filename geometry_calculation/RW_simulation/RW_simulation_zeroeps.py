@@ -71,7 +71,7 @@ for i in range(len(visc)):
         u = np.array(list(f["VisualisationVector"][str(int(periods_of_flow*timesteps)-j-1)])) 
         # Interpolate uneven grid onto an even grid
 
-        ux_grid  = griddata((geometry[:,0], geometry[:,1]), u[:,0], (X, Y), method='nearest')
+        ux_grid  = griddata((geometry[:,0], geometry[:,1]), u[:,0], (X, Y), method='cubic')
 
         interpolation["x-"+str(j)]  = sci.RectBivariateSpline(y, x, ux_grid)
         print(visc[i], j, str(int(periods_of_flow*timesteps)-j-1))
@@ -81,12 +81,12 @@ for i in range(len(visc)):
     alpha = np.sqrt(2*D*dt/RW_timesteps)
 
     for k in range(int(periods*timesteps)):
-        pos[0, :] += dt * interpolation["x-"+str(int((k+timesteps)%timesteps))](pos[1, :], (pos[0, :]+l)%l, grid=False)
+        pos[0, :] += dt * interpolation["x-"+str((k+timesteps)%timesteps)](pos[1, :], (pos[0, :]+l)%l, grid=False)
         prev_pos = np.copy(pos)
 
         for j in range(RW_timesteps):
             pos[:, :] += alpha*np.random.normal(loc=0, scale=1, size=(2, N))
-            pos[:, np.where( abs(pos[1, :]) > 1)] = prev_pos[:, np.where( abs(pos[1, :]) >  1)] #checks if y-coordinate outside
+            pos[:, np.where( abs(pos[1, :]) > 1)] = prev_pos[:, np.where( abs(pos[1, :]) >  1)]
             prev_pos = np.copy(pos)
     
         if int(k) % int(periods*timesteps/(datafiles)) == 0:
