@@ -6,7 +6,7 @@ import seaborn as sns
 from scipy import integrate
 import h5py
 
-Pe           = 1
+Pe           = 10
 dt           = 0.006
 tau          = 3.0 
 timesteps    = int(tau/(dt))
@@ -43,7 +43,7 @@ for i in range(len(visc)):
     a_c     = np.conj(a)
     rho = a 
     rho_c = a_c
-    Pe = 1 
+    Pe = 10 
     num_D_para[i] = integrate.trapz(np.loadtxt(dirr[i] +"/tdata.dat")[-timesteps:, 8], np.loadtxt(dirr[i]+"/tdata.dat")[-timesteps:, 0])/tau
     D_ana[i] = 1 + np.real(Sc*Sc*Sc*Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*omega*omega*omega*(Sc*Sc-1))*(1/(gamma*np.tanh(gamma)) + 1j/(gamma*np.tanh(gamma_c)) - 1/(rho*np.tanh(rho)) - 1j/(rho*np.tanh(rho_c))))
     print(D_ana[i], num_D_para[i])
@@ -53,30 +53,69 @@ plt.plot(visc, num_D_para, "ro", label="numerisk brenner")
 plt.plot(visc, D_ana, "ko", label="analytisk")
 plt.plot(visc, num_D_para, "r-")
 plt.plot(visc, D_ana, "k-")
-#plt.show()
+plt.show()
 
 
 #simulation parameters
-periods      = 20000
-datafiles    = periods*10
+periods      = 1000
+datafiles    = periods*25
 t = np.linspace(0, tau*periods, datafiles)
 half_way     = int(2*datafiles/4)
 var    = np.zeros((len(visc), datafiles))
 
 
 for l in range(len(visc)):
-	var = np.load(dirr[l] + "/var.npy")
-	mean = np.load(dirr[l]+ "/mean.npy")
-	Dm = 1#np.sqrt(exp_u2[l])/Pe
-	plt.figure(2)
-	plt.plot(t/tau, var/Dm, label="visc="+str(visc[l]))
+    var = np.load(dirr[l] + "/pos/var.npy")
+    mean = np.load(dirr[l]+ "/pos/mean.npy")
+    Dm = 1#np.sqrt(exp_u2[l])/Pe
+    plt.figure(2)
+    plt.plot(t/tau, var/Dm, label="visc="+str(visc[l]))
 
-	plt.figure(3)
-	plt.plot(t[1:]/tau, var[1:]/(Dm*t[1:]), label="visc="+str(visc[l]))
-	plt.plot(t[half_way:]/tau, var[half_way:]/(Dm*t[half_way:]))
+    plt.figure(3)
+    plt.plot(t[1:]/tau, var[1:]/(Dm*t[1:]), label="visc="+str(visc[l]))
+    plt.plot(t[half_way:]/tau, var[half_way:]/(Dm*t[half_way:]))
 
-	RW_D_para[0,l] = np.mean(var[half_way:]/(2*Dm*t[half_way:]))
-	RW_D_para[1,l] = np.std( var[half_way:]/(2*Dm*t[half_way:]))
+    RW_D_para[0,l] = np.mean(var[half_way:]/(2*Dm*t[half_way:]))
+    RW_D_para[1,l] = np.std( var[half_way:]/(2*Dm*t[half_way:]))
+
+
+plt.legend(loc="best")
+
+plt.figure(3)
+plt.xlabel("time [period]")
+plt.ylabel("MSD/t")
+
+plt.figure(2)
+plt.xlabel("time [period]")
+plt.ylabel("MSD")
+
+plt.figure(4)
+plt.errorbar(visc, (RW_D_para[0, :]), yerr=RW_D_para[1, :], label="RW")
+plt.legend(loc="best")
+plt.xlabel("viskositet")
+plt.ylabel("D_eff")
+
+#simulation parameters
+periods      = 1000
+datafiles    = periods*25
+t = np.linspace(0, tau*periods, datafiles)
+half_way     = int(2*datafiles/4)
+var    = np.zeros((len(visc), datafiles))
+
+
+for l in range(len(visc)):
+    var = np.load(dirr[l] + "/pos/var.npy")
+    mean = np.load(dirr[l]+ "/pos/mean.npy")
+    Dm = 1#np.sqrt(exp_u2[l])/Pe
+    plt.figure(2)
+    plt.plot(t/tau, var/Dm, label="visc="+str(visc[l]))
+
+    plt.figure(3)
+    plt.plot(t[1:]/tau, var[1:]/(Dm*t[1:]), label="visc="+str(visc[l]))
+    plt.plot(t[half_way:]/tau, var[half_way:]/(Dm*t[half_way:]))
+
+    RW_D_para[0,l] = np.mean(var[half_way:]/(2*Dm*t[half_way:]))
+    RW_D_para[1,l] = np.std( var[half_way:]/(2*Dm*t[half_way:]))
 
 plt.legend(loc="best")
 

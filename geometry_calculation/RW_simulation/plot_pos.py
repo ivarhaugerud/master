@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 dt = 0.006
 tau = 3.0 
 timesteps = int(tau/(dt))
-periods   = 20000
-datafiles = periods*10
+periods   = 1000
+datafiles = periods*25
 skip = int(periods*timesteps/datafiles)
 
 #geometry parameters
@@ -19,27 +19,14 @@ for i in range(len(visc)):
 var  = np.zeros(datafiles)
 mean = np.zeros(datafiles)
 
-N = 1000
-x = np.zeros(N)
-y = np.zeros(N)
-
-print(np.sqrt(2*0.006/10))
 for l in range(len(visc)):
 	for i in range(datafiles):
-		plt.clf()
-		pos = np.load(dirr[l]+"pos2/RW_positions_"+str(int(i*skip))+".npy")
-		#var[i]  = np.square(np.std(pos[0, :]))
+		pos = np.load(dirr[l]+"pos/RW_positions_"+str(int(i*skip))+".npy")
+		var[i]  = np.var(pos[0, :])
 		mean[i] = np.mean(pos[0, :])
-		plt.scatter(pos[0, :], pos[1, :])
-		plt.pause(0.01)
-		#x[i] = pos[0, 5]
-		#y[i] = pos[1, 5]
 
-	plt.plot(x, y)
+	plt.plot(var)
+	np.save(dirr[l]+"pos/var",   var)
+	np.save(dirr[l]+"pos/mean", mean)
+	print("saved ", visc[l])
 	plt.show()
-
-	plt.plot(mean)
-	plt.show()
-	#np.save(dirr[l]+"var",   var)
-	#np.save(dirr[l]+"mean", mean)
-	#print("saved ", Lx[l])
