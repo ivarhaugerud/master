@@ -1,13 +1,13 @@
 from sympy import * 
-order = 2
+order = 4
 
 #define variables
 xi = symbols("xi")
-omega, gamma, kappa, kappa_p, Sc = symbols("omega gamma kappa kappa_p Sc")
-P_1, F0 = symbols("P_1, F0")
+omega, gamma, kappa, kappa_p, Sc, rho = symbols("omega gamma kappa kappa_p Sc rho", real=True)
+P_1, F0, D = symbols("P_1, F0 D", real=True)
 
 #define known quantities
-u0  = F0*(1-cosh(gamma*xi)/cosh(gamma))/(gamma*gamma)
+u0  = F0*(1-cosh(gamma*xi)/cosh(gamma))/(2*gamma*gamma)
 ux1 = ((P_1*kappa*cosh(kappa)/(gamma*gamma))*(cosh(kappa*xi)/cosh(kappa) - cosh(kappa_p *xi)/cosh(kappa_p)) + (F0*tanh(gamma)/gamma)*(cosh(kappa_p*xi)/cosh(kappa_p) - xi*sinh(gamma*xi)/sinh(gamma)))
 uy1 = (kappa*P_1*sinh(kappa)/(gamma*gamma))*(sinh(kappa_p*xi)/sinh(kappa_p) - sinh(kappa*xi)/sinh(kappa))
 P1  = P_1*cosh(kappa*xi)
@@ -42,16 +42,25 @@ ux1 = simplify(ux1.subs(P_1, P))
 ux1 = simplify(series(ux1, kappa, n=order).removeO())
 print("\n ux (1): ", ux1)
 
-i, Pe = symbols("i, Pe")
-B0 = Pe*F0*tanh(gamma)/(gamma**3) + Pe*F0*tanh(gamma)/(gamma**3 * (Sc-1))*(sinh(xi*sqrt(i*omega))/(sqrt(i*omega)*sinh(sqrt(i*omega))) - sinh(gamma*xi)/(gamma*sinh(gamma)))
-B0 = simplify(series(B0, gamma, n=order).removeO())
-print("\n B0 (0): ", B0)
+Pe = symbols("Pe", real=True)
+#B0 = Pe*F0*tanh(gamma)/(gamma**3) + Pe*F0*tanh(gamma)/(gamma**3 * (Sc-1))*(sinh(xi*sqrt(i*omega))/(sqrt(i*omega)*sinh(sqrt(i*omega))) - sinh(gamma*xi)/(gamma*sinh(gamma)))
+#B0 = simplify(series(B0, gamma, n=order).removeO())
+#print("\n B0 (0): ", B0)
 
 
-B0_grad = Pe*F0*tanh(gamma)/(gamma**3 * (Sc-1))*(sinh(xi*sqrt(i*omega))/sinh(sqrt(i*omega)) - sinh(gamma*xi)/sinh(gamma))
+order = 3
+B0_grad = Pe*F0*tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma))*(sinh(xi*rho)/sinh(rho) - sinh(gamma*xi)/sinh(gamma))
 B0_grad = simplify(series(B0_grad, gamma, n=order).removeO())
+B0_grad = simplify(series(B0_grad, rho, n=order).removeO())
+B0_grad = B0_grad.subs(gamma, sqrt(I*omega/Sc))
+B0_grad = B0_grad.subs(rho,   sqrt(I*omega/D))
 print("\n B0_grad (0): ", B0_grad)
 
-u0 = simplify(series(u0, gamma, n=order).removeO())
-print("\n u (0): ", u0)
 
+print(simplify(expand(simplify(integrate(B0_grad*(re(B0_grad)-I*im(B0_grad)), (xi, -1, 1))/2))))
+
+
+F0**2*Pe**2*omega*(Sc**2*(13650*I*omega - 135135) + Sc*(5932*omega**2 + 117390*I*omega - 585585) + 9*omega*(2833*omega + 28210*I))/(2554051500*Sc**2)
+
+
+(25497*D*omega**2 + 13650*I*Sc**2*omega + 5932*Sc*omega**2)
