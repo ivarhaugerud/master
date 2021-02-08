@@ -12,13 +12,13 @@ def velocity(xi, t, omega, gamma):
     return np.real(F0/(gamma*gamma)*(1-np.cosh(gamma*xi)/np.cosh(gamma))*np.exp(1j*omega*t))
 
 #simulation parameters
-dt           = 0.001
+dt           = 0.006
 tau          = 3.0 
 periods      = 5000
 timesteps    = int(tau/dt)
 datafiles    = periods*25
 N            = int(4*1e3)
-RW_timesteps = 10
+RW_timesteps = 30
 Pe           = 1
 #geometry parameters
 epsilon = 0.0
@@ -61,16 +61,9 @@ for i in range(len(visc)):
             prev_pos = np.copy(pos)
 
         var[k] = np.var(pos[0, :])
-        #plt.clf()
-        #plt.scatter(pos[0, :], pos[1,:])
-        #plt.axis([-2.5, 2.5, -1, 1])
-        #plt.title(str(t[(k+timesteps)%timesteps]))
-        #plt.pause(0.01)
-        
-        #if int(k) % int(periods*timesteps/(datafiles)) == 0:
-        #    np.save(dirr[i]+"pos3/RW_positions_" +str(k), pos[:, :])
+
     t = np.linspace(0, periods*tau, periods*timesteps)
     np.save(dirr[i]+"pos3/var_over_t", var[1:]/(2*D*t[1:]))
-    plt.plot(t[1:], var[1:]/(2*D*t[1:]))
-    plt.show()
+    #plt.plot(t[1:], var[1:]/(2*D*t[1:]))
+    #plt.show()
     print("DONE WITH RUN FOR NU: ", visc[i], np.mean(var[-int(periods*timesteps/2):]/(2*D*t[-int(periods*timesteps/2):])))

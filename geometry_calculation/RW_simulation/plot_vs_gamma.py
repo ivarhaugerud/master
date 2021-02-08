@@ -6,7 +6,7 @@ import seaborn as sns
 from scipy import integrate
 import h5py
 
-Pe           = 10
+Pe           = 1
 dt           = 0.006
 tau          = 3.0 
 timesteps    = int(tau/(dt))
@@ -43,10 +43,10 @@ for i in range(len(visc)):
     a_c     = np.conj(a)
     rho = a 
     rho_c = a_c
-    Pe = 10 
     num_D_para[i] = integrate.trapz(np.loadtxt(dirr[i] +"/tdata.dat")[-timesteps:, 8], np.loadtxt(dirr[i]+"/tdata.dat")[-timesteps:, 0])/tau
     D_ana[i] = 1 + np.real(Sc*Sc*Sc*Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*omega*omega*omega*(Sc*Sc-1))*(1/(gamma*np.tanh(gamma)) + 1j/(gamma*np.tanh(gamma_c)) - 1/(rho*np.tanh(rho)) - 1j/(rho*np.tanh(rho_c))))
-    print(D_ana[i], num_D_para[i])
+    D2 = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma**4 - rho**4))*(1/(gamma*gamma)*(gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c)) - 1/(rho*rho)*(rho/np.tanh(rho) - rho_c/np.tanh(rho_c)))
+    print(D_ana[i], num_D_para[i], D2)
 
 plt.figure(4)
 plt.plot(visc, num_D_para, "ro", label="numerisk brenner")

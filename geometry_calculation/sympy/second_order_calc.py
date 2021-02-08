@@ -20,7 +20,6 @@ grad1x_P1 = simplify(-kappa*xi*cos(kappa*eta)*diff(P1, xi))
 grad1y_P1 = simplify(-sin(kappa*eta)*diff(P1, xi))
 grad0_u2 = - simplify(grad1_u1+grad2_u0)
 
-
 print("\n\n-----------------------------------------------------------------")
 print("CALCULATE P2")
 term1 = -gamma*gamma*(grad0_u2) + diff(grad0_u2, xi, xi) + diff(grad0_u2, eta, eta)
@@ -105,6 +104,7 @@ difference_sol_x = difference_sol_x.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
 difference_sol_x = simplify(expand(difference_sol_x))
 print("Difference solution (just eta):", difference_sol_x)
 print("u_x2 = ", cos(2*kappa*eta)*my_sol_eta, "+", my_sol_non_eta)
+
 print("-----------------------------------------------------------------")
 print("\n\n\n")
 
@@ -163,7 +163,6 @@ difference = difference.subs(kappa_p, sqrt(gamma*gamma+kappa*kappa))
 difference = simplify(expand(difference))
 print("Divergence of particular solution: ", difference)
 
-
 print("\n\n\n")
 print("-----------------------------------------------------------------")
 print("CALCULATE undetermined coeffs")
@@ -185,8 +184,10 @@ sol_x_no_eta_BC = P_1*sinh(kappa)*(kappa*kappa*xi*sinh(kappa*xi)/sinh(kappa) - k
 answ = expand(gamma*gamma*sol_x_no_eta_BC - diff(sol_x_no_eta_BC, xi, xi) - RHS_no_eta)
 answ = expand(answ.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p)))))
 answ = answ.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
-print("\n\n\n")
+print("\n")
 print("x eta-indep sol:", simplify(answ))
+print("boundary: ", simplify(sol_x_no_eta_BC.subs(xi, 1)))
+
 
 
 psi_2_insert = (P_1*sqrt(gamma**2 + 4*kappa**2)*(kappa*cosh(kappa)*tanh(kappa_p) - kappa_p*sinh(kappa))*cosh(sqrt(gamma**2 + 4*kappa**2)) + gamma**2*(F0 + 2*P_1*sinh(kappa))*sinh(sqrt(gamma**2 + 4*kappa**2))*tanh(kappa_p))/(4*(2*kappa*sinh(sqrt(gamma**2 + 4*kappa**2))*cosh(2*kappa) - sqrt(gamma**2 + 4*kappa**2)*sinh(2*kappa)*cosh(sqrt(gamma**2 + 4*kappa**2)))*tanh(kappa_p))
@@ -198,6 +199,8 @@ answ = expand(answ.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa
 answ = answ.subs(kappa_p,    sqrt(kappa*kappa+gamma*gamma))
 answ = answ.subs(P_2, psi_2*2*kappa/(gamma*gamma))
 print("\n\n x eta-dep sol:", simplify(answ))
+print("boundary: ", simplify(sol_x_eta.subs(xi, 1)))
+
 
 sol_y = (P_1*kappa*sinh(kappa)/(2*gamma*gamma*tanh(kappa_p)))*(kappa_p*xi*cosh(kappa_p*xi)/cosh(kappa_p) - kappa_p*sinh(kappa_pp*xi)/sinh(kappa_pp) -kappa*(tanh(kappa_p)/tanh(kappa))*(xi*cosh(kappa*xi)/cosh(kappa) - sinh(kappa_pp*xi)/sinh(kappa_pp))) - P_2*sinh(2*kappa)*(sinh(2*kappa*xi)/sinh(2*kappa) - sinh(kappa_pp*xi)/sinh(kappa_pp))
 answ = expand(kappa_pp*kappa_pp*sol_y - diff(sol_y, xi, xi) - my_RHS/sin(2*kappa*eta))
@@ -205,12 +208,59 @@ answ = expand(answ.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa
 answ = answ.subs(kappa_p,    sqrt(kappa*kappa+gamma*gamma))
 answ = answ.subs(P_2, psi_2*2*kappa/(gamma*gamma))
 print("\n\n y sol:", simplify(answ))
+print("boundary: ", simplify(sol_y.subs(xi, 1)))
 
 
 print("\n\n\n")
 print("-----------------------------------------------------------------")
 print("series expansion in kappa")
-series_eta_indep = series(sol_x_no_eta_BC, kappa)
-print(simplify(series_eta_indep))
 
-print(simplify(series((F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))), kappa)))
+
+order = 2
+sol_x_no_eta_BC = sol_x_no_eta_BC.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+sol_x_no_eta_BC = series(sol_x_no_eta_BC, kappa_p, n=order).removeO()
+sol_x_no_eta_BC = sol_x_no_eta_BC.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+sol_x_no_eta_BC = simplify(series(sol_x_no_eta_BC, kappa, n=order).removeO())
+sol_x_no_eta_BC = simplify(series(sol_x_no_eta_BC, gamma, n=order).removeO())
+print("taylor ux no eta: ", sol_x_no_eta_BC)
+print(simplify(sol_x_no_eta_BC.subs(xi, 1)))
+order = 2
+
+sol_y = sol_y.subs(P_2, psi_2_insert*2*kappa/(gamma*gamma))
+sol_y = sol_y.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+sol_y = series(sol_y, kappa_p, n=order).removeO()
+sol_y = sol_y.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+sol_y = simplify(series(sol_y, kappa, n=order).removeO())
+sol_y = simplify(series(sol_y, gamma, n=order).removeO())
+print("taylor uy: ", sol_y)
+print(simplify(sol_y.subs(xi, 1)))
+
+sol_x_eta = sol_x_eta.subs(P_2, psi_2_insert*kappa/(gamma*gamma))
+sol_x_eta = sol_x_eta.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+sol_x_eta = series(sol_x_eta, kappa_p, n=order).removeO()
+sol_x_eta = sol_x_eta.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+sol_x_eta = simplify(series(sol_x_eta, kappa, n=order).removeO())
+sol_x_eta = simplify(series(sol_x_eta, gamma, n=order).removeO())
+print("taylor ux eta: ", sol_x_eta)
+print(simplify(sol_x_eta.subs(xi, 1)))
+
+P = 2*psi_2_insert*kappa/(gamma*gamma)
+P = series(P, kappa_p, n=order).removeO()
+P = P.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+P = simplify(series(P, kappa, n=order).removeO())
+P = simplify(series(P, gamma, n=order).removeO())
+P = P.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+P = series(P, kappa_p, n=order).removeO()
+P = P.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+P = simplify(series(P, kappa, n=order).removeO())
+P = simplify(series(P, gamma, n=order).removeO())
+print("P_2: ", P)
+
+
+P = (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p)))
+P = P.subs(P_1, (F0*gamma*tanh(gamma)/(kappa*cosh(kappa)))/(1-kappa_p*tanh(kappa)/(kappa*tanh(kappa_p))))
+P = series(P, kappa_p, n=order).removeO()
+P = P.subs(kappa_p, sqrt(kappa*kappa+gamma*gamma))
+P = simplify(series(P, kappa, n=order).removeO())
+P = simplify(series(P, gamma, n=order).removeO())
+print("P_1: ", P)
