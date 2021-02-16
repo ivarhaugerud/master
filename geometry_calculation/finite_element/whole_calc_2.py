@@ -132,11 +132,11 @@ k     = np.array([-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8])
 xi    = np.linspace(-1, 1, int(1e5))
 
 #system parameters
-nu = 3.6
+nu = 1.2
 omega = (2*np.pi)/3.0
 F0 = 12/nu
 Sc = nu
-Pe = 6
+Pe = 1
 #kappas = np.linspace(0.1, 2.5, 10)
 Lx = np.linspace(0.7, 27, 20)
 kappas = 2*np.pi/Lx

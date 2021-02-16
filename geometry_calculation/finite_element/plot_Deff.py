@@ -12,17 +12,20 @@ matplotlib.rcParams['mathtext.fontset'] = 'stix'
 
 D_parallels = np.load("data/D_parallels_kappa.npy")[0, :]
 kappas =  np.load("data/D_parallels_kappa.npy")[1, :]
-print(D_parallels)
+
+#print(D_parallels)
+#Lx = np.linspace(0.7, 27, 20)
+#kappas = 2*np.pi/Lx
 
 #num_kappas = np.load("../RW_simulation/data/D_eff_vs_kappa.npy")
-nu = 3.6
+nu = 1.2
 tau = 3.0
 omega = tau/(2*np.pi)
 dt = 0.006
 timesteps = int(tau/dt)
 F0 = 12/nu
 Sc = nu
-Pe = 6
+Pe = 1
 Lx = np.linspace(0.7, 27, 20)
 Lx =  np.array([1.05, 2.09, 6.28, 12.56, 15.71, 25.13]) #9.42,
 #kappas = 2*np.pi/Lx
@@ -63,9 +66,9 @@ plt.plot(kappas, np.ones(len(kappas))*D_para0, "-")
 
 Lx =  np.array([1.05, 2.09, 6.28, 12.56, 15.71, 25.13]) #9.42,
 kappas = 2*np.pi/Lx
-D_RW = np.load("../RW_simulation/data/D_eff_vs_kappa.npy")
-plt.errorbar(kappas, D_RW[:,0], yerr=D_RW[:,1], fmt="o")
-plt.fill_between(kappas, D_RW[:,0]-eps*eps*eps*eps, D_RW[:,0]+eps*eps*eps*eps, alpha=0.7, color="green")
+#D_RW = np.load("../RW_simulation/data/D_eff_vs_kappa.npy")
+#plt.errorbar(kappas, D_RW[:,0], yerr=D_RW[:,1], fmt="o")
+#plt.fill_between(kappas, D_RW[:,0]-eps*eps*eps*eps, D_RW[:,0]+eps*eps*eps*eps, alpha=0.7, color="green")
 
 plt.xlabel(r"Wave number $\kappa$", fontsize=8)
 plt.ylabel(r"Total Parallel Diffusion $D_\parallel + O(\epsilon^4)$", fontsize=8)
