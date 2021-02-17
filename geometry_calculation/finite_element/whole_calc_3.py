@@ -143,6 +143,8 @@ Sc = nu#/D
 Pe = 1
 kappas = np.arange(0.1, 2.5, 0.4)
 kappas =  np.linspace(0.1, 2, 15) #9.42,
+kappas  = np.array([0.2, 0.6 , 1.0, 1.4, 1.7, 2.1])
+
 #kappas = 2*np.pi/Lx
 D_parallels = np.zeros(len(kappas))
 
