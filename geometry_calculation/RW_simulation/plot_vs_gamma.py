@@ -36,16 +36,19 @@ for i in range(len(visc)):
     tdat = np.loadtxt(dirr[i] +"/tdata.dat")
     time = tdat[:,0]
     u2   = tdat[:,4]
+    D = 0.2
+    Pe = 1/D
     exp_u2[i] = integrate.trapz(u2[-timesteps:], time[-timesteps:])/(tau)
     gamma   = np.sqrt(1j*omega/Sc)
     gamma_c = np.conj(gamma)
-    a       = np.sqrt(1j*omega)
+    a       = np.sqrt(1j*omega/D)
     a_c     = np.conj(a)
     rho = a 
     rho_c = a_c
     num_D_para[i] = integrate.trapz(np.loadtxt(dirr[i] +"/tdata.dat")[-timesteps:, 8], np.loadtxt(dirr[i]+"/tdata.dat")[-timesteps:, 0])/tau
     D_ana[i] = 1 + np.real(Sc*Sc*Sc*Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*omega*omega*omega*(Sc*Sc-1))*(1/(gamma*np.tanh(gamma)) + 1j/(gamma*np.tanh(gamma_c)) - 1/(rho*np.tanh(rho)) - 1j/(rho*np.tanh(rho_c))))
     D2 = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma**4 - rho**4))*(1/(gamma*gamma)*(gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c)) - 1/(rho*rho)*(rho/np.tanh(rho) - rho_c/np.tanh(rho_c)))
+    D_ana[i] = D2
     print(D_ana[i], num_D_para[i], D2)
 
 plt.figure(4)
@@ -79,9 +82,9 @@ for l in range(len(visc)):
     RW_D_para[1,l] = np.std( var[half_way:]/(2*Dm*t[half_way:]))
 
 """
-data1 = np.load("../data_test/visc_1.5_var_over_t.npy")
-data2 = np.load("../data_test/visc_3.0_var_over_t.npy")
-data3 = np.load("../data_test/visc_5.0_var_over_t.npy")
+data1 = np.load(dirr[0]+"/var_over_t.npy")#/visc_1.5_var_over_t.npy")
+data2 = np.load(dirr[1]+"/var_over_t.npy")#/visc_3.0_var_over_t.npy")
+data3 = np.load(dirr[2]+"/var_over_t.npy")#/visc_5.0_var_over_t.npy")
 cutoff = int(0.8*len(data1))
 
 plt.figure(5)
@@ -91,7 +94,12 @@ plt.plot(data3, label="nu=5.0")
 plt.legend(loc="best")
 plt.xlabel("data points (time)")
 plt.ylabel("Effective D")
-RW_D_para[0, 0] = (np.mean(data1[cutoff:]))
+RW_D_para
+
+
+
+
+[0, 0] = (np.mean(data1[cutoff:]))
 RW_D_para[0, 1] = (np.mean(data2[cutoff:]))
 RW_D_para[0, 2] = (np.mean(data3[cutoff:]))
 

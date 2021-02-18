@@ -16,7 +16,7 @@ num_D_para = np.zeros(len(nus))
 Dm = 1
 
 for i in range(len(nus)):
-	Sc = nus[i]#/Dm
+	Sc = nus[i]
 	F0 = 12/(nus[i])
 	gamma   = np.sqrt(1j*omega/Sc)
 	gamma_c = np.conj(gamma)

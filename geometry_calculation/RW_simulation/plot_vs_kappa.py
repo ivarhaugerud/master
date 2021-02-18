@@ -29,8 +29,6 @@ factor  = Sc*Sc*Sc*Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(omega*omega*omeg
 D_ana = np.ones(len(t))*(1 + np.real(factor * 0.5 * sci.trapz( np.sinh(a*xi)*np.sinh(a_c*xi)/(np.sinh(a)*np.sinh(a_c)) + np.sinh(gamma*xi)*np.sinh(gamma_c*xi)/(np.sinh(gamma)*np.sinh(gamma_c)) - np.sinh(a*xi)*np.sinh(gamma_c*xi)/(np.sinh(a)*np.sinh(gamma_c)) - np.sinh(gamma*xi)*np.sinh(a_c*xi)/(np.sinh(gamma)*np.sinh(a_c)), xi)))
 
 
-
-"""
 #geometry parameters
 print("resonance at kappa = ", np.real(gamma)*2)
 Lx =  np.array([1.05, 2.09, 6.28, 12.56, 15.71, 25.13]) #9.42,
@@ -95,5 +93,4 @@ for l in range(len(Lx)):
 	plt.title("Lx = "+str(Lx[l]))
 	plt.plot(x, y)
 	plt.show()
-"""	
 
