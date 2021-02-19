@@ -23,16 +23,17 @@ Pe           = 1
 #geometry parameters
 epsilon = 0.0
 omega = 2*np.pi/tau 
-visc = np.array([1.5, 3.0, 5.0])
+visc = np.array([0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0])
 exp_u2 = np.zeros(len(visc))
 l = 6.28
-
+"""
 dirr = []
 for i in range(len(visc)):
     dirr.append("flow_fields/zero_eps/Lx12.56_tau3.0_eps0.0_nu"+str(visc[i])+"_D1.0_fzero0.0_fone12.0_res100_dt0.006/")
 
     tdat = np.loadtxt(dirr[i] +"tdata.dat")
     exp_u2[i] = integrate.trapz(tdat[-timesteps:, 4], tdat[-timesteps:, 0])/(tau)
+"""
 
 for i in range(len(visc)):
     nu = visc[i]
@@ -46,7 +47,7 @@ for i in range(len(visc)):
     prev_pos[1,:] = np.copy(pos[1,:])
 
     U = np.sqrt(exp_u2[i])
-    D  = U/Pe
+    D  = 0.1 #U/Pe
     alpha = np.sqrt(2*D*dt/RW_timesteps)
 
     var = np.zeros(int(periods*timesteps))
@@ -63,7 +64,7 @@ for i in range(len(visc)):
         var[k] = np.var(pos[0, :])
 
     t = np.linspace(0, periods*tau, periods*timesteps)
-    np.save(dirr[i]+"pos3/var_over_t", var[1:]/(2*D*t[1:]))
+    np.save("data/var_over_2Dt_nu"+str(nu)+"_D0.1", var[1:]/(2*D*t[1:]))
     #plt.plot(t[1:], var[1:]/(2*D*t[1:]))
     #plt.show()
     print("DONE WITH RUN FOR NU: ", visc[i], np.mean(var[-int(periods*timesteps/2):]/(2*D*t[-int(periods*timesteps/2):])))
