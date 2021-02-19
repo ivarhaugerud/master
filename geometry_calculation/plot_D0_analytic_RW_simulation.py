@@ -1,72 +1,90 @@
+import os
 import numpy as np 
 from scipy import integrate
 import scipy.integrate as sci
 import matplotlib.pyplot as plt 
 
-data1 = np.load("data_test/newest_visc_1.5_var_over_t.npy")
-data2 = np.load("data_test/newest_visc_3.0_var_over_t.npy")
-data3 = np.load("data_test/newest_visc_5.0_var_over_t.npy")
+plt.style.use(['science','no-latex', 'grid'])
+#sns.color_palette("hls", 1)
+import matplotlib
+matplotlib.rc('xtick', labelsize=14)
+matplotlib.rc('ytick', labelsize=14)
+matplotlib.rcParams['mathtext.fontset'] = 'stix'
+matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-visc = np.array([1.5, 3.0, 5.0])
+visc = np.array([0.5, 1.0, 2.0, 2.5, 3.5, 4.0, 4.5])
+data = {}
+
+for i in range(len(visc)):
+    data[str(i)] = np.load("data_test/D0.25__visc_"+str(visc[i])+"_var_over_t.npy")
+
+
 analytic = np.zeros(len(visc))
-U        = np.zeros(len(visc))
-U2       = np.zeros(len(visc))
 tau = 3.0
 omega = 2*np.pi/tau
-Pe_sim = 10
-dt           = 0.006
 tau          = 3.0 
-timesteps    = int(tau/(dt))
-dirr = []
-for i in range(len(visc)):
-    dirr.append("RW_simulation/flow_fields/zero_eps/Lx12.56_tau3.0_eps0.0_nu"+str(visc[i])+"_D1.0_fzero0.0_fone12.0_res100_dt0.006")
+D = 0.25
+periods = 1000
+t = np.linspace(0, periods, int(len(data["1"])))
 
-colors = ["r", "b", "g"]
 for i in range(len(visc)):
     Sc = visc[i]
     F0 = 12/visc[i]
-
-    tdat = np.loadtxt(dirr[i] +"/tdata.dat")
-    U[i]  = integrate.trapz(tdat[-timesteps:, 4], tdat[-timesteps:, 0])/tau
-    plt.plot(tdat[:, 0], tdat[:, 4])
-    plt.plot(tdat[-timesteps:, 0], tdat[-timesteps:, 4])
-    plt.show()
-    D = np.sqrt(U[i])/Pe_sim
     gamma   = np.sqrt(1j*omega/Sc)
     gamma_c = np.conj(gamma)
     rho = np.sqrt(1j*omega/D)
     rho_c = np.conj(rho)
     Pe = 1/D
-    #print(Pe, D, U)
-    analytic[i] = 1 + np.real(Sc*Sc*Sc*Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*omega*omega*omega*(Sc*Sc-1))*(1/(gamma*np.tanh(gamma)) + 1j/(gamma*np.tanh(gamma_c)) - 1/(rho*np.tanh(rho)) - 1j/(rho*np.tanh(rho_c))))
-    D2          = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma**4 - rho**4))*(1/(gamma*gamma)*(gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c)) - 1/(rho*rho)*(rho/np.tanh(rho) - rho_c/np.tanh(rho_c)))
-    analytic[i] = D2
-    print(analytic[i], D2)
-
-plt.plot(data1, color=colors[0], label=r"$\nu=1.5$")
-plt.plot(data2, color=colors[1], label=r"$\nu=3.0$")
-plt.plot(data3, color=colors[2], label=r"$\nu=5.0$")
-
-plt.plot(np.ones(len(data1))*analytic[0], "--", color=colors[0])
-plt.plot(np.ones(len(data1))*analytic[1], "--", color=colors[1])
-plt.plot(np.ones(len(data1))*analytic[2], "--", color=colors[2])
-plt.legend(loc="best")
-plt.xlabel(r"datapoints")
-plt.ylabel(r"Effective diffusion coefficient $D_\parallel$")
-plt.savefig("figures/comparison_analytic_and_numeric.png")
-plt.show()
-
-
+    analytic[i] = np.real(1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma**4 - rho**4))*(1/(gamma*gamma)*(gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c)) - 1/(rho*rho)*(rho/np.tanh(rho) - rho_c/np.tanh(rho_c))) )
 
 D = np.zeros(len(visc))
-cutoff = int(0.8*len(data1))
-D[0] = (np.mean(data1[cutoff:]))
-D[1] = (np.mean(data2[cutoff:]))
-D[2] = (np.mean(data3[cutoff:]))
+error = np.zeros(len(visc))
+cutoff = int(0.5*len(data["1"]))
+plot_skip = 100
 
-plt.plot(visc, D, "o")
-plt.plot(visc, analytic, "o")
-plt.show()
+for i in range(len(visc)):
+    D[i] = (np.mean(data[str(i)][cutoff:]))
+    error = (np.std(data[str(i)][cutoff:]))
 
-plt.plot(visc, ((D)/(analytic)) , "o")
+for i in range(len(visc)-3):
+    fig = plt.figure(1)
+    plt.plot(t[::plot_skip], data[str(i)][::plot_skip], "C"+str(i), label=r"$\nu=$"+str(visc[i]))
+    plt.plot(t[::plot_skip], np.ones(len(t[::plot_skip]))*analytic[i], "--", color="C"+str(i))
+
+plt.legend(loc="best", fontsize=8)
+plt.xlabel(r"Time [periods $T$]", fontsize=8)
+plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.savefig("figures/comparison_analytic_and_numeric.png")
+name = "figures/D_eff_vs_t.pdf"
+fig.savefig(name, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(name, name))
+
+fig = plt.figure(2)
+plt.errorbar(visc, D, yerr=error, fmt="o", markersize=3 , label="Random Walk")
+
+
+visc = np.linspace(0.4, 5, 60)
+analytic = np.zeros(len(visc))
+
+for i in range(len(visc)):
+    D = 0.25
+    Sc = visc[i]
+    F0 = 12/visc[i]
+    gamma   = np.sqrt(1j*omega/Sc)
+    gamma_c = np.conj(gamma)
+    rho = np.sqrt(1j*omega/D)
+    rho_c = np.conj(rho)
+    Pe = 1/D
+    analytic[i] = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma**4 - rho**4))*(1/(gamma*gamma)*(gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c)) - 1/(rho*rho)*(rho/np.tanh(rho) - rho_c/np.tanh(rho_c)))
+
+plt.plot(visc, analytic, label="analytic")
+plt.legend(loc="best", fontsize=8)
+plt.xlabel(r"Viscosity $\nu$", fontsize=8)
+plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
+plt.savefig("figures/comparison_analytic_and_numeric.png")
+plt.tick_params(axis='both', which='major', labelsize=8)
+name = "figures/D_eff_vs_visc.pdf"
+fig.savefig(name, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(name, name))
 plt.show()
