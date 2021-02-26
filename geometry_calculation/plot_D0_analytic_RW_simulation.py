@@ -12,7 +12,7 @@ matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-visc = np.array([0.5, 1.0, 2.0, 2.5, 3.5, 4.0, 4.5])
+visc = np.array([0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0])
 data = {}
 
 for i in range(len(visc)):
@@ -46,7 +46,7 @@ for i in range(len(visc)):
     D[i] = (np.mean(data[str(i)][cutoff:]))
     error = (np.std(data[str(i)][cutoff:]))
 
-for i in range(len(visc)-3):
+for i in range(len(visc)-4):
     fig = plt.figure(1)
     plt.plot(t[::plot_skip], data[str(i)][::plot_skip], "C"+str(i), label=r"$\nu=$"+str(visc[i]))
     plt.plot(t[::plot_skip], np.ones(len(t[::plot_skip]))*analytic[i], "--", color="C"+str(i))

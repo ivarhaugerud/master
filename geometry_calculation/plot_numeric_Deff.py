@@ -28,12 +28,12 @@ for i in range(len(epsilon)):
       U[i,j] = sci.trapz(data[i, j, -datafiles:, 4], data[i, j, -datafiles:, 0])/T
       D[i,j] = sci.trapz(data[i, j, -datafiles:, 8], data[i, j, -datafiles:, 0])/T
 
-      #plt.plot(data[i, j, :, 0], data[i, j, :, 8])
+      plt.plot(data[i, j, :, 0], data[i, j, :, 8])
       #plt.plot(data[i, j, :, 0], data[i, j, :, 4])
-      #plt.plot(data[i, j, -datafiles:, 0], data[i, j, -datafiles:, 8])
-      #plt.plot(data[i, j, :, 0], D[i,j]*np.ones(len(data[i,j,:,0])))
-      #plt.title(str(epsilon[i]) + " and " + str(kappa[j]))
-   #plt.show()
+      plt.plot(data[i, j, -datafiles:, 0], data[i, j, -datafiles:, 8])
+      plt.plot(data[i, j, :, 0], D[i,j]*np.ones(len(data[i,j,:,0])))
+      plt.title(str(epsilon[i]) + " and " + str(kappa[j]))
+   plt.show()
    #plt.plot(kappa, D[i, :])
    #plt.show()
 

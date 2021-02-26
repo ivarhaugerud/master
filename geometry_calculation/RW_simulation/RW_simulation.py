@@ -1,7 +1,8 @@
 import numpy as np
 import scipy.interpolate as sci
-#import h5py
+import h5py
 from scipy.interpolate import griddata
+import matplotlib.pyplot as plt 
 
 dt = 0.006
 tau = 3.0 
@@ -31,6 +32,8 @@ RW_steps = 30
 alpha = np.sqrt(2*D*dt/RW_steps)
 var = np.zeros((len(Lx), periods*timesteps))
 t = np.linspace(0, periods*tau, periods*timesteps)
+xi = np.linspace(-1-epsilon, 1+epsilon, 1000)
+eta = np.linspace(0, 1.05, 800)
 
 for i in range(len(Lx)):
     prev_pos = np.zeros((2, N))
@@ -62,7 +65,24 @@ for i in range(len(Lx)):
 
         interpolation["x-"+str(j)]  = sci.RectBivariateSpline(y, x, ux_grid)
         interpolation["y-"+str(j)]  = sci.RectBivariateSpline(y, x, uy_grid)
-        print(Lx[i], j, int(periods_of_flow*timesteps*skip)-j*skip-1)
+
+        #plt.imshow(ux_grid)
+        #plt.show()
+        
+        #print(Lx[i], j, int(periods_of_flow*timesteps*skip)-j*skip-1)
+        #for t in range(20):
+	    #plt.plot(np.linspace(-1-epsilon*np.cos(2*np.pi*t/20), 1+epsilon*np.cos(2*np.pi*t/20), 1000), interpolation["y-"+str(j)](np.linspace(-1-epsilon*np.cos(2*np.pi*t/20), 1+epsilon*np.cos(2*np.pi*t/20), 1000), l*t/20))
+	    #plt.plot(xi, interpolation["x-"+str(j)](xi, l/3))
+        #hor = np.linspace(1e-3,l-1e-3,100)
+        for i in range(20):
+        	xi = np.linspace(-1-epsilon*np.cos(2*np.pi*i/20), 1+epsilon*np.cos(2*np.pi*i/20), 200)
+        	plt.plot(xi, interpolation["x-"+str(j)](xi,  l*i/20))
+        #plt.plot(xi, interpolation["x-"+str(j)](xi, l/4))
+        #plt.plot(xi, interpolation["x-"+str(j)](xi, l/2))
+        #plt.plot(hor, interpolation["x-"+str(j)](0.95+epsilon*np.cos(2*np.pi*hor/l-np.pi/2), hor)[0])
+        #plt.plot(xi, interpolation["x-"+str(j)](xi, l/2))
+        #plt.plot(xi, interpolation["x-"+str(j)](xi, 0.75))
+        plt.show()
         print(np.mean(np.mean(ux_grid)))
 
     for k in range(int(periods*timesteps)):
