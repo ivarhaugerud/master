@@ -1,5 +1,8 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
+plt.style.use(['science','no-latex', 'grid'])
+
+import matplotlib
 
 #simulation parameters
 dt           = 0.01
@@ -25,7 +28,10 @@ B_down =-1-epsilon*np.sin(kappa*eta)
 
 dirr = "data/analytic_D0_eps"+str(epsilon)+"_kappa"+str(kappa)
 
-
+matplotlib.rc('xtick', labelsize=8)
+matplotlib.rc('ytick', labelsize=8)
+matplotlib.rcParams['mathtext.fontset'] = 'stix'
+matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
 
 
@@ -41,34 +47,12 @@ t = np.linspace(0,1, N) # your "time" variable
 for i in range(datafiles):
 	pos = np.load(dirr + "/pos_"+str(pos_saves[i])+".npy")
 	plt.clf()
-	"""
-
-	# set up a list of (x,y) points
-	points = np.array([pos[0,:],pos[1,:]]).transpose().reshape(-1,1,2)
-	#print points.shape  # Out: (len(x),1,2)
-
-	# set up a list of segments
-	segs = np.concatenate([points[:-1],points[1:]],axis=1)
-	#print segs.shape  # Out: ( len(x)-1, 2, 2 )
-	                  # see what we've done here -- we've mapped our (x,y)
-	                  # points to an array of segment start/end coordinates.
-	                  # segs[i,0,:] == segs[i-1,1,:]
-	print(np.shape(segs))
-
-	# make the collection of segments
-	norm = plt.Normalize(0, 1)
-	lc = LineCollection(t, cmap=plt.get_cmap('viridis'), norm=norm)
-	lc.set_array(t) # color the segments by our parameter
-
-	# plot the collection
-	#plt.gca().add_collection(lc) # add the collection to the plot
-	plt.xlim(eta.min(), eta.max()) # line collections don't auto-scale the plot
-	plt.ylim(-1-epsilon, 1+epsilon)
-	"""
 	plt.scatter(pos[0, :], pos[1, :], c=t, cmap="plasma", s=0.5)
 	plt.plot(eta, B_up, "k")
 	plt.plot(eta, B_down, "k")
 	plt.xlabel(r"Horinzontal position [$a$]", fontsize=8)
 	plt.ylabel(r"Vertical position [$a$]", fontsize=8)
-	plt.pause(0.01)
+	plt.savefig(dirr + "/figures/frame%04d.png" % i)
+	#plt.pause(0.01)
+	print(i, datafiles)
 
