@@ -20,6 +20,8 @@
 *.jar
 *.rar
 *.tar
+*.png
+*.gif
 *.zip
 
 # LaTeX #
