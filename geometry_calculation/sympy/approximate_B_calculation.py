@@ -29,16 +29,30 @@ print("TEST SOLUTION BETA0: ", series(simplify(diff(diff(beta0, xi), xi) - kappa
 print("TEST BCS BETA0: ", simplify(diff(beta0, xi).subs(xi,  1)), simplify(diff(beta0, xi).subs(xi, -1)))
 print("\n\n")
 
-
+"""
 
 RHS_beta2 = -Pe*Pe*F0*F0*kappa*(1-xi*xi)/(24*rho*rho)
-beta2 = Pe*Pe*F0*F0*kappa*(1/(2*rho*rho) - xi*xi/(2*rho*rho) - 1/(2*rho**4) )/(24*rho*rho)
-beta2 += F0*F0*kappa*Pe*Pe*cosh(rho*sqrt(2)*xi)/(24*sqrt(2)*sinh(rho*sqrt(2))*rho**5)
-beta2 = 
-print(simplify(series(cosh(sqrt(2)*rho*xi)/(sqrt(2)*rho*sinh(sqrt(2)*rho)), rho, n=4)))
+beta2 = Pe*Pe*F0*F0*kappa*(1/2 - xi*xi/2 - 1/(2*rho**2)  + cosh(rho*xi*sqrt(2))/(rho*sqrt(2)*sinh(sqrt(2)*rho)))/(24*rho*rho*rho*rho)
+#beta2 = Pe*Pe*F0*F0*kappa*(1/2 - xi*xi/2 - 1/(2*rho**2)  -1/6 + xi*xi/2 + 1/(2*rho*rho) + rho*rho*(15*xi**4 - 30*xi*xi + 7)/180 )/(24*rho**4)
+#beta2 += F0*F0*kappa*Pe*Pe*cosh(rho*sqrt(2)*xi)/(24*sqrt(2)*sinh(rho*sqrt(2))*rho**5)
+#beta2 = 
+
+#print(simplify(series(cosh(sqrt(2)*rho*xi)/(sqrt(2)*rho*sinh(sqrt(2)*rho)), rho, n=8)))
+print(simplify(series(beta2, rho, n=4)))
+
 print("TEST SOLUTION BETA0: ", simplify(diff(diff(beta2, xi), xi) - 2*rho*rho*beta2 - RHS_beta2))
 print("TEST BCS BETA0: ", simplify(diff(beta2, xi).subs(xi,  1)), simplify(diff(beta2, xi).subs(xi, -1)))
 #print("\n\n")
 
-(rho**2*(-30 + 90*xi**2 + rho**2*(15*xi**4 - 30*xi**2 + 7) + O(rho**4)) + 90)/(180*rho**2)
 
+#(F0**2*Pe**2*kappa*xi**4/288 - F0**2*Pe**2*kappa*xi**2/144 + 7*F0**2*Pe**2*kappa/4320)/rho**2 + rho**2*(F0**2*Pe**2*kappa*xi**8/120960 - F0**2*Pe**2*kappa*xi**6/12960 + 7*F0**2*Pe**2*kappa*xi**4/25920 - 31*F0**2*Pe**2*kappa*xi**2/90720 + 127*F0**2*Pe**2*kappa/1814400) + 0.0138888888888889*F0**2*Pe**2*kappa/rho**4 - 31*F0**2*Pe**2*kappa/90720 + 7*F0**2*Pe**2*kappa*xi**2/4320 - F0**2*Pe**2*kappa*xi**4/864 + F0**2*Pe**2*kappa*xi**6/4320 + O(rho**4)
+"""
+rho_p = sqrt(kappa*kappa + 2*rho*rho)
+beta2 = Pe*Pe*F0*F0*kappa*( (1-xi*xi)/(rho_p*rho_p) - 2/(rho_p**4) + 2*cosh(rho_p*xi)/(rho_p*rho_p*rho_p*sinh(rho_p)))/(24*rho*rho)
+RHS = -Pe*Pe*F0*F0*kappa*(1-xi*xi)/(24*rho*rho)
+
+test = diff(diff(beta2, xi), xi) - rho_p*rho_p*beta2 -RHS
+
+test = series(beta2, rho_p, n=4).removeO()
+test = series(test, rho, n=4).removeO()
+print(simplify(test))
