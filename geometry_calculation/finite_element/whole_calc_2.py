@@ -136,10 +136,10 @@ nu = 1.2
 omega = (2*np.pi)/3.0
 F0 = 12/nu
 Sc = nu
-Pe = 1
-#kappas = np.linspace(0.1, 2.5, 10)
-Lx = np.linspace(0.7, 27, 20)
-kappas = 2*np.pi/Lx
+D = 1
+Pe = 1/D
+kappas = np.array([0.2, 0.6, 1.0, 1.4, 1.7, 2.1]) #0.2
+
 D_parallels = np.zeros(len(kappas))
 
 for K in range(len(kappas)):
@@ -147,21 +147,20 @@ for K in range(len(kappas)):
 	#implicitly defined parameters
 	gamma   = np.sqrt(1j*omega/Sc)
 	kappa_p = np.sqrt(gamma*gamma + kappa*kappa)
-	rho     = np.sqrt(1j*omega)
+	rho     = np.sqrt(1j*omega/D)
 	P_1     = (F0*gamma*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_p*np.tanh(kappa)/(kappa*np.tanh(kappa_p)))
-	p_np2   = 1j*omega*k + kappa*kappa
+	p_np2   = rho*rho*k + kappa*kappa
 
 	#analytic results
-	ux0 = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(gamma*gamma)/2
+	ux0 = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma)
 	ux1 = ((P_1*kappa*np.cosh(kappa)/(gamma*gamma))*(np.cosh(kappa*xi)/np.cosh(kappa) - np.cosh(kappa_p *xi)/np.cosh(kappa_p)) + (F0*np.tanh(gamma)/gamma)*(np.cosh(kappa_p*xi)/np.cosh(kappa_p) - xi*np.sinh(gamma*xi)/np.sinh(gamma)))/2
 	uy1 = ((kappa*P_1*np.sinh(kappa)/(gamma*gamma))*(np.sinh(kappa_p*xi)/np.sinh(kappa_p) - np.sinh(kappa*xi)/np.sinh(kappa)))/2
-
 	ux2  = (P_1*kappa*kappa*np.sinh(kappa)*(xi*np.sinh(kappa*xi)/np.sinh(kappa) - np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma) + F0*np.cosh(gamma*xi)*(1-xi*xi)/(4*np.cosh(gamma)) + P_1*kappa_p*kappa_p*np.sinh(kappa)*(np.cosh(gamma*xi)/np.cosh(gamma)-xi*np.sinh(kappa_p*xi)/np.sinh(kappa_p))/(2*gamma*gamma))/2
-	ux2 -= scpi.trapz(ux2, xi)/2 + scpi.trapz(ux1, xi)/4
+	ux2 -= scpi.trapz(ux2, xi)/2 #+ scpi.trapz(ux1, xi)/4
 
-	B0             = (Pe*F0*np.tanh(gamma)/(2*gamma*gamma*gamma*(Sc-1)))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))) + Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*rho*rho)
-	B0_deriv       = (Pe*F0*np.tanh(gamma)/(2*gamma*gamma*gamma*(Sc-1)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))
-	B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(2*gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(rho*xi)/np.sinh(rho) - gamma*np.cosh(gamma*xi)/np.sinh(gamma))
+	B0             = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))) + Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*rho*rho)
+	B0_deriv       = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))
+	B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(rho*np.cosh(rho*xi)/np.sinh(rho) - gamma*np.cosh(gamma*xi)/np.sinh(gamma))
 
 	#define source terms
 	q = np.zeros((len(k), len(xi)), dtype="complex")
@@ -187,7 +186,7 @@ for K in range(len(kappas)):
 
 	couple_backward[0, 0]    = Delta*(ux0[np.argmin(abs(xi-(N_pos[0])))]  + ux0[np.argmin(abs(xi-(N_pos[0]  + Delta/2)))])/6
 	couple_backward[-1, -1]  = Delta*(ux0[np.argmin(abs(xi-(N_pos[-1])))] + ux0[np.argmin(abs(xi-(N_pos[-1] - Delta/2)))])/6
-	couple_backward         *= kappa/2
+	couple_backward         *= kappa
 	couple_forward = np.conj(couple_backward)
 
 	#boundary conditions
@@ -247,8 +246,10 @@ for K in range(len(kappas)):
 
 	for i in range(n):
 		if abs(k[i]) > 1e-4:
-			sol[:,i], sol_coeff[:, i] = finite_element_solver(N, xi, 1j*omega*k[i], -q[i,:])
-
+			sol[:,i], sol_coeff[:, i] = finite_element_solver(N, xi, rho*rho*k[i], -q[i,:])
+			#plt.plot(xi, -interp1d(N_pos, np.gradient(np.gradient(sol_coeff[:,i], N_pos), N_pos), kind='cubic')(xi) + rho*rho*k[i]*sol[:,i] )
+			#plt.plot(xi, q[i,:] , "--")
+		#plt.show()
 	for i in range(n):
 		if np.max(abs(np.imag(sol[:, i]+sol[:,-i-1]))) > tol:
 			print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[:, i]+sol[:, -i-1]))))
@@ -299,7 +300,7 @@ for K in range(len(kappas)):
 
 	#print("HERE:", np.max(np.imag(total_D)))
 
-	D_parallels[K] = scpi.trapz(np.real(total_D), t)/(2*np.pi/omega)
+	D_parallels[K] = scpi.trapz(np.real(total_D), t)/(2*np.pi/(omega))
 	print(kappas[K], D_parallels[K])
 	np.save("data/total_D_kappa"+str(kappa)[:4], D_eff)
 

@@ -137,10 +137,11 @@ xi    = np.linspace(-1, 1, int(1e5))
 
 #system parameters
 nu = 1.2
-omega = 3/(2*np.pi)
+D = 0.1
+omega = 2*np.pi/D
 F0 = 12/nu
 Sc = nu#/D
-Pe = 1
+Pe = 1/D
 kappas = np.arange(0.1, 2.5, 0.4)
 kappas =  np.linspace(0.1, 2, 15) #9.42,
 kappas  = np.array([0.2, 0.6 , 1.0, 1.4, 1.7, 2.1])
@@ -153,9 +154,9 @@ for K in range(len(kappas)):
 	#implicitly defined parameters
 	gamma   = np.sqrt(1j*omega/Sc)
 	kappa_p = np.sqrt(gamma*gamma + kappa*kappa)
-	rho     = np.sqrt(1j*omega)
+	rho     = np.sqrt(1j*omega/D)
 	P_1     = (F0*gamma*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_p*np.tanh(kappa)/(kappa*np.tanh(kappa_p)))
-	p_np2   = 1j*omega*k + kappa*kappa
+	p_np2   = rho*rho*k + kappa*kappa
 
 	#analytic results up to first order
 	ux0 = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(gamma*gamma)
@@ -255,7 +256,7 @@ for K in range(len(kappas)):
 
 	for i in range(n):
 		if abs(k[i]) > 1e-4:
-			sol[:,i], sol_coeff[:, i] = finite_element_solver(N, xi, 1j*omega*k[i], -q[i,:])
+			sol[:,i], sol_coeff[:, i] = finite_element_solver(N, xi, rho*rho*k[i], -q[i,:])
 
 	for i in range(n):
 		if np.max(abs(np.imag(sol[:, i]+sol[:,-i-1]))) > tol:
@@ -300,16 +301,15 @@ for K in range(len(kappas)):
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += b0_deriv[:, i]*(2*B2_0_deriv[:,j] - B1_plus_deriv[:,j] - kappa*kappa*xi*B_plus[:, j])
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5*(1+kappa*kappa*xi*xi)*b0_deriv[:, i]*b0_deriv[:, j]
 	
-	for i in range(len(new_k)):
-		print(np.max(np.imag(D_eff_xi[:, i]+D_eff_xi[:,-i-1])))
+	#for i in range(len(new_k)):
+	#	#print(np.max(np.imag(D_eff_xi[:, i]+D_eff_xi[:,-i-1])))
 
 	for i in range(len(new_k)):
 		D_eff[i] = scpi.trapz(D_eff_xi[:, i], xi)/2
 		total_D += np.exp(1j*omega*new_k[i]*t)*D_eff[i]
 
-	print("HERE:", np.max(np.imag(total_D)))
-
 	D_parallels[K] = scpi.trapz(np.real(total_D), t)/(2*np.pi/omega)
+	print(kappas[K], D_parallels[K])
 	np.save("data/total_D_kappa"+str(kappa)[:4], D_eff)
 
 	plt.figure(1)

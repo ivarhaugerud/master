@@ -139,10 +139,13 @@ Delta = N_pos[1]-N_pos[0]
 
 #system parameters
 kappas  = np.linspace(0.1, 2.5, 10)
-omega = 3/(2*np.pi)
-F0 = 120/50
-Sc = 50
-Pe = 6
+nu = 1.2
+D = 0.1
+omega = (2*np.pi)/3
+F0 = 12/nu
+Sc = nu 
+Pe = 1/D
+
 D_parallels = np.zeros(len(kappas))
 
 for w in range(len(kappas)):
@@ -151,18 +154,18 @@ for w in range(len(kappas)):
 	#implicitly defined parameters
 	gamma   = np.sqrt(1j*omega/Sc)
 	kappa_p = np.sqrt(gamma*gamma + kappa*kappa)
-	rho     = np.sqrt(1j*omega)
+	rho     = np.sqrt(1j*omega/D)
 	P_1     = (F0*gamma*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_p*np.tanh(kappa)/(kappa*np.tanh(kappa_p)))
-	p_np2   = 1j*omega*k + kappa*kappa
+	p_np2   = rho*rho*k + kappa*kappa
 
 	#analytic results up to first order
 	ux0 = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(gamma*gamma)
 	ux1 = (P_1*kappa*np.cosh(kappa)/(gamma*gamma))*(np.cosh(kappa*xi)/np.cosh(kappa) - np.cosh(kappa_p *xi)/np.cosh(kappa_p)) + (F0*np.tanh(gamma)/gamma)*(np.cosh(kappa_p*xi)/np.cosh(kappa_p) - xi*np.sinh(gamma*xi)/np.sinh(gamma))
 	uy1 = (kappa*P_1*np.sinh(kappa)/(gamma*gamma))*(np.sinh(kappa_p*xi)/np.sinh(kappa_p) - np.sinh(kappa*xi)/np.sinh(kappa))
 
-	B0             = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))) + Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*rho*rho)
-	B0_deriv       = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))
-	B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*(Sc-1)))*(rho*np.cosh(rho*xi)/np.sinh(rho) - gamma*np.cosh(gamma*xi)/np.sinh(gamma))
+	B0             = (Pe*F0*np.tanh(gamma)/(gamma*(rho*rho-gamma*gamma)))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))) + Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*rho*rho)
+	B0_deriv       = (Pe*F0*np.tanh(gamma)/(gamma*(rho*rho-gamma*gamma)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))
+	B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(gamma*(rho*rho-gamma*gamma)))*(rho*np.cosh(rho*xi)/np.sinh(rho) - gamma*np.cosh(gamma*xi)/np.sinh(gamma))
 
 	#define source terms
 	q = np.zeros((len(k), len(xi)), dtype="complex")
@@ -309,7 +312,7 @@ for w in range(len(kappas)):
 
 	for i in range(len(k)):
 		if abs(k[i]) > 1e-4:
-			sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i], 1j*omega*k[i])
+			sol[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i], rho*rho*k[i])
 		else:
 			sol[:,i] = np.zeros(len(xi))
 
