@@ -128,7 +128,7 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	return u, sol
 
 tol   = 1e-6
-k     = np.array([-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8])
+k     = np.arange(-12, 12+0.01, 1)
 xi    = np.linspace(-1, 1, int(1e5))
 
 #system parameters
@@ -136,7 +136,7 @@ nu = 1.2
 omega = (2*np.pi)/3.0
 F0 = 12/nu
 Sc = nu
-D = 1
+D = 0.1
 Pe = 1/D
 kappas = np.array([0.2, 0.6, 1.0, 1.4, 1.7, 2.1]) #0.2
 
@@ -148,7 +148,7 @@ for K in range(len(kappas)):
 	gamma   = np.sqrt(1j*omega/Sc)
 	kappa_p = np.sqrt(gamma*gamma + kappa*kappa)
 	rho     = np.sqrt(1j*omega/D)
-	P_1     = (F0*gamma*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_p*np.tanh(kappa)/(kappa*np.tanh(kappa_p)))
+	P_1     = ((F0*gamma*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_p*np.tanh(kappa)/(kappa*np.tanh(kappa_p))) )
 	p_np2   = rho*rho*k + kappa*kappa
 
 	#analytic results
@@ -156,7 +156,7 @@ for K in range(len(kappas)):
 	ux1 = ((P_1*kappa*np.cosh(kappa)/(gamma*gamma))*(np.cosh(kappa*xi)/np.cosh(kappa) - np.cosh(kappa_p *xi)/np.cosh(kappa_p)) + (F0*np.tanh(gamma)/gamma)*(np.cosh(kappa_p*xi)/np.cosh(kappa_p) - xi*np.sinh(gamma*xi)/np.sinh(gamma)))/2
 	uy1 = ((kappa*P_1*np.sinh(kappa)/(gamma*gamma))*(np.sinh(kappa_p*xi)/np.sinh(kappa_p) - np.sinh(kappa*xi)/np.sinh(kappa)))/2
 	ux2  = (P_1*kappa*kappa*np.sinh(kappa)*(xi*np.sinh(kappa*xi)/np.sinh(kappa) - np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma) + F0*np.cosh(gamma*xi)*(1-xi*xi)/(4*np.cosh(gamma)) + P_1*kappa_p*kappa_p*np.sinh(kappa)*(np.cosh(gamma*xi)/np.cosh(gamma)-xi*np.sinh(kappa_p*xi)/np.sinh(kappa_p))/(2*gamma*gamma))/2
-	ux2 -= scpi.trapz(ux2, xi)/2 #+ scpi.trapz(ux1, xi)/4
+	ux2 -= scpi.trapz(ux2, xi)/2 + scpi.trapz(ux1, xi)/4
 
 	B0             = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))) + Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*rho*rho)
 	B0_deriv       = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))
