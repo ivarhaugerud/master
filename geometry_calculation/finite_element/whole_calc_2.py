@@ -105,8 +105,8 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	A   *= Delta_x/6
 
 	for i in range(n-1):
-		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward  * np.power(-1, abs(k[i]+1))
-		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] += couple_backward * np.power(-1, abs(k[i]))
+		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward  * np.power(-1, abs(k[i]+1))     #was originally not a minus sign there
+		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] += couple_backward * np.power(-1, abs(k[i]))       #was originally not a minus sign there
 
 	#calculate source vector
 	for j in range(n):
@@ -132,22 +132,28 @@ k     = np.arange(-12, 12+0.01, 1)
 xi    = np.linspace(-1, 1, int(1e5))
 
 #system parameters
-nu = 1.2
-omega = (2*np.pi)/3.0
-F0 = 12/nu
-Sc = nu
-D = 0.1
+tau = 3
+nu  = 1.2
+D   = 1.0
+F0  = 12/nu 
+omega = 2*np.pi/tau
+Sc = nu 
 Pe = 1/D
-kappas = np.array([0.2, 0.6, 1.0, 1.4, 1.7, 2.1]) #0.2
+gamma = np.sqrt(1j*omega/Sc)
+gamma_c = np.conj(gamma)
+rho = np.sqrt(1j*omega/D)
+rho_c = np.conj(rho)
+kappas   = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
 
 D_parallels = np.zeros(len(kappas))
 
 for K in range(len(kappas)):
 	kappa = kappas[K]
+
 	#implicitly defined parameters
 	gamma   = np.sqrt(1j*omega/Sc)
-	kappa_p = np.sqrt(gamma*gamma + kappa*kappa)
 	rho     = np.sqrt(1j*omega/D)
+	kappa_p = np.sqrt(gamma*gamma + kappa*kappa)
 	P_1     = ((F0*gamma*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_p*np.tanh(kappa)/(kappa*np.tanh(kappa_p))) )
 	p_np2   = rho*rho*k + kappa*kappa
 
@@ -155,7 +161,7 @@ for K in range(len(kappas)):
 	ux0 = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma)
 	ux1 = ((P_1*kappa*np.cosh(kappa)/(gamma*gamma))*(np.cosh(kappa*xi)/np.cosh(kappa) - np.cosh(kappa_p *xi)/np.cosh(kappa_p)) + (F0*np.tanh(gamma)/gamma)*(np.cosh(kappa_p*xi)/np.cosh(kappa_p) - xi*np.sinh(gamma*xi)/np.sinh(gamma)))/2
 	uy1 = ((kappa*P_1*np.sinh(kappa)/(gamma*gamma))*(np.sinh(kappa_p*xi)/np.sinh(kappa_p) - np.sinh(kappa*xi)/np.sinh(kappa)))/2
-	ux2  = (P_1*kappa*kappa*np.sinh(kappa)*(xi*np.sinh(kappa*xi)/np.sinh(kappa) - np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma) + F0*np.cosh(gamma*xi)*(1-xi*xi)/(4*np.cosh(gamma)) + P_1*kappa_p*kappa_p*np.sinh(kappa)*(np.cosh(gamma*xi)/np.cosh(gamma)-xi*np.sinh(kappa_p*xi)/np.sinh(kappa_p))/(2*gamma*gamma))/2
+	ux2 = P_1*np.sinh(kappa)*(kappa*kappa*xi*np.sinh(kappa*xi)/np.sinh(kappa) - kappa_p*kappa_p*xi*np.sinh(kappa_p*xi)/np.sinh(kappa_p) + gamma*gamma*np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma) + F0*np.cosh(gamma*xi)*(1-xi*xi)/(4*np.cosh(gamma))
 	ux2 -= scpi.trapz(ux2, xi)/2 + scpi.trapz(ux1, xi)/4
 
 	B0             = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))) + Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*rho*rho)
@@ -186,7 +192,7 @@ for K in range(len(kappas)):
 
 	couple_backward[0, 0]    = Delta*(ux0[np.argmin(abs(xi-(N_pos[0])))]  + ux0[np.argmin(abs(xi-(N_pos[0]  + Delta/2)))])/6
 	couple_backward[-1, -1]  = Delta*(ux0[np.argmin(abs(xi-(N_pos[-1])))] + ux0[np.argmin(abs(xi-(N_pos[-1] - Delta/2)))])/6
-	couple_backward         *= kappa
+	couple_backward         *= kappa # unsure if factor of 1/2 is correct here
 	couple_forward = np.conj(couple_backward)
 
 	#boundary conditions
@@ -240,16 +246,13 @@ for K in range(len(kappas)):
 		if i != 0:
 			q[i-1, :] += Pe*0.5*(np.conj(ux0)*kappa*xi*B_min_deriv + np.conj(ux1)*kappa*B_minus[:, i] - np.conj(uy1)*B_min_deriv)
 
-	#works for differential equation with constant terms, now just need coupeling to work as well
 	sol = np.zeros((len(xi), n), dtype="complex")
 	sol_coeff = np.zeros((N, n), dtype="complex")
 
 	for i in range(n):
 		if abs(k[i]) > 1e-4:
 			sol[:,i], sol_coeff[:, i] = finite_element_solver(N, xi, rho*rho*k[i], -q[i,:])
-			#plt.plot(xi, -interp1d(N_pos, np.gradient(np.gradient(sol_coeff[:,i], N_pos), N_pos), kind='cubic')(xi) + rho*rho*k[i]*sol[:,i] )
-			#plt.plot(xi, q[i,:] , "--")
-		#plt.show()
+
 	for i in range(n):
 		if np.max(abs(np.imag(sol[:, i]+sol[:,-i-1]))) > tol:
 			print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[:, i]+sol[:, -i-1]))))
@@ -316,5 +319,5 @@ for K in range(len(kappas)):
 	plt.ylabel(r"Brenner field", fontsize=12)
 	plt.savefig("figures/Brenner_field_vs_t.pdf")
 
-np.save("data/D_parallels_kappa", D_parallels)
+np.save("data/D_parallels_kappa_D1", D_parallels)
 plt.show()

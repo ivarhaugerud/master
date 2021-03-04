@@ -51,7 +51,7 @@ for i in range(len(visc)-4):
     plt.plot(t[::plot_skip], data[str(i)][::plot_skip], "C"+str(i), label=r"$\nu=$"+str(visc[i]))
     plt.plot(t[::plot_skip], np.ones(len(t[::plot_skip]))*analytic[i], "--", color="C"+str(i))
 
-plt.legend(loc="best", fontsize=8)
+plt.legend(loc="best", fontsize=8, ncol=3)
 plt.xlabel(r"Time [periods $T$]", fontsize=8)
 plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)

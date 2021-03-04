@@ -9,17 +9,23 @@ order = 2
 ux0 = F0*(1-xi*xi)/4  # eta indep 
 uy1 = F0*kappa*xi*(1-xi*xi)/4  #sin
 ux1 = -F0*(1-xi*xi)/4 #sin
-B0 = F0*Pe*(gamma**2*rho**2*(rho**2*(21*xi**6 - 105*xi**4 + 147*xi**2 - 31) + 630*xi**4 - 1260*xi**2 + 294) + 5040*gamma**2 - 15120)/(30240*gamma**2*rho**2)
-B0_deriv = F0*Pe*xi*(60*(xi*xi-1) + rho*rho*(3*xi**4 - 10*xi*xi +7))/720
-B0_deriv_deriv = F0*Pe*(180*xi*xi-60+rho*rho*(15*xi**4 -30*xi**2 + 7))/720 
+B0 = F0*Pe*(gamma**2*rho**2*(630*xi**4 - 1260*xi**2 + 294) + 5040*gamma**2 - 15120)/(30240*gamma**2*rho**2)
+B0_deriv = F0*Pe*xi*(xi*xi-1)/12
+B0_deriv_deriv = F0*Pe*(3*xi*xi-1)/12 
+
+
+
+B0_grad_approx = F0*Pe*(sinh(rho*xi)/sinh(rho)-1)/(2*rho*rho)
+print(simplify(series(B0_grad_approx, rho, n=2)))
+
 
 RHS = -2*B0_deriv_deriv + ux1*Pe
 
-
+print(simplify(RHS))
 #beta1 = -rho*rho*xi**4/(24*rho_p*rho_p) + xi*xi*(rho*rho - 3 - 6*rho*rho/(rho_p*rho_p))/(12*rho_p*rho_p)  - (12*rho*rho/(rho_p**4) - 2*rho*rho/(rho_p*rho_p) + 6/(rho_p*rho_p) + 1 + 7*rho*rho/30)/(12*rho_p*rho_p)
-beta1 = -rho**2 * xi**4/2 + xi*xi*(rho*rho - 3 - 6*rho*rho/(rho_p*rho_p) )
+#beta1 = -rho**2 * xi**4/2 + xi*xi*(rho*rho - 3 - 6*rho*rho/(rho_p*rho_p) )
 #beta1 += -6 - 12*rho*rho/(rho_p*rho_p)
-beta1 *= Pe*F0/(12*rho_p*rho_p)
+#beta1 *= Pe*F0/(12*rho_p*rho_p)
 print("CHECK BETA1 SOL: ", simplify(  (diff(diff(beta1, xi), xi) - rho_p*rho_p*beta1 + RHS)   ))
 
 """
