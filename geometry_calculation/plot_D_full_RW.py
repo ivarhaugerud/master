@@ -189,3 +189,7 @@ filename = "figures/D_eff_vs_eps_D10.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
+
+
+
+

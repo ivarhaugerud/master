@@ -9,7 +9,7 @@ dt = 0.006
 tau = 3.0 
 timesteps = int(tau/(dt))
 periods   = 3000
-skip = 10
+#skip = 10
 
 #geometry parameters
 #epsilon = float(sys.argv[1])

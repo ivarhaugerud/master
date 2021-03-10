@@ -133,9 +133,9 @@ xi    = np.linspace(-1, 1, int(1e5))
 
 #system parameters
 tau = 3
-nu  = 1.2
-D   = 1.0
-F0  = 12/nu 
+nu  = 10**(4.5)
+D   = 0.1
+F0  = 6#12/nu 
 omega = 2*np.pi/tau
 Sc = nu 
 Pe = 1/D
@@ -145,14 +145,19 @@ rho = np.sqrt(1j*omega/D)
 rho_c = np.conj(rho)
 kappas   = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
 
-D_parallels = np.zeros(len(kappas))
+kappa = 0.1 
+omegas = np.logspace(-1.5, 2.5, 10)
+D_parallels = np.zeros(len(omegas))
 
-for K in range(len(kappas)):
-	kappa = kappas[K]
+for K in range(len(omegas)):
+	#kappa = kappas[K]
+	omega = omegas[K]
 
 	#implicitly defined parameters
 	gamma   = np.sqrt(1j*omega/Sc)
 	rho     = np.sqrt(1j*omega/D)
+	rho_c = np.conjugate(rho)
+	gamma_c = np.conjugate(gamma)
 	kappa_p = np.sqrt(gamma*gamma + kappa*kappa)
 	P_1     = ((F0*gamma*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_p*np.tanh(kappa)/(kappa*np.tanh(kappa_p))) )
 	p_np2   = rho*rho*k + kappa*kappa
@@ -304,7 +309,7 @@ for K in range(len(kappas)):
 	#print("HERE:", np.max(np.imag(total_D)))
 
 	D_parallels[K] = scpi.trapz(np.real(total_D), t)/(2*np.pi/(omega))
-	print(kappas[K], D_parallels[K])
+	print(omegas[K], D_parallels[K])
 	np.save("data/total_D_kappa"+str(kappa)[:4], D_eff)
 
 	plt.figure(1)
