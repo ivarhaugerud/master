@@ -11,9 +11,9 @@ matplotlib.rc('ytick', labelsize=8)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-numeric = np.load("data_test/vary_omega.npy")
+numeric = np.load("data_test/vary_omega_longerrun.npy")
 tau     = np.logspace(-2, 2, 10)
-kappa   = np.array([0.2, 0.6, 1.0, 1.4, 1.7, 2.2])
+kappa   = np.array([0.2, 0.6, 1.0, 1.4])
 D0_ana  = np.zeros(len(tau))
 
 epsilon = 0.3
@@ -42,6 +42,7 @@ for i in range(len(tau)):
 	for j in range(len(kappa)):
 		t = np.trim_zeros(numeric[i, j, :, 0])
 		D = np.trim_zeros(numeric[i, j, :, 8])
+		print(len(t))
 
 		plt.plot(t, D)
 		plt.plot(t[-datapoints:], D[-datapoints:], "--")
@@ -52,16 +53,32 @@ plt.show()
 
 plt.figure(1)
 for i in range(len(kappa)):
-	plt.errorbar(2*np.pi/tau, D_eff[:, i], label=r"$\kappa=%3.2f$" % kappa[i])
+	plt.plot(2*np.pi/tau, D_eff[:, i], label=r"$\kappa=%2.1f$" % kappa[i])
 
 plt.plot(2*np.pi/tau, D0_ana, "k", label=r"$\epsilon=0$")
 plt.xscale("log")
 plt.legend(loc="best", ncol=1, fontsize=8)
-plt.xlabel(r"Frequency $\rho$", fontsize=8)
+plt.xlabel(r"Frequency $\omega$", fontsize=8)
 plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
 filename = "figures/D_eff_vs_rho.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+plt.show()
+
+
+plt.figure(1)
+for i in range(len(kappa)):
+	plt.errorbar(2*np.pi/tau, D_eff[:, i]-D0_ana, label=r"$\kappa=%3.2f$" % kappa[i])
+
+plt.xscale("log")
+plt.legend(loc="best", ncol=1, fontsize=8)
+plt.xlabel(r"Frequency $\omega$", fontsize=8)
+plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+filename = "figures/D2_eff_vs_rho.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
