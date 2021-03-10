@@ -105,9 +105,11 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	A   *= Delta_x/6
 
 	for i in range(n-1):
-		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] += couple_forward  * np.power(-1, abs(k[i]+1))     #was originally not a minus sign there
-		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] += couple_backward * np.power(-1, abs(k[i]))       #was originally not a minus sign there
+		A[(i+1)*N : (i+2)*N, i*N    :(i+1)*N] = couple_forward  * np.power(-1, abs(k[i]+1))     #was originally not a minus sign there
+		A[i*N     : (i+1)*N, (i+1)*N:(i+2)*N] = couple_backward * np.power(-1, abs(k[i]))       #was originally not a minus sign there
 
+	#print(np.real(A))
+	#print(np.real(np.dot(A, np.ones(N*n))))
 	#calculate source vector
 	for j in range(n):
 		for i in range(N):
@@ -130,22 +132,16 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 tol   = 1e-6
 k     = np.arange(-12, 12+0.01, 1)
 xi    = np.linspace(-1, 1, int(1e5))
-
-#system parameters
-tau = 3
-nu  = 10**(4.5)
-D   = 0.1
-F0  = 6#12/nu 
-omega = 2*np.pi/tau
-Sc = nu 
-Pe = 1/D
-gamma = np.sqrt(1j*omega/Sc)
-gamma_c = np.conj(gamma)
-rho = np.sqrt(1j*omega/D)
-rho_c = np.conj(rho)
 kappas   = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
 
-kappa = 0.1 
+#system parameters
+nu  = 10**(3)
+D   = 0.1
+F0  = 6 
+Sc = nu 
+Pe = 1/D
+
+kappa = 0.1
 omegas = np.logspace(-1.5, 2.5, 10)
 D_parallels = np.zeros(len(omegas))
 
@@ -156,7 +152,7 @@ for K in range(len(omegas)):
 	#implicitly defined parameters
 	gamma   = np.sqrt(1j*omega/Sc)
 	rho     = np.sqrt(1j*omega/D)
-	rho_c = np.conjugate(rho)
+	rho_c   = np.conjugate(rho)
 	gamma_c = np.conjugate(gamma)
 	kappa_p = np.sqrt(gamma*gamma + kappa*kappa)
 	P_1     = ((F0*gamma*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_p*np.tanh(kappa)/(kappa*np.tanh(kappa_p))) )
@@ -169,7 +165,7 @@ for K in range(len(omegas)):
 	ux2 = P_1*np.sinh(kappa)*(kappa*kappa*xi*np.sinh(kappa*xi)/np.sinh(kappa) - kappa_p*kappa_p*xi*np.sinh(kappa_p*xi)/np.sinh(kappa_p) + gamma*gamma*np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma) + F0*np.cosh(gamma*xi)*(1-xi*xi)/(4*np.cosh(gamma))
 	ux2 -= scpi.trapz(ux2, xi)/2 + scpi.trapz(ux1, xi)/4
 
-	B0             = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))) + Pe*F0*np.tanh(gamma)/(gamma*gamma*gamma*rho*rho)
+	B0             = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))) + Pe*F0*np.tanh(gamma)/(2*gamma*gamma*gamma*rho*rho)
 	B0_deriv       = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))
 	B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(rho*np.cosh(rho*xi)/np.sinh(rho) - gamma*np.cosh(gamma*xi)/np.sinh(gamma))
 
@@ -197,7 +193,7 @@ for K in range(len(omegas)):
 
 	couple_backward[0, 0]    = Delta*(ux0[np.argmin(abs(xi-(N_pos[0])))]  + ux0[np.argmin(abs(xi-(N_pos[0]  + Delta/2)))])/6
 	couple_backward[-1, -1]  = Delta*(ux0[np.argmin(abs(xi-(N_pos[-1])))] + ux0[np.argmin(abs(xi-(N_pos[-1] - Delta/2)))])/6
-	couple_backward         *= kappa # unsure if factor of 1/2 is correct here
+	couple_backward         *= Pe*kappa # unsure if factor of 1/2 is correct here
 	couple_forward = np.conj(couple_backward)
 
 	#boundary conditions
@@ -216,10 +212,10 @@ for K in range(len(omegas)):
 	g0_f1 = np.zeros(np.shape(f0_g1))
 	coeff_g0f1 = np.zeros(np.shape(coeff_f0g1))
 
-	B_plus   = np.zeros((len(xi), len(k)), dtype="complex")  #sin-solution
-	B_minus  = np.zeros((len(xi), len(k)), dtype="complex")  #cos-solution
-	B_plus_coeff    = np.zeros((N, len(k)), dtype="complex") #sin-solution
-	B_minus_coeff   = np.zeros((N, len(k)), dtype="complex") #sin-solution
+	B_plus   = np.zeros((len(xi),  len(k)), dtype="complex")  #sin-solution
+	B_minus  = np.zeros((len(xi),  len(k)), dtype="complex")  #cos-solution
+	B_plus_coeff    = np.zeros((N, len(k)), dtype="complex")  #sin-solution
+	B_minus_coeff   = np.zeros((N, len(k)), dtype="complex")  #cos-solution
 
 	for i in range(len(k)):
 		if abs(k[i]) % 2 == 0:
@@ -289,9 +285,9 @@ for K in range(len(omegas)):
 
 	for i in range(n):
 		B1_min_deriv[:, i]        = interp1d(N_pos, np.gradient(B_minus_coeff[:,i], N_pos), kind='cubic')(xi)
-		B1_plus_deriv[:, i]       = interp1d(N_pos, np.gradient(B_plus_coeff[:,i], N_pos), kind='cubic')(xi)
+		B1_plus_deriv[:, i]       = interp1d(N_pos, np.gradient(B_plus_coeff[:,i],  N_pos), kind='cubic')(xi)
 		B1_plus_deriv_deriv[:, i] = interp1d(N_pos, np.gradient(np.gradient(B_plus_coeff[:,i], N_pos), N_pos), kind='cubic')(xi)
-		B2_0_deriv[:, i]          = interp1d(N_pos, np.gradient(sol_coeff[:,i], N_pos), kind='cubic')(xi)
+		B2_0_deriv[:, i]          = interp1d(N_pos, np.gradient(sol_coeff[:,i], N_pos),     kind='cubic')(xi)
 
 
 	for i in range(len(k)):

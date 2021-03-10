@@ -23,7 +23,7 @@ F0  = 12/nu
 Sc = nu 
 Pe = 1/D
 
-
+"""
 for i in range(len(tau)):
 	T = tau[i]
 	omega = 2*np.pi/T
@@ -42,13 +42,12 @@ for i in range(len(tau)):
 	for j in range(len(kappa)):
 		t = np.trim_zeros(numeric[i, j, :, 0])
 		D = np.trim_zeros(numeric[i, j, :, 8])
-		print(len(t))
 
 		plt.plot(t, D)
 		plt.plot(t[-datapoints:], D[-datapoints:], "--")
 
 		D_eff[i, j]   = sci.trapz(D[-datapoints:], t[-datapoints:])/tau[i]
-plt.show()
+	plt.show()
 
 
 plt.figure(1)
@@ -82,3 +81,81 @@ filename = "figures/D2_eff_vs_rho.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
+"""
+
+
+
+
+
+
+numeric = np.load("data_test/vary_omega_approx.npy")
+tau     = np.logspace(-2, 2, 10)
+kappa   = np.array([0.2, 0.6, 1.0])
+D0_ana  = np.zeros(len(tau))
+
+epsilon = 0.3
+nu  = 8000
+D   = 0.7
+F0  = 20000/nu
+Sc = nu 
+Pe = 1/D
+
+
+for i in range(len(tau)):
+	T = tau[i]
+	omega = 2*np.pi/T
+	gamma = np.sqrt(1j*omega/Sc)
+	gamma_c = np.conj(gamma)
+	rho = np.sqrt(1j*omega/D)
+	rho_c = np.conj(rho)
+
+	D0_ana[i] = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma**4 - rho**4))*(1/(gamma*gamma)*(gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c)) - 1/(rho*rho)*(rho/np.tanh(rho) - rho_c/np.tanh(rho_c)))
+
+
+D_eff  = np.zeros((len(tau), len(kappa)))
+datapoints = 750
+
+for i in range(len(tau)):
+	for j in range(len(kappa)):
+		t = np.trim_zeros(numeric[i, j, :, 0])
+		D = np.trim_zeros(numeric[i, j, :, 8])
+
+		plt.plot(t, D)
+		plt.plot(t[-datapoints:], D[-datapoints:], "--")
+
+		D_eff[i, j]   = sci.trapz(D[-datapoints:], t[-datapoints:])/tau[i]
+	plt.show()
+
+
+plt.figure(1)
+for i in range(len(kappa)):
+	plt.plot(2*np.pi/tau, D_eff[:, i], label=r"$\kappa=%2.1f$" % kappa[i])
+
+plt.plot(2*np.pi/tau, D0_ana, "k", label=r"$\epsilon=0$")
+plt.xscale("log")
+plt.legend(loc="best", ncol=1, fontsize=8)
+plt.xlabel(r"Frequency $\omega$", fontsize=8)
+plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+filename = "figures/D_eff_vs_rho_approx.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+plt.show()
+
+
+plt.figure(1)
+for i in range(len(kappa)):
+	plt.errorbar(2*np.pi/tau, D_eff[:, i]-D0_ana, label=r"$\kappa=%3.2f$" % kappa[i])
+
+plt.xscale("log")
+plt.legend(loc="best", ncol=1, fontsize=8)
+plt.xlabel(r"Frequency $\omega$", fontsize=8)
+plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+filename = "figures/D2_eff_vs_rho_approx.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+plt.show()
+

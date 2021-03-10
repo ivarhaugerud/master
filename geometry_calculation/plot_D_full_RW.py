@@ -138,11 +138,12 @@ for i in range(len(epsilon)-1):
 		else:
 			D_num[i+1, j]   = sci.trapz(numeric[i, j, -T:, 8], numeric[i, j, -T:, 0])/(tau)
 	#plt.show()
+
 plt.figure(3)
 for i in range(len(epsilon)):
-	plt.plot(kappa, D_num[i,:], color="C"+str(i), label=r"$\kappa=$"+str(kappa_num[i]))
-plt.legend(loc="best", fontsize=8)
-plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=8)
+	plt.plot(kappa, D_num[i,:], color="C"+str(i), label=r"$\epsilon=$"+str(epsilon[i]))
+plt.legend(loc="best", fontsize=8, ncol=2)
+plt.xlabel(r"Wave number $\kappa$", fontsize=8)
 plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
@@ -177,11 +178,12 @@ for i in range(len(epsilon)-1):
 		#plt.plot(numeric[i, j, -T:, 0], numeric[i, j, -T:, 8])
 		D_num[i+1, j]   = sci.trapz(numeric[i, j, -2*T:-T, 8], numeric[i, j, -2*T:-T, 0])/(tau)
 	plt.show()
+
 plt.figure(3)
 for i in range(len(epsilon)):
-	plt.plot(kappa, D_num[i,:], color="C"+str(i), label=r"$\kappa=$"+str(kappa_num[i]))
+	plt.plot(kappa, D_num[i,:], color="C"+str(i), label=r"$\epsilon=$"+str(epsilon[i]))
 plt.legend(loc="best", fontsize=8)
-plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=8)
+plt.xlabel(r"Wave number $\kappa$", fontsize=8)
 plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
