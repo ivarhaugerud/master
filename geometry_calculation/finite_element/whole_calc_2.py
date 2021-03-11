@@ -135,13 +135,13 @@ xi    = np.linspace(-1, 1, int(1e5))
 kappas   = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
 
 #system parameters
-nu  = 10**(3)
+nu  = 1.2
 D   = 0.1
 F0  = 6 
 Sc = nu 
 Pe = 1/D
 
-kappa = 0.1
+kappa = 1.4
 omegas = np.logspace(-1.5, 2.5, 10)
 D_parallels = np.zeros(len(omegas))
 
