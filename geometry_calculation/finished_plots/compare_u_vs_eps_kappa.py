@@ -11,21 +11,20 @@ import seaborn as sns
 import matplotlib
 import os
 
-plt.style.use("bmh")
-sns.color_palette("hls", 1)
-
-matplotlib.rc('xtick', labelsize=14)
-matplotlib.rc('ytick', labelsize=14)
+plt.style.use(['science','no-latex', 'grid'])
+import matplotlib
+matplotlib.rc('xtick', labelsize=8)
+matplotlib.rc('ytick', labelsize=8)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
-matplotlib.rcParams['font.family'] = 'STIXGeneral'
+matplotlib.rcParams['font.family'] = 'STIXGeneral'	
 
 dirr = "results_oscwavychannel/run_12_11/"
 
 #simulation paramters
 dt = 0.01
 tau = 5.0 
-
-epsilon = np.arange(0.0, 0.61, 0.05)
+T = int(tau/dt)
+epsilon = np.arange(0.0, 0.51, 0.05)
 kappas  = np.array([0.1, 1.0, 1.5, 3, 5])
 kappas = np.array([0.1,  0.7, 1.5, 3, 5])
 Lx = 2*np.pi/kappas
@@ -40,7 +39,7 @@ gamma = np.sqrt(1j*omega/Sc)
 
 exp_u2 = np.zeros((len(epsilon), len(kappas)))
 periods = 2
-
+#epsilon = np.
 for i in range(len(epsilon)):
 	eps = epsilon[i]
 	for j in range(len(kappas)):
@@ -48,30 +47,22 @@ for i in range(len(epsilon)):
 		try:
 			filename = "Lx"+str(Lx[j])[:4]+"_tau"+str(tau)+"_eps"+str(str(eps)[:4])+"_nu1.2_D0.3_fzero0.0_fone3.0_res"+str(res)+"_dt0.01/tdata.dat"
 			tdat = np.loadtxt(dirr + filename)
-		#try:
 		except:
 			filename = "Lx"+str(Lx[j])[:4]+"_tau"+str(tau)+"_eps"+str(str(eps)[:3])+"_nu1.2_D0.3_fzero0.0_fone3.0_res"+str(res)+"_dt0.01/tdata.dat"
 			tdat = np.loadtxt(dirr + filename)
-		#except:
-		#	print("no file for kappa="+str(kappas[j]) + " epsilon =" + str(eps), filename)
 		t = tdat[:,0]
 		u2 = tdat[:,4]
-		start_index = np.argmin(abs(t -(periods-2.25)*tau))
-		end_index   = np.argmin(abs(t -(periods-0.25)*tau))
-		#plt.plot(t, u2)
-		#plt.plot(t[start_index:end_index], u2[start_index:end_index], "--")
-		exp_u2[i, j] = integrate.trapz(u2[start_index:end_index], t[start_index:end_index])/(2*tau)
-	#plt.show()
+		exp_u2[i, j] = integrate.trapz(u2[-T:], t[-T:])/(tau)
 
 ###
 #ANALYTIC RESULTS
 ###
 
 pi = np.pi 
-Nt = 400
+Nt = 300
 T = np.linspace(0, 2*np.pi/omega, Nt)
-N_eta = 420
-xi = np.linspace(-1, 1, 440)
+N_eta = 350
+xi = np.linspace(-1, 1, 500)
 
 u_x = np.zeros((len(T), len(xi), N_eta, 3))
 u_y = np.zeros((len(T), len(xi), N_eta, 3))
@@ -135,31 +126,34 @@ for j in range(len(kappas)):
 		u_squared_ana[e, j] = integrate.trapz(after_xi_eta_integral, T)/(2*pi/omega)
 
 for j in range(len(kappas)):
-	plt.plot(new_eps, u_squared_ana[:,j], "-", label="$\kappa=$"+str(kappas[j])[:5], color=sns.color_palette()[j])
-	plt.plot(epsilon, exp_u2[:, j], "o", color=sns.color_palette()[j])
+	plt.plot(new_eps, u_squared_ana[:,j], "o", markersize=3, label=r"$\kappa=$"+str(kappas[j])[:5], color=sns.color_palette()[j])
+	plt.plot(epsilon, exp_u2[:, j], "-", color=sns.color_palette()[j])
 
-plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=14)
-plt.ylabel(r"Kinetic energy of fluid $\langle u^2 \rangle/2$", fontsize=14)
-plt.legend(loc="best", fontsize=12)
-
+plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=8)
+plt.ylabel(r"Kinetic energy of fluid $\langle u^2 \rangle$", fontsize=8)
+plt.legend(loc="best", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+plt.axis([-0.02, 0.52, 0.02, 0.37])
 filename = "figures/comparison_numeric_analytic.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
 for i in range(len(kappas)):
-	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])/exp_u2[:,i]), "o", label="$\kappa=$"+str(kappas[i])[:5], color=sns.color_palette()[i])
-	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])/exp_u2[:,i]), "--", linewidth=1, color=sns.color_palette()[i])
+	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])/exp_u2[:,i]), "o", markersize=3, label=r"$\kappa=$"+str(kappas[i])[:5], color=sns.color_palette()[i])
+	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])/exp_u2[:,i]), "-", linewidth=1, color=sns.color_palette()[i])
 
-epsilon = np.linspace(0.01, max(epsilon), int(1e3))
-plt.plot(epsilon, epsilon**4/(1-epsilon))
+epsilon = np.linspace(0.03, max(epsilon), int(1e3))
+plt.plot(epsilon, epsilon**4/(1-epsilon), "k")
 plt.yscale("log")
-plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=14)
-plt.ylabel(r"Relative difference analytic and numerical kinetic energy $\langle u^2 \rangle/2$", fontsize=14)
-plt.legend(loc="best", fontsize=12)
+plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=8)
+plt.ylabel(r"Relative difference analytic and numerical kinetic energy $\langle u^2 \rangle$", fontsize=8)
+plt.legend(loc="best", fontsize=8, ncol=2)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
 
 filename = "figures/comparison_numeric_analytic_difference.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
-plt.show()
 plt.show()

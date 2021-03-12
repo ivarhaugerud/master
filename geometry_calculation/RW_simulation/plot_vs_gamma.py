@@ -29,14 +29,14 @@ dirr = []
 for i in range(len(visc)):
     dirr.append("flow_fields/zero_eps/Lx12.56_tau3.0_eps0.0_nu"+str(visc[i])+"_D1.0_fzero0.0_fone12.0_res100_dt0.006")
 
-
+from numpy import *
 for i in range(len(visc)):
     Sc = visc[i]
     F0 = 12/visc[i]
     tdat = np.loadtxt(dirr[i] +"/tdata.dat")
     time = tdat[:,0]
     u2   = tdat[:,4]
-    D = 0.2
+    D = 1.0
     Pe = 1/D
     exp_u2[i] = integrate.trapz(u2[-timesteps:], time[-timesteps:])/(tau)
     gamma   = np.sqrt(1j*omega/Sc)
@@ -49,8 +49,15 @@ for i in range(len(visc)):
     D_ana[i] = 1 + np.real(Sc*Sc*Sc*Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*omega*omega*omega*(Sc*Sc-1))*(1/(gamma*np.tanh(gamma)) + 1j/(gamma*np.tanh(gamma_c)) - 1/(rho*np.tanh(rho)) - 1j/(rho*np.tanh(rho_c))))
     D2 = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma**4 - rho**4))*(1/(gamma*gamma)*(gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c)) - 1/(rho*rho)*(rho/np.tanh(rho) - rho_c/np.tanh(rho_c)))
     D_ana[i] = D2
-    print(D_ana[i], num_D_para[i], D2)
+    plt.plot(np.loadtxt(dirr[i] +"/tdata.dat")[-timesteps:, 0], np.loadtxt(dirr[i] +"/tdata.dat")[-timesteps:, 8]-D2)
 
+
+    amp = ( (1/(rho*tanh(rho)) - 1/(sinh(rho)**2) + 1/(gamma*tanh(gamma)) - 1/(sinh(gamma)**2) - 4*(rho/tanh(rho) - gamma/tanh(gamma))/(rho*rho-gamma*gamma))/2)
+    amp *= Pe*Pe*F0*F0*tanh(gamma)*tanh(gamma)/(4*gamma*gamma*(rho*rho-gamma*gamma)**2)
+    plt.plot(np.loadtxt(dirr[i] +"/tdata.dat")[-timesteps:, 0], np.ones(timesteps)*np.sqrt(4*np.real(amp)**2 + 4*np.imag(amp)**2))
+    #print(D_ana[i], num_D_para[i], D2)
+plt.show()
+"""
 plt.figure(4)
 plt.plot(visc, num_D_para, "ro", label="numerisk brenner")
 plt.plot(visc, D_ana, "ko", label="analytisk")
@@ -65,7 +72,7 @@ datafiles    = periods*25
 t = np.linspace(0, tau*periods, datafiles)
 half_way     = int(2*datafiles/4)
 var    = np.zeros((len(visc), datafiles))
-
+"""
 """
 for l in range(len(visc)):
     var = np.load(dirr[l] + "/pos/var.npy")
@@ -82,6 +89,7 @@ for l in range(len(visc)):
     RW_D_para[1,l] = np.std( var[half_way:]/(2*Dm*t[half_way:]))
 
 """
+"""
 data1 = np.load(dirr[0]+"/var_over_t.npy")#/visc_1.5_var_over_t.npy")
 data2 = np.load(dirr[1]+"/var_over_t.npy")#/visc_3.0_var_over_t.npy")
 data3 = np.load(dirr[2]+"/var_over_t.npy")#/visc_5.0_var_over_t.npy")
@@ -94,12 +102,7 @@ plt.plot(data3, label="nu=5.0")
 plt.legend(loc="best")
 plt.xlabel("data points (time)")
 plt.ylabel("Effective D")
-RW_D_para
-
-
-
-
-[0, 0] = (np.mean(data1[cutoff:]))
+RW_D_para[0, 0] = (np.mean(data1[cutoff:]))
 RW_D_para[0, 1] = (np.mean(data2[cutoff:]))
 RW_D_para[0, 2] = (np.mean(data3[cutoff:]))
 
@@ -158,3 +161,4 @@ plt.legend(loc="best")
 plt.xlabel("viskositet")
 plt.ylabel("D_eff")
 plt.show()
+"""
