@@ -11,6 +11,7 @@ import seaborn as sns
 import matplotlib
 import os
 
+root = "../../../master_latex/results/"
 plt.style.use(['science','no-latex', 'grid'])
 import matplotlib
 matplotlib.rc('xtick', labelsize=8)
@@ -18,7 +19,7 @@ matplotlib.rc('ytick', labelsize=8)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'	
 
-dirr = "results_oscwavychannel/run_12_11/"
+dirr = "../results_oscwavychannel/run_12_11/"
 
 #simulation paramters
 dt = 0.01
@@ -135,7 +136,7 @@ plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
 plt.axis([-0.02, 0.52, 0.02, 0.37])
-filename = "figures/comparison_numeric_analytic.pdf"
+filename = root + "figures/comparison_numeric_analytic.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
@@ -153,7 +154,7 @@ plt.legend(loc="best", fontsize=8, ncol=2)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
 
-filename = "figures/comparison_numeric_analytic_difference.pdf"
+filename = root+"figures/comparison_numeric_analytic_difference.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()

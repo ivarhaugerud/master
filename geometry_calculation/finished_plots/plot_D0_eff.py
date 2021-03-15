@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib
 import os
 
+root = "../../../master_latex/results/"
 matplotlib.rc('xtick', labelsize=14)
 plt.style.use(['science','no-latex', 'grid'])
 import matplotlib
@@ -42,7 +43,7 @@ plt.xlabel(r"Diffusion coefficient $D$", fontsize=8)
 plt.ylabel(r"Kinematic viscosity $\nu$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-filename = "figures/D_0_eff.pdf"
+filename = root + "figures/D_0_eff.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
