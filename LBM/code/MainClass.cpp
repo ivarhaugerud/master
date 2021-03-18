@@ -45,7 +45,7 @@ MainClass::MainClass(int NX, int NY, double TAU, double TAU_G, double FX, double
 
 void MainClass::initialize(double rho)
 {
-  {for (int k = 0; k < rest.size(); k++){
+  {for (int k = 0; k < int(rest.size()); k++){
     x = get<0>(rest[k]);
     y = get<1>(rest[k]);
     f(x, y, 0) = 4*rho/9;
@@ -109,7 +109,7 @@ void MainClass::boundary_disc(int x, int y, double R)
     in_boundary = false;
 
     if (sqrt( (x-i)*(x-i) + (y-j)*(y-j) ) < R){
-        for (int k = 0; k < boundary.size(); k++){
+        for (int k = 0; k < int(boundary.size()); k++){
           X = get<0>(boundary[k]);
           Y = get<1>(boundary[k]);
 
@@ -129,7 +129,7 @@ void MainClass::open()
   for (int i = 0; i < Nx; i++){
   for (int j = 0; j < Ny; j++){
     in_boundary = false;
-    for (int k = 0; k < boundary.size(); k++){
+    for (int k = 0; k < int(boundary.size()); k++){
        x = get<0>(boundary[k]);
        y = get<1>(boundary[k]);
 
@@ -140,6 +140,7 @@ void MainClass::open()
     if (not in_boundary)
     {rest.emplace_back(i,j);} 
 }}}
+
 
 void MainClass::clear_g()
 {
@@ -162,7 +163,7 @@ void MainClass::clear_g()
 
 void MainClass::heat_fluid(double wall_T)
 {
-  for (int s = 0; s < rest.size(); s++)
+  for (int s = 0; s < int(rest.size()); s++)
     {x = get<0>(rest[s]);
      y = get<1>(rest[s]);
      initialize_C(x, y, 0, 4*wall_T/9);
@@ -179,14 +180,16 @@ void MainClass::heat_fluid(double wall_T)
 
 void MainClass::run()
 {
-  //bool equil = false;
+  cout << "starting run " << endl;
+  bool equil = false;
   long double sum_difference = 0;
   double sum = 0;
-  //int counter = 0;
+  int counter = 0;
+  int t = 0;
   //double current_max_u;
-  //while (not equil)
-  for (int t = 0; t < 40000; t++)
-    {for (int k = 0; k < rest.size(); k++)
+  while (not equil)
+  //for (int t = 0; t < 40000; t++)
+    {for (int k = 0; k < int(rest.size()); k++)
       {x = get<0>(rest[k]);
        y = get<1>(rest[k]);
 
@@ -235,7 +238,7 @@ void MainClass::run()
     }
     
     f_prev = f_star;
-    for (int i = 0; i < boundary.size(); i++)
+    for (int i = 0; i < int(boundary.size()); i++)
       {
         x = get<0>(boundary[i]);
         y = get<1>(boundary[i]);
@@ -285,19 +288,20 @@ void MainClass::run()
         f_star(x,y,7) = 0;
         f_star(x,y,8) = 0;
       }}
-  //counter += 1;
+  counter += 1;
   //cout << sqrt(sum_difference/sum) << endl;
-  //if (sqrt(sum_difference/sum) <  tol)
-  //    {equil = true;
-  //       cout << "number of steps to equilibration: " << counter << endl;}
+  if (sqrt(sum_difference/sum) <  tol)
+      {equil = true;
+         cout << sqrt(sum_difference/sum) << " number of steps to equilibration: " << counter << endl;}
   if (t % 1000 == 0)
   {
-    cout << t << " " << sqrt(sum_difference/sum)*pow(10, 5) << " " << (u-prev_u).max()*pow(10, 7) << endl;
+    cout << t << " " << sqrt(sum_difference/sum) << " " << sum/(Nx*Ny) << " " << sum_difference/(Nx*Ny) << endl;
   }
   f = f_star;
   prev_u = u;
   sum = 0;
   sum_difference = 0;
+  t += 1;
   }
 }
 
@@ -310,7 +314,7 @@ void MainClass::run_no_Re()
   //double current_max_u;
   //while (not equil)
   for (int t = 0; t < 10000; t++)
-    {for (int k = 0; k < rest.size(); k++)
+    {for (int k = 0; k < int(rest.size()); k++)
       {x = get<0>(rest[k]);
        y = get<1>(rest[k]);
 
@@ -358,7 +362,7 @@ void MainClass::run_no_Re()
     }
     
     f_prev = f_star;
-    for (int i = 0; i < boundary.size(); i++)
+    for (int i = 0; i < int(boundary.size()); i++)
       {
         x = get<0>(boundary[i]);
         y = get<1>(boundary[i]);
@@ -415,7 +419,7 @@ void MainClass::run_no_Re()
   //       cout << "number of steps to equilibration: " << counter << endl;}
   if (t % 1000 == 0)
   {
-    cout << t << " " << sqrt(sum_difference/sum) << " " << (u-prev_u).max() << endl;
+    cout << t << " " << sqrt(sum_difference/sum) << " " << (u-prev_u).max() << " " << sum << endl;
   }
   f = f_star;
   prev_u = u;
@@ -596,7 +600,7 @@ mat MainClass::ADE(int T)
 
   for (int t = 0; t < T; t++)
     {
-      for (int k = 0; k < rest.size(); k++)
+      for (int k = 0; k < int(rest.size()); k++)
       {x = get<0>(rest[k]);
        y = get<1>(rest[k]);
 
@@ -606,14 +610,14 @@ mat MainClass::ADE(int T)
     }
 
     //boundary
-    for (int i = 0; i < boundary.size(); i++)
+    for (int i = 0; i < int(boundary.size()); i++)
       {x = get<0>(boundary[i]);
        y = get<1>(boundary[i]);
        bounce_back(x, y);
       }
 
   //drains  
-  for (int j = 0; j < source.size(); j++){
+  for (int j = 0; j < int(source.size()); j++){
       x = get<0>(source[j]);
       y = get<1>(source[j]);
       C_in(t, j) = C(x,y);}
@@ -635,7 +639,7 @@ void MainClass::ADE_back(int T, mat C_in, string name, int injection_T)
 
   for (int t = 0; t < T; t++)
     {//open
-      for (int k = 0; k < rest.size(); k++)
+      for (int k = 0; k < int(rest.size()); k++)
       {x = get<0>(rest[k]);
        y = get<1>(rest[k]);
 
@@ -645,7 +649,7 @@ void MainClass::ADE_back(int T, mat C_in, string name, int injection_T)
     }
 
     //boundary
-    for (int i = 0; i < boundary.size(); i++)
+    for (int i = 0; i < int(boundary.size()); i++)
       {x = get<0>(boundary[i]);
        y = get<1>(boundary[i]);
       bounce_back(x, y);
@@ -653,7 +657,7 @@ void MainClass::ADE_back(int T, mat C_in, string name, int injection_T)
 
   //sources  
   if (t < injection_T){
-   for (int j = 0; j < source.size(); j++){
+   for (int j = 0; j < int(source.size()); j++){
       x = get<0>(source[j]);
       y = get<1>(source[j]);
       g_star(x,y,0) += 4*C_in(injection_T-t-1, j)/9;
@@ -679,7 +683,7 @@ void MainClass::ADE_back_no_source(int T, string name)
 
   for (int t = 0; t < T; t++)
     {//open
-      for (int k = 0; k < rest.size(); k++)
+      for (int k = 0; k < int(rest.size()); k++)
       {x = get<0>(rest[k]);
        y = get<1>(rest[k]);
 
@@ -689,7 +693,7 @@ void MainClass::ADE_back_no_source(int T, string name)
     }
 
     //boundary
-    for (int i = 0; i < boundary.size(); i++)
+    for (int i = 0; i < int(boundary.size()); i++)
       {x = get<0>(boundary[i]);
        y = get<1>(boundary[i]);
       bounce_back(x, y);
@@ -711,7 +715,7 @@ mat MainClass::ADE_heat(int T, double wall_T, string name)
 
   for (int t = 0; t < T; t++)
     {//open
-      for (int k = 0; k < rest.size(); k++)
+      for (int k = 0; k < int(rest.size()); k++)
       {x = get<0>(rest[k]);
        y = get<1>(rest[k]);
 
@@ -755,7 +759,7 @@ mat MainClass::ADE_heat(int T, double wall_T, string name)
     }
 
     //boundary
-    for (int i = 0; i < boundary.size(); i++)
+    for (int i = 0; i < int(boundary.size()); i++)
       {x = get<0>(boundary[i]);
        y = get<1>(boundary[i]);
 
@@ -795,7 +799,7 @@ mat MainClass::ADE_heat(int T, double wall_T, string name)
       }
 
   //drains  
-  for (int j = 0; j < source.size(); j++){
+  for (int j = 0; j < int(source.size()); j++){
       x = get<0>(source[j]);
       y = get<1>(source[j]);
       C_in(t, j) = C(x,y);}
@@ -812,16 +816,21 @@ mat MainClass::ADE_heat(int T, double wall_T, string name)
 
   void MainClass::write_u(string name)
   {
-    ofstream outfile("../data/" + filename + "_" + name + "_u.txt");
+    ofstream outfile("../data/" + filename + "_" + name + "_ux.txt");
     if (!outfile.is_open())
      cout<<"Could not open file" << endl;
     for (int i = 0; i < Nx; i++)
       {for (int j = 0; j < Ny; j++){
-       outfile << u(i, j, 0) << " ";}}
-    outfile << "\n"; 
+       outfile << u(i, j, 0) << " ";}
+   	   outfile << "\n";}
+
+    ofstream outfile2("../data/" + filename + "_" + name + "_uy.txt");
+    if (!outfile2.is_open())
+     cout<<"Could not open file" << endl;
     for (int i = 0; i < Nx; i++)
-    {for (int j = 0; j < Ny; j++){
-        outfile << u(i, j, 1) << " ";}}
+      {for (int j = 0; j < Ny; j++){
+       outfile2 << u(i, j, 1) << " ";}
+   	   outfile2 << "\n";}
   }
 
 
@@ -866,16 +875,33 @@ void MainClass::test_mass_diffusion()
     {for (int y = 0; y < Ny; y++)
       {initial_mass +=  g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8);}
     }
-
-    ADE(500);
+    ADE(2000);
 
     double final_mass = 0;
     for (int x = 0; x < Nx; x++)
     {for (int y = 0; y < Ny; y++)
       {final_mass +=  g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8);}
     }
-  cout << initial_mass << " " << final_mass << " " << initial_mass-final_mass << endl;
+  cout << (initial_mass-final_mass)/initial_mass << " " << final_mass << " " << initial_mass-final_mass << endl;
   if (abs(initial_mass-final_mass) < 0.0001*initial_mass)
+  {cout << "CONCENTRATION IS CONSERVED" << endl;}
+  else
+    {cout << "FUCK! CONCENTRATION IS NOT CONSERVED!" << endl;}
+  }
+
+
+void MainClass::test_pousielle()
+  {
+  	float analytic_U = Ny*Ny*F(0)/(4*3*(tau-1/2)/3);
+  	float numeric_U = 0;
+    for (int x = 0; x < Nx; x++)
+    {for (int y = 0; y < Ny; y++)
+      {numeric_U +=  u(x, y, 0);}
+    }
+   cout << numeric_U/(Nx*Ny) << endl;
+   cout << analytic_U << endl;
+
+  if (true)
   {cout << "CONCENTRATION IS CONSERVED" << endl;}
   else
     {cout << "FUCK! CONCENTRATION IS NOT CONSERVED!" << endl;}
