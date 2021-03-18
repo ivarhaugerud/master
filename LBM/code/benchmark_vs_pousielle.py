@@ -25,12 +25,12 @@ ux = np.loadtxt("../data/benchmark_testing_stokes_ux.txt")
 uy = np.loadtxt("../data/benchmark_testing_stokes_uy.txt")
 
 
-y = np.linspace(-1, 1, len(ux[0, :]))
-x = np.linspace(-1, 1, len(ux[:, 0]))
+y = np.linspace(0, len(ux[0, :]), len(ux[0, :]))
+x = np.linspace(0, len(ux[:, 0]), len(ux[:, 0]))
 X, Y = np.meshgrid(x, y)
 
-ax.contourf(X, Y, np.sqrt(ux*ux+uy*uy))
+ax.contourf(X, Y, np.transpose(np.sqrt(ux*ux+uy*uy)))
 ax.axis("equal")
-ax.streamplot(X, Y, ux, uy)
+ax.streamplot(X, Y, np.transpose(ux), np.transpose(uy))
 
 plt.show()

@@ -182,6 +182,8 @@ void MainClass::run()
 {
   cout << "starting run " << endl;
   bool equil = false;
+  double L2;
+  double prev_L2;
   long double sum_difference = 0;
   double sum = 0;
   int counter = 0;
@@ -295,7 +297,12 @@ void MainClass::run()
          cout << sqrt(sum_difference/sum) << " number of steps to equilibration: " << counter << endl;}
   if (t % 1000 == 0)
   {
-    cout << t << " " << sqrt(sum_difference/sum) << " " << sum/(Nx*Ny) << " " << sum_difference/(Nx*Ny) << endl;
+  	L2 = sqrt(sum_difference/sum);
+    cout << t << " " << sqrt((L2-prev_L2)*(L2-prev_L2)/(L2*L2)) << " " << L2 << " " << sum_difference/(Nx*Ny) << endl;
+	  if (sqrt((L2-prev_L2)*(L2-prev_L2)/(L2*L2)) <  pow(10, -5))
+	      {equil = true;
+	       cout << (L2-prev_L2)/L2 << " number of steps to equilibration: " << counter << endl;}
+    prev_L2 = L2;
   }
   f = f_star;
   prev_u = u;
@@ -884,24 +891,6 @@ void MainClass::test_mass_diffusion()
     }
   cout << (initial_mass-final_mass)/initial_mass << " " << final_mass << " " << initial_mass-final_mass << endl;
   if (abs(initial_mass-final_mass) < 0.0001*initial_mass)
-  {cout << "CONCENTRATION IS CONSERVED" << endl;}
-  else
-    {cout << "FUCK! CONCENTRATION IS NOT CONSERVED!" << endl;}
-  }
-
-
-void MainClass::test_pousielle()
-  {
-  	float analytic_U = Ny*Ny*F(0)/(4*3*(tau-1/2)/3);
-  	float numeric_U = 0;
-    for (int x = 0; x < Nx; x++)
-    {for (int y = 0; y < Ny; y++)
-      {numeric_U +=  u(x, y, 0);}
-    }
-   cout << numeric_U/(Nx*Ny) << endl;
-   cout << analytic_U << endl;
-
-  if (true)
   {cout << "CONCENTRATION IS CONSERVED" << endl;}
   else
     {cout << "FUCK! CONCENTRATION IS NOT CONSERVED!" << endl;}
