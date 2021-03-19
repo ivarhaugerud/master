@@ -1,5 +1,6 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
+import scipy.integrate as scpi 
 
 def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backward, f, Bc0, Bc1, k):
 	#define general parameters
@@ -70,134 +71,143 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	return u, sol
 
 tol   = 1e-6
-k     = np.array([-9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+k     = np.arange(-12, 12+0.01, 1)
 xi    = np.linspace(-1, 1, int(1e5))
+kappas   = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
 
 #system parameters
-omega = 5/(2*np.pi)
-nu = 16
-Sc = nu
-F0 = 10
-U = 1
-Pe = 3
-kappa = 10
+nu  = 1.2
+D   = 0.1
+F0  = 6 
+Sc = nu 
+Pe = 1/D
 
-gamma   = np.sqrt(1j*omega/Sc)
-rho     = np.sqrt(1j*omega/D)
-rho_c   = np.conjugate(rho)
-gamma_c = np.conjugate(gamma)
-kappa_p = np.sqrt(gamma*gamma + kappa*kappa)
-P_1     = ((F0*gamma*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_p*np.tanh(kappa)/(kappa*np.tanh(kappa_p))) )
-p_np2   = rho*rho*k + kappa*kappa
+kappa = 1.4
+omegas = np.logspace(-1.5, 2.5, 10)
+D_parallels = np.zeros(len(omegas))
 
-#analytic results
-ux0 = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma)
-ux1 = ((P_1*kappa*np.cosh(kappa)/(gamma*gamma))*(np.cosh(kappa*xi)/np.cosh(kappa) - np.cosh(kappa_p *xi)/np.cosh(kappa_p)) + (F0*np.tanh(gamma)/gamma)*(np.cosh(kappa_p*xi)/np.cosh(kappa_p) - xi*np.sinh(gamma*xi)/np.sinh(gamma)))/2
-uy1 = ((kappa*P_1*np.sinh(kappa)/(gamma*gamma))*(np.sinh(kappa_p*xi)/np.sinh(kappa_p) - np.sinh(kappa*xi)/np.sinh(kappa)))/2
-ux2 = P_1*np.sinh(kappa)*(kappa*kappa*xi*np.sinh(kappa*xi)/np.sinh(kappa) - kappa_p*kappa_p*xi*np.sinh(kappa_p*xi)/np.sinh(kappa_p) + gamma*gamma*np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma) + F0*np.cosh(gamma*xi)*(1-xi*xi)/(4*np.cosh(gamma))
-ux2 -= scpi.trapz(ux2, xi)/2 + scpi.trapz(ux1, xi)/4
+for K in range(len(omegas)):
+	#kappa = kappas[K]
+	omega = omegas[K]
 
-B0             = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))) + Pe*F0*np.tanh(gamma)/(2*gamma*gamma*gamma*rho*rho)
-B0_deriv       = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))
-B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(rho*np.cosh(rho*xi)/np.sinh(rho) - gamma*np.cosh(gamma*xi)/np.sinh(gamma))
+	#implicitly defined parameters
+	gamma   = np.sqrt(1j*omega/Sc)
+	rho     = np.sqrt(1j*omega/D)
+	rho_c   = np.conjugate(rho)
+	gamma_c = np.conjugate(gamma)
+	kappa_p = np.sqrt(gamma*gamma + kappa*kappa)
+	P_1     = ((F0*gamma*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_p*np.tanh(kappa)/(kappa*np.tanh(kappa_p))) )
+	p_np2   = rho*rho*k + kappa*kappa
 
-#define source terms
-q = np.zeros((len(k), len(xi)), dtype="complex")
-q[np.argmin(abs(k+2)), :] = Pe*kappa*xi*np.conj(ux0)*np.conj(B0_deriv) - Pe*np.conj(uy1)*np.conj(B0_deriv)
-q[np.argmin(abs(k+1)), :] = Pe*np.conj(ux1) + kappa*kappa*xi*np.conj(B0_deriv) - 2*np.conj(B0_deriv_deriv)
-q[np.argmin(abs(k-0)), :] = Pe*kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_deriv)- Pe*uy1*np.conj(B0_deriv) - Pe*np.conj(uy1)*B0_deriv
-q[np.argmin(abs(k-1)), :] = Pe*ux1          + kappa*kappa*xi*B0_deriv          - 2*B0_deriv_deriv 
-q[np.argmin(abs(k-2)), :] = Pe*kappa*xi*ux0*B0_deriv                   - Pe*uy1*B0_deriv
-#works for differential equation with constant terms, now just need coupeling to work as well
-n = len(k) #number of vectors
-N = 200
-N_pos = np.linspace(-1, 1, N)
-Delta = N_pos[1]-N_pos[0]
+	#analytic results
+	ux0 = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma)
+	ux1 = ((P_1*kappa*np.cosh(kappa)/(gamma*gamma))*(np.cosh(kappa*xi)/np.cosh(kappa) - np.cosh(kappa_p *xi)/np.cosh(kappa_p)) + (F0*np.tanh(gamma)/gamma)*(np.cosh(kappa_p*xi)/np.cosh(kappa_p) - xi*np.sinh(gamma*xi)/np.sinh(gamma)))/2
+	uy1 = ((kappa*P_1*np.sinh(kappa)/(gamma*gamma))*(np.sinh(kappa_p*xi)/np.sinh(kappa_p) - np.sinh(kappa*xi)/np.sinh(kappa)))/2
+	ux2 = P_1*np.sinh(kappa)*(kappa*kappa*xi*np.sinh(kappa*xi)/np.sinh(kappa) - kappa_p*kappa_p*xi*np.sinh(kappa_p*xi)/np.sinh(kappa_p) + gamma*gamma*np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma) + F0*np.cosh(gamma*xi)*(1-xi*xi)/(4*np.cosh(gamma))
+	ux2 -= scpi.trapz(ux2, xi)/2 + scpi.trapz(ux1, xi)/4
 
-#coupleing between vectors
-couple_backward =  np.zeros((N, N), dtype="complex")
+	B0             = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))) + Pe*F0*np.tanh(gamma)/(2*gamma*gamma*gamma*rho*rho)
+	B0_deriv       = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))
+	B0_deriv_deriv = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(rho*np.cosh(rho*xi)/np.sinh(rho) - gamma*np.cosh(gamma*xi)/np.sinh(gamma))
 
-for i in range(N-1):
-	couple_backward[i, i]   = Delta*(ux0[np.argmin(abs(xi-(N_pos[i]-Delta/2)))] + 2*ux0[np.argmin(abs(xi-(N_pos[i])))] + ux0[np.argmin(abs(xi-(N_pos[i]+Delta/2)))])/6
-	couple_backward[i, i+1] = Delta*ux0[np.argmin(abs(xi-(N_pos[i]+Delta/2)))]/6
-	couple_backward[i+1, i] = Delta*ux0[np.argmin(abs(xi-(N_pos[i]+Delta/2)))]/6
+	#define source terms
+	q = np.zeros((len(k), len(xi)), dtype="complex")
+	q[np.argmin(abs(k+2)), :] = Pe*kappa*xi*np.conj(ux0)*np.conj(B0_deriv) - Pe*np.conj(uy1)*np.conj(B0_deriv)
+	q[np.argmin(abs(k+1)), :] = Pe*np.conj(ux1) + kappa*kappa*xi*np.conj(B0_deriv) - 2*np.conj(B0_deriv_deriv)
+	q[np.argmin(abs(k-0)), :] = Pe*kappa*xi*(ux0*np.conj(B0_deriv) + np.conj(ux0)*B0_deriv)- Pe*uy1*np.conj(B0_deriv) - Pe*np.conj(uy1)*B0_deriv
+	q[np.argmin(abs(k-1)), :] = Pe*ux1          + kappa*kappa*xi*B0_deriv          - 2*B0_deriv_deriv 
+	q[np.argmin(abs(k-2)), :] = Pe*kappa*xi*ux0*B0_deriv                   - Pe*uy1*B0_deriv
 
-couple_backward[0, 0]    = Delta*(ux0[np.argmin(abs(xi-(N_pos[0])))]  + ux0[np.argmin(abs(xi-(N_pos[0]  + Delta/2)))])/6
-couple_backward[-1, -1]  = Delta*(ux0[np.argmin(abs(xi-(N_pos[-1])))] + ux0[np.argmin(abs(xi-(N_pos[-1] - Delta/2)))])/6
-couple_backward         *= kappa/2
-couple_forward = np.conj(couple_backward)
+	#works for differential equation with constant terms, now just need coupeling to work as well
+	n = len(k) #number of vectors
+	N = 50
+	N_pos = np.linspace(-1, 1, N)
+	Delta = N_pos[1]-N_pos[0]
 
-#boundary conditions
-Bc0 = np.zeros(n, dtype="complex") #BC at xi = -1
-Bc1 = np.zeros(n, dtype="complex") #BC at xi =  1
+	#coupleing between vectors
+	couple_backward =  np.zeros((N, N), dtype="complex")
 
-Bc0[np.argmin(abs(k-0))] =  kappa
-Bc1[np.argmin(abs(k-0))] = -kappa
+	for i in range(N-1):
+		couple_backward[i, i]   = Delta*(ux0[np.argmin(abs(xi-(N_pos[i]-Delta/2)))] + 2*ux0[np.argmin(abs(xi-(N_pos[i])))] + ux0[np.argmin(abs(xi-(N_pos[i]+Delta/2)))])/6
+		couple_backward[i, i+1] = Delta*ux0[np.argmin(abs(xi-(N_pos[i]+Delta/2)))]/6
+		couple_backward[i+1, i] = Delta*ux0[np.argmin(abs(xi-(N_pos[i]+Delta/2)))]/6
 
-f0_g1, coeff_f0g1 = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_forward, -q, Bc0, Bc1, k)
+	couple_backward[0, 0]    = Delta*(ux0[np.argmin(abs(xi-(N_pos[0])))]  + ux0[np.argmin(abs(xi-(N_pos[0]  + Delta/2)))])/6
+	couple_backward[-1, -1]  = Delta*(ux0[np.argmin(abs(xi-(N_pos[-1])))] + ux0[np.argmin(abs(xi-(N_pos[-1] - Delta/2)))])/6
+	couple_backward         *= Pe*kappa/2 # unsure if factor of 1/2 is correct here
+	couple_forward = np.conj(couple_backward)
 
-for i in range(int(len(k))):
-	if np.max(abs(np.imag(f0_g1[i,:]+f0_g1[-i-1,:]) - np.imag(f0_g1[i-1,0]+f0_g1[-i,0])))/2 > tol:
-		print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(f0_g1[i-1,:]+f0_g1[-i-1,:]) - np.imag(f0_g1[i-1,0]+f0_g1[-i-1,0]))))
+	#boundary conditions
+	Bc0 = np.zeros(n, dtype="complex") #BC at xi = -1
+	Bc1 = np.zeros(n, dtype="complex") #BC at xi =  1
 
-"""
-plt.plot(N_pos, coeff_f0g1[N*Z:N*(1+Z)])
-plt.show()
+	Bc0[np.argmin(abs(k-0))] =  kappa
+	Bc1[np.argmin(abs(k-0))] = -kappa
 
-plt.plot(N_pos, np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos))
-plt.show()
-"""
+	f0_g1, coeff_f0g1 = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_forward, -q, Bc0, Bc1, k)
 
-for i in range(int(len(k)/2)+1):
-	plt.plot(xi, f0_g1[i, :]+f0_g1[-i-1, :], label=(str(k[-i-1])))
-plt.legend(loc="best")
-plt.show()
+	for i in range(int(len(k))):
+		if np.max(abs(np.imag(f0_g1[i,:]+f0_g1[-i-1,:]) - np.imag(f0_g1[i-1,0]+f0_g1[-i,0])))/2 > tol:
+			print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(f0_g1[i-1,:]+f0_g1[-i-1,:]) - np.imag(f0_g1[i-1,0]+f0_g1[-i-1,0]))))
+
+	"""
+	plt.plot(N_pos, coeff_f0g1[N*Z:N*(1+Z)])
+	plt.show()
+
+	plt.plot(N_pos, np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos))
+	plt.show()
+	"""
+
+	for i in range(int(len(k)/2)+1):
+		plt.plot(xi, f0_g1[i, :]+f0_g1[-i-1, :], label=(str(k[-i-1])))
+	plt.legend(loc="best")
+	plt.show()
 
 
-Z = np.argmin(abs(k-0))
-plt.figure(0)
-plt.title(str(0))
-RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
-plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
-plt.plot(xi, RHS)
+	Z = np.argmin(abs(k-0))
+	plt.figure(0)
+	plt.title(str(0))
+	RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
+	plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
+	plt.plot(xi, RHS)
 
 
-Z = np.argmin(abs(k-1))
-plt.figure(1)
-plt.title(str(1))
-RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] - kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
-plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
-plt.plot(xi, RHS)
+	Z = np.argmin(abs(k-1))
+	plt.figure(1)
+	plt.title(str(1))
+	RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] - kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
+	plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
+	plt.plot(xi, RHS)
 
-Z = np.argmin(abs(k-2))
-plt.figure(2)
-plt.title(str(2))
-RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
-plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
-plt.plot(xi, RHS)
+	Z = np.argmin(abs(k-2))
+	plt.figure(2)
+	plt.title(str(2))
+	RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
+	plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
+	plt.plot(xi, RHS)
 
-Z = np.argmin(abs(k-3))
-plt.figure(3)
-plt.title(str(3))
-RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] - kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
-plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
-plt.plot(xi, RHS)
+	Z = np.argmin(abs(k-3))
+	plt.figure(3)
+	plt.title(str(3))
+	RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] - kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
+	plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
+	plt.plot(xi, RHS)
 
-Z = np.argmin(abs(k-4))
-plt.figure(4)
-plt.title(str(4))
-RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
-plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
-plt.plot(xi, RHS)
+	Z = np.argmin(abs(k-4))
+	plt.figure(4)
+	plt.title(str(4))
+	RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] + kappa*ux0*f0_g1[Z-1, :]/2 + kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
+	plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
+	plt.plot(xi, RHS)
 
-Z = np.argmin(abs(k-5))
-plt.figure(5)
-plt.title(str(5))
-RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] - kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
-plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
-plt.plot(xi, RHS)
+	Z = np.argmin(abs(k-5))
+	plt.figure(5)
+	plt.title(str(5))
+	RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] - kappa*ux0*f0_g1[Z-1, :]/2 - kappa*np.conj(ux0)*f0_g1[Z+1, :]/2)
+	plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
+	plt.plot(xi, RHS)
 
-plt.show()
+	plt.show()
 
 
 #reset source term for new solution
@@ -209,20 +219,7 @@ couple_forward  *= -1
 Bc0 = np.zeros(n, dtype="complex")
 Bc1 = np.zeros(n, dtype="complex")
 
-sol, coeff_g0f1 = coupled_finite_element_solver(N, n, xi, p_np2, couple_backward, couple_forward, q, Bc0, Bc1, k)
-
-
-for i in range(int(len(k)/2)+1):
-	plt.plot(xi, sol[i, :]+sol[-i-1, :], label=(str(k[-i-1])))
-plt.legend(loc="best")
-plt.show()
-
-for i in range(int(len(k)/2)+1):
-	if np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0])))/2 > tol:
-		print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[i,:]+sol[-i-1,:]) - np.imag(sol[i,0]+sol[-i-1,0]))))
-
-sol = np.zeros(np.shape(sol))
-g0_f1 = np.zeros(np.shape(sol))
+g0_f1 = np.zeros(np.shape(f0_g1))
 coeff_g0f1 = np.zeros(np.shape(coeff_f0g1))
 
 B_plus   = np.zeros((len(xi), len(k)), dtype="complex")  #sin-solution
@@ -278,7 +275,7 @@ np.save("data/B_minus", B_minus)
 np.save("data/B_minus_coeff", B_minus_coeff)
 np.save("data/B_plus_coeff", B_plus_coeff)
 np.save("data/k", k)
-
+plt.show()
 
 """
 from numpy import *

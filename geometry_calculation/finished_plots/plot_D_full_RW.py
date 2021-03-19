@@ -74,9 +74,9 @@ plt.axis([0.05, 2.55, 1.65, 2.5])
 plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-filename = root+"figures/comparison_RW_brenner.pdf"
-plt.savefig(filename, bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+#filename = root+"figures/comparison_RW_brenner.pdf"
+#plt.savefig(filename, bbox_inches="tight")
+#os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 
 
 
@@ -98,11 +98,9 @@ plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=8)
 plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-filename = root+"figures/D_eff_vs_eps_D01.pdf"
-plt.savefig(filename, bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
-#plt.show()
-
+#filename = root+"figures/D_eff_vs_eps_D01.pdf"
+#plt.savefig(filename, bbox_inches="tight")
+#os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 
 numeric = np.load("../data_test/tdata_04_03_D1_.npy")
 epsilon = np.array([0.0, 0.1, 0.2, 0.3])
@@ -133,9 +131,9 @@ plt.xlabel(r"Wave number $\kappa$", fontsize=8)
 plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-filename = root+"figures/D_eff_vs_eps_D1.pdf"
-plt.savefig(filename, bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+#filename = root+"figures/D_eff_vs_eps_D1.pdf"
+#plt.savefig(filename, bbox_inches="tight")
+#os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 
 
 numeric = np.load("../data_test/tdata_04_03_D10_.npy")
@@ -173,9 +171,9 @@ plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=8)
 plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-filename = root+"figures/D_eff_vs_eps_D10.pdf"
-plt.savefig(filename, bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+#filename = root+"figures/D_eff_vs_eps_D10.pdf"
+#plt.savefig(filename, bbox_inches="tight")
+#os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
 

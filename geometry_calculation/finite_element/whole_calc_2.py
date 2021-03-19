@@ -130,27 +130,25 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	return u, sol
 
 tol   = 1e-6
-k     = np.arange(-12, 12+0.01, 1)
+k     = np.arange(-10, 10+0.01, 1)
 xi    = np.linspace(-1, 1, int(1e5))
-kappas   = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
+kappas   = np.arange(0.8, 1.2, 0.05) #np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
 
 #system parameters
 nu  = 1.2
-D   = 0.1
-F0  = 6 
-Sc = nu 
+D   = 1.0
+F0  = 12
 Pe = 1/D
 
-kappa = 1.4
-omegas = np.logspace(-1.5, 2.5, 10)
-D_parallels = np.zeros(len(omegas))
+omega = 2*np.pi/3.6 #np.logspace(-1.5, 2.5, 10)
+D_parallels = np.zeros(len(kappas))
 
-for K in range(len(omegas)):
-	#kappa = kappas[K]
-	omega = omegas[K]
+for K in range(len(kappas)):
+	kappa = kappas[K]
+	#omega = omegas[K]
 
 	#implicitly defined parameters
-	gamma   = np.sqrt(1j*omega/Sc)
+	gamma   = np.sqrt(1j*omega/nu)
 	rho     = np.sqrt(1j*omega/D)
 	rho_c   = np.conjugate(rho)
 	gamma_c = np.conjugate(gamma)
@@ -179,7 +177,7 @@ for K in range(len(omegas)):
 
 	#works for differential equation with constant terms, now just need coupeling to work as well
 	n = len(k) #number of vectors
-	N = 50
+	N = 150
 	N_pos = np.linspace(-1, 1, N)
 	Delta = N_pos[1]-N_pos[0]
 
@@ -208,7 +206,7 @@ for K in range(len(omegas)):
 	for i in range(int(len(k))):
 		if np.max(abs(np.imag(f0_g1[i,:]+f0_g1[-i-1,:]) - np.imag(f0_g1[i-1,0]+f0_g1[-i,0])))/2 > tol:
 			print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(f0_g1[i-1,:]+f0_g1[-i-1,:]) - np.imag(f0_g1[i-1,0]+f0_g1[-i-1,0]))))
-
+	
 	g0_f1 = np.zeros(np.shape(f0_g1))
 	coeff_g0f1 = np.zeros(np.shape(coeff_f0g1))
 
@@ -237,6 +235,9 @@ for K in range(len(omegas)):
 
 	for i in range(n):
 		B_min_deriv        = interp1d(N_pos, np.gradient(B_minus_coeff[:,i], N_pos), kind='cubic')(xi)
+		#plt.plot(xi, B_min_deriv)
+		#plt.plot(N_pos, np.gradient(B_minus_coeff[:,i], N_pos))
+		#plt.show()
 		B_plus_deriv       = interp1d(N_pos, np.gradient(B_plus_coeff[:,i], N_pos), kind='cubic')(xi)
 		B_plus_deriv_deriv = interp1d(N_pos, np.gradient(np.gradient(B_plus_coeff[:,i], N_pos), N_pos), kind='cubic')(xi)
 
@@ -247,17 +248,17 @@ for K in range(len(omegas)):
 		if i != 0:
 			q[i-1, :] += Pe*0.5*(np.conj(ux0)*kappa*xi*B_min_deriv + np.conj(ux1)*kappa*B_minus[:, i] - np.conj(uy1)*B_min_deriv)
 
-	sol = np.zeros((len(xi), n), dtype="complex")
+	sol       = np.zeros((len(xi), n), dtype="complex")
 	sol_coeff = np.zeros((N, n), dtype="complex")
 
 	for i in range(n):
 		if abs(k[i]) > 1e-4:
+			#plt.plot(xi, -q[i, :])
 			sol[:,i], sol_coeff[:, i] = finite_element_solver(N, xi, rho*rho*k[i], -q[i,:])
-
+	#plt.show()
 	for i in range(n):
 		if np.max(abs(np.imag(sol[:, i]+sol[:,-i-1]))) > tol:
 			print("LARGE IMAGINARY VALUE FOR " + str(k[i]) + "-OMEGA = ", np.max(abs(np.imag(sol[:, i]+sol[:, -i-1]))))
-
 
 	
 	t        = np.linspace(0, 2*np.pi/omega, int(1e4))
@@ -305,7 +306,7 @@ for K in range(len(omegas)):
 	#print("HERE:", np.max(np.imag(total_D)))
 
 	D_parallels[K] = scpi.trapz(np.real(total_D), t)/(2*np.pi/(omega))
-	print(omegas[K], D_parallels[K])
+	print(kappas[K], D_parallels[K])
 	np.save("data/total_D_kappa"+str(kappa)[:4], D_eff)
 
 	plt.figure(1)
