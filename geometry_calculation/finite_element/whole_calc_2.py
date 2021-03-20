@@ -132,7 +132,7 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 tol   = 1e-6
 k     = np.arange(-10, 10+0.01, 1)
 xi    = np.linspace(-1, 1, int(1e5))
-kappas   = np.arange(0.8, 1.2, 0.05) #np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
+kappas   = np.arange(0.2, 2.201, 0.4) #np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
 
 #system parameters
 nu  = 1.2
@@ -140,7 +140,7 @@ D   = 1.0
 F0  = 12
 Pe = 1/D
 
-omega = 2*np.pi/3.6 #np.logspace(-1.5, 2.5, 10)
+omega = 2*np.pi/3.0 #np.logspace(-1.5, 2.5, 10)
 D_parallels = np.zeros(len(kappas))
 
 for K in range(len(kappas)):
@@ -235,9 +235,6 @@ for K in range(len(kappas)):
 
 	for i in range(n):
 		B_min_deriv        = interp1d(N_pos, np.gradient(B_minus_coeff[:,i], N_pos), kind='cubic')(xi)
-		#plt.plot(xi, B_min_deriv)
-		#plt.plot(N_pos, np.gradient(B_minus_coeff[:,i], N_pos))
-		#plt.show()
 		B_plus_deriv       = interp1d(N_pos, np.gradient(B_plus_coeff[:,i], N_pos), kind='cubic')(xi)
 		B_plus_deriv_deriv = interp1d(N_pos, np.gradient(np.gradient(B_plus_coeff[:,i], N_pos), N_pos), kind='cubic')(xi)
 

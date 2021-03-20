@@ -152,7 +152,6 @@ for i in range(int(len(k)/2)+1):
 plt.legend(loc="best")
 plt.show()
 
-
 Z = np.argmin(abs(k-0))
 plt.figure(0)
 plt.title(str(0))
@@ -195,13 +194,7 @@ plt.title(str(5))
 RHS = np.real(p_np2[Z]*f0_g1[Z, :] -q[Z, :] - Pe*kappa*ux0*f0_g1[Z-1, :] - Pe*kappa*np.conj(ux0)*f0_g1[Z+1, :])
 plt.plot(N_pos, np.real(np.gradient(np.gradient(coeff_f0g1[N*Z:N*(1+Z)], N_pos), N_pos)))
 plt.plot(xi, RHS)
-
 plt.show()
-
-B_plus   = np.zeros((len(xi), len(k)), dtype="complex")  #sin-solution
-B_minus  = np.zeros((len(xi), len(k)), dtype="complex")  #cos-solution
-B_plus_coeff    = np.zeros((N, len(k)), dtype="complex") #sin-solution
-B_minus_coeff   = np.zeros((N, len(k)), dtype="complex") #sin-solution
 
 for i in range(int(len(k)/2)+1):
 	if abs(k[i]) % 2 == 0:
@@ -213,6 +206,12 @@ for i in range(int(len(k)/2)+1):
 		print("odd:", k[i], "and", k[-i-1])
 		plt.figure(2) #sin figure
 		plt.plot(xi, np.real(f0_g1[i,:]+f0_g1[-i-1,:]), label=r"$\omega=\omega$"+str(abs(k[i])))
+
+
+B_plus   = np.zeros((len(xi),  len(k)), dtype="complex")  #sin-solution
+B_minus  = np.zeros((len(xi),  len(k)), dtype="complex")  #cos-solution
+B_plus_coeff    = np.zeros((N, len(k)), dtype="complex") #sin-solution
+B_minus_coeff   = np.zeros((N, len(k)), dtype="complex") #sin-solution
 
 for i in range(len(k)):
 	if abs(k[i]) % 2 == 0:
@@ -244,7 +243,6 @@ np.save("data/B_minus_coeff", B_minus_coeff)
 np.save("data/B_plus_coeff", B_plus_coeff)
 np.save("data/k", k)
 plt.show()
-
 
 def finite_element_solver(N, x, f, double_deriv, a, Bc0, Bc1, laplace):
 	#define general parameters
@@ -400,9 +398,6 @@ for i in range(len(k)):
 	if abs(k[i]) > 1e-4:
 		sol[:,i], sol_coeff[:,i] = finite_element_solver(N, xi, f[:,i], derivatives[:, i], 1j*omega*k[i], BC0[i], BC1[i], False)
 	else:
-		plt.plot(xi, f[:, i])
-		plt.plot(N_pos, derivatives[:, i])
-		plt.show()
 		#when looking at the source terms for n=0, we see that there are actually no contributions..., so we just take the homogeneous solution to satisfy the BCs
 		sol[:,i] =  np.zeros(len(xi))
 
