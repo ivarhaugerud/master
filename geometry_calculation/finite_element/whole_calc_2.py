@@ -132,7 +132,7 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 tol   = 1e-6
 k     = np.arange(-10, 10+0.01, 1)
 xi    = np.linspace(-1, 1, int(1e5))
-kappas   = np.arange(0.2, 2.201, 0.4) #np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
+kappas   = np.arange(0.2, 2.201, 0.1) #np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
 
 #system parameters
 nu  = 1.2
@@ -150,18 +150,19 @@ for K in range(len(kappas)):
 	#implicitly defined parameters
 	gamma   = np.sqrt(1j*omega/nu)
 	rho     = np.sqrt(1j*omega/D)
-	rho_c   = np.conjugate(rho)
-	gamma_c = np.conjugate(gamma)
 	kappa_p = np.sqrt(gamma*gamma + kappa*kappa)
 	P_1     = ((F0*gamma*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_p*np.tanh(kappa)/(kappa*np.tanh(kappa_p))) )
 	p_np2   = rho*rho*k + kappa*kappa
 
 	#analytic results
 	ux0 = F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma)
-	ux1 = ((P_1*kappa*np.cosh(kappa)/(gamma*gamma))*(np.cosh(kappa*xi)/np.cosh(kappa) - np.cosh(kappa_p *xi)/np.cosh(kappa_p)) + (F0*np.tanh(gamma)/gamma)*(np.cosh(kappa_p*xi)/np.cosh(kappa_p) - xi*np.sinh(gamma*xi)/np.sinh(gamma)))/2
-	uy1 = ((kappa*P_1*np.sinh(kappa)/(gamma*gamma))*(np.sinh(kappa_p*xi)/np.sinh(kappa_p) - np.sinh(kappa*xi)/np.sinh(kappa)))/2
-	ux2 = P_1*np.sinh(kappa)*(kappa*kappa*xi*np.sinh(kappa*xi)/np.sinh(kappa) - kappa_p*kappa_p*xi*np.sinh(kappa_p*xi)/np.sinh(kappa_p) + gamma*gamma*np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma) + F0*np.cosh(gamma*xi)*(1-xi*xi)/(4*np.cosh(gamma))
+	ux1 = 0.5*((  (P_1*kappa*np.cosh(kappa)/(gamma*gamma))*(np.cosh(kappa*xi)/np.cosh(kappa) - np.cosh(kappa_p*xi)/np.cosh(kappa_p))   + (F0*np.tanh(gamma)/(gamma))*(np.cosh(kappa_p*xi)/np.cosh(kappa_p) - xi*np.sinh(gamma*xi)/np.sinh(gamma))  ))
+	uy1 = 0.5*(kappa*P_1*np.sinh(kappa)/(gamma*gamma))*( np.sinh(kappa_p*xi)/np.sinh(kappa_p) - np.sinh(kappa*xi)/np.sinh(kappa))
+	ux2 = 0.5*(P_1*kappa*kappa*np.sinh(kappa)*(xi*np.sinh(kappa*xi)/np.sinh(kappa) - np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma) + F0*np.cosh(gamma*xi)*(1-xi*xi)/(4*np.cosh(gamma)) + P_1*kappa_p*kappa_p*np.sinh(kappa)*(np.cosh(gamma*xi)/np.cosh(gamma)-xi*np.sinh(kappa_p*xi)/np.sinh(kappa_p))/(2*gamma*gamma))
 	ux2 -= scpi.trapz(ux2, xi)/2 + scpi.trapz(ux1, xi)/4
+	#plt.plot(xi, ux1)
+	#plt.plot(xi, ux2)
+	#plt.show()
 
 	B0             = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))) + Pe*F0*np.tanh(gamma)/(2*gamma*gamma*gamma*rho*rho)
 	B0_deriv       = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))
@@ -221,6 +222,7 @@ for K in range(len(kappas)):
 			B_plus[:, i]  = g0_f1[i,:]
 			B_minus_coeff[:, i] = coeff_f0g1[i*N:(i+1)*N]
 			B_plus_coeff[:, i]  = coeff_g0f1[i*N:(i+1)*N]
+
 
 		else:
 			B_plus[:, i]  = f0_g1[i,:]
@@ -310,7 +312,7 @@ for K in range(len(kappas)):
 	"""
 	
 	for i in range(len(k)):
-		D_eff_xi[:, np.argmin(abs(new_k -k[i]))] += (kappa*xi*B1_min_deriv[:, i] + 2*kappa*B_minus[:, i]/3)
+		D_eff_xi[:, np.argmin(abs(new_k -k[i]))] += (kappa*xi*B1_min_deriv[:, i] + kappa*B_minus[:, i])
 		for j in range(len(k)):
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_plus[:,j]*B_plus[:,i]    + B1_plus_deriv[:, i]*B1_plus_deriv[:, j])
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_minus[:,j]*B_minus[:,i]  + B1_min_deriv[:, i] *B1_min_deriv[:, j])

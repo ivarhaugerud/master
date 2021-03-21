@@ -36,7 +36,7 @@ D0_ana = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma
 
 
 
-ana_kappa = np.arange(0.2, 2.201, 0.4)
+ana_kappa   = np.arange(0.2, 2.201, 0.1) #np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
 ana_deff = np.load("../finite_element/data/D_parallels_kappa_D1.npy")
 
 numeric = np.load("../data_test/tdata_04_03_D1_.npy")
@@ -53,6 +53,7 @@ D_num[0, :] = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(
 
 for i in range(len(epsilon)-1):
 	for j in range(len(kappa)):
+		#plt.title(str(kappa[j]) + "," + str(epsilon[i+1]))
 		#plt.plot(numeric[i, j,   :, 0], numeric[i, j,   :, 8	])
 		#plt.plot(numeric[i, j, -T:, 0], numeric[i, j, -T:, 8	])
 		if i == 2:
@@ -61,16 +62,16 @@ for i in range(len(epsilon)-1):
 		else:
 			D_num[i+1, j]   = sci.trapz(numeric[i, j, -T:, 8	], numeric[i, j, -T:, 0])/(tau)
 			difference[i+1, j]   = sci.trapz(numeric[i, j, -2*T:-1*T, 8	], numeric[i, j, -2*T:-1*T, 0])/(tau)
-	#plt.show()
+		#plt.show()
 
+#for i in range(len(epsilon)):
+#	plt.plot(kappa, abs(D_num[i,:]-difference[i,:])/D_num[i,:])
+#plt.show()
+#plt.figure(3)
 for i in range(len(epsilon)):
-	plt.plot(kappa, abs(D_num[i,:]-difference[i,:])/D_num[i,:])
-plt.show()
-plt.figure(3)
-for i in range(len(epsilon)):
-	plt.plot(kappa, D_num[i,:], color="C"+str(i), label=r"$\epsilon=$"+str(epsilon[i]))
+	#plt.plot(kappa, D_num[i,:], color="C"+str(i), label=r"$\epsilon=$"+str(epsilon[i]))
 	plt.plot(kappa, D_num[i,:], "o", markersize=3, color="C"+str(i))
-	plt.plot(ana_kappa, epsilon[i]*epsilon[i]*ana_deff+D_num[0,0], "--", color="C"+str(i))
+	plt.plot(ana_kappa, epsilon[i]*epsilon[i]*ana_deff+D_num[0,0], color="C"+str(i))
 
 
 plt.legend(loc="best", fontsize=8, ncol=2)
@@ -82,3 +83,6 @@ plt.show()
 #filename = root+"figures/D_eff_vs_eps_D1.pdf"
 #plt.savefig(filename, bbox_inches="tight")
 #os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+
+#for i in range(len(epsilon)):
+#	plt.plot(ana_kappa, abs(D_num[i,:]-epsilon[i]*epsilon[i]*ana_deff+D_num[0,0])/abs(D_num[i,:]), color="C"+str(i))
