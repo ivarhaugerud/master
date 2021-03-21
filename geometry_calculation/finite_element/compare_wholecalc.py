@@ -43,6 +43,7 @@ numeric = np.load("../data_test/tdata_04_03_D1_.npy")
 epsilon = np.array([0.0, 0.1, 0.2, 0.3])
 kappa   = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2]) #0.2
 D_num = np.zeros((len(epsilon), len(kappa)))
+difference = np.zeros(np.shape(D_num))
 
 D = 1.0
 Pe = 1/D
@@ -52,14 +53,19 @@ D_num[0, :] = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(
 
 for i in range(len(epsilon)-1):
 	for j in range(len(kappa)):
-		plt.plot(numeric[i, j,   :, 0], numeric[i, j,   :, 8	])
-		plt.plot(numeric[i, j, -T:, 0], numeric[i, j, -T:, 8	])
+		#plt.plot(numeric[i, j,   :, 0], numeric[i, j,   :, 8	])
+		#plt.plot(numeric[i, j, -T:, 0], numeric[i, j, -T:, 8	])
 		if i == 2:
 			D_num[i+1, j]   = sci.trapz(numeric[i, j, -2*T:-T, 8	], numeric[i, j, -2*T:-T, 0])/(tau)
+			difference[i+1, j]   = sci.trapz(numeric[i, j, -3*T:-2*T, 8	], numeric[i, j, -3*T:-2*T, 0])/(tau)
 		else:
 			D_num[i+1, j]   = sci.trapz(numeric[i, j, -T:, 8	], numeric[i, j, -T:, 0])/(tau)
-	plt.show()
+			difference[i+1, j]   = sci.trapz(numeric[i, j, -2*T:-1*T, 8	], numeric[i, j, -2*T:-1*T, 0])/(tau)
+	#plt.show()
 
+for i in range(len(epsilon)):
+	plt.plot(kappa, abs(D_num[i,:]-difference[i,:])/D_num[i,:])
+plt.show()
 plt.figure(3)
 for i in range(len(epsilon)):
 	plt.plot(kappa, D_num[i,:], color="C"+str(i), label=r"$\epsilon=$"+str(epsilon[i]))

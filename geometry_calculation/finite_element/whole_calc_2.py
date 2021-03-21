@@ -137,7 +137,7 @@ kappas   = np.arange(0.2, 2.201, 0.4) #np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
 #system parameters
 nu  = 1.2
 D   = 1.0
-F0  = 12
+F0  = 12/nu
 Pe = 1/D
 
 omega = 2*np.pi/3.0 #np.logspace(-1.5, 2.5, 10)
@@ -177,7 +177,7 @@ for K in range(len(kappas)):
 
 	#works for differential equation with constant terms, now just need coupeling to work as well
 	n = len(k) #number of vectors
-	N = 150
+	N = 100
 	N_pos = np.linspace(-1, 1, N)
 	Delta = N_pos[1]-N_pos[0]
 
@@ -229,6 +229,7 @@ for K in range(len(kappas)):
 			B_plus_coeff[:, i]  = coeff_f0g1[i*N:(i+1)*N]
 
 	#define source terms
+
 	q = np.zeros((len(k), len(xi)), dtype="complex")
 	q[np.argmin(abs(k-1)), :] = 0.5*kappa*kappa*xi*B0_deriv          + 0.5*(3+kappa*kappa*xi*xi)*B0_deriv_deriv          + Pe*ux2
 	q[np.argmin(abs(k+1)), :] = 0.5*kappa*kappa*xi*np.conj(B0_deriv) + 0.5*(3+kappa*kappa*xi*xi)*np.conj(B0_deriv_deriv) + Pe*np.conj(ux2)
@@ -287,13 +288,33 @@ for K in range(len(kappas)):
 		B1_plus_deriv_deriv[:, i] = interp1d(N_pos, np.gradient(np.gradient(B_plus_coeff[:,i], N_pos), N_pos), kind='cubic')(xi)
 		B2_0_deriv[:, i]          = interp1d(N_pos, np.gradient(sol_coeff[:,i], N_pos),     kind='cubic')(xi)
 
-
+	"""
 	for i in range(len(k)):
 		D_eff_xi[:, np.argmin(abs(new_k -k[i]))] += (kappa*xi*B1_min_deriv[:, i] + kappa*B_minus[:, i])
 		for j in range(len(k)):
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_plus[:,j]*B_plus[:,i]    + B1_plus_deriv[:, i]*B1_plus_deriv[:, j])
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_minus[:,j]*B_minus[:,i]  + B1_min_deriv[:, i] *B1_min_deriv[:, j])
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += b0_deriv[:, i]*(2*B2_0_deriv[:,j] - B1_plus_deriv[:,j] - kappa*kappa*xi*B_plus[:, j])
+			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5*(1+kappa*kappa*xi*xi)*b0_deriv[:, i]*b0_deriv[:, j]
+	#	for i in range(len(k)):
+#		D_eff_xi[:, np.argmin(abs(new_k -k[i]))] += 0.5*(kappa*xi*B1_min_deriv[:, i] + kappa*B_minus[:, i] + kappa*xi*np.conjugate(B1_min_deriv[:, i]) + kappa*np.conjugate(B_minus[:, i])) 
+	
+		for j in range(len(k)):
+			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5*b0_deriv[:,i]*np.conjugate(b0_deriv[:,j])
+			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_plus[:,j] *np.conjugate(B_plus[:,i])   + B1_plus_deriv[:, i]*np.conjugate(B1_plus_deriv[:, j]))
+			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_minus[:,j]*np.conjugate(B_minus[:,i])  + B1_min_deriv[:, i] *np.conjugate(B1_min_deriv[:, j]))
+			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += b0_deriv[:, i]*np.conjugate((B2_0_deriv[:,j] - 0.5*B1_plus_deriv[:,j]))
+			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += np.conjugate(b0_deriv[:, i])*(B2_0_deriv[:,j] - 0.5*B1_plus_deriv[:,j])
+			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5*(kappa*kappa*xi*xi)*b0_deriv[:, i]*np.conjugate(b0_deriv[:, j]) 
+			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += -0.5*kappa*kappa*xi*xi*(b0_deriv[:,i]*np.conjugate(B1_plus_deriv[:, j]) + np.conjugate(b0_deriv[:,i])*B1_plus_deriv[:,j]) 
+	"""
+	
+	for i in range(len(k)):
+		D_eff_xi[:, np.argmin(abs(new_k -k[i]))] += (kappa*xi*B1_min_deriv[:, i] + 2*kappa*B_minus[:, i]/3)
+		for j in range(len(k)):
+			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_plus[:,j]*B_plus[:,i]    + B1_plus_deriv[:, i]*B1_plus_deriv[:, j])
+			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5* (kappa*kappa*B_minus[:,j]*B_minus[:,i]  + B1_min_deriv[:, i] *B1_min_deriv[:, j])
+			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += b0_deriv[:, i]*(2*B2_0_deriv[:,j]-kappa*kappa*xi*B_plus[:,j] - B1_plus_deriv[:,j])
 			D_eff_xi[:, np.argmin(abs(new_k - (k[i]+k[j])))] += 0.5*(1+kappa*kappa*xi*xi)*b0_deriv[:, i]*b0_deriv[:, j]
 	
 	for i in range(len(new_k)):
@@ -317,6 +338,6 @@ for K in range(len(kappas)):
 	plt.xlabel(r"time [$t$]", fontsize=12)
 	plt.ylabel(r"Brenner field", fontsize=12)
 	plt.savefig("figures/Brenner_field_vs_t.pdf")
-
+	#plt.show()
 np.save("data/D_parallels_kappa_D1", D_parallels)
 plt.show()
