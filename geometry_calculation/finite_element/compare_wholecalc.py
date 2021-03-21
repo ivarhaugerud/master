@@ -86,3 +86,48 @@ plt.show()
 
 #for i in range(len(epsilon)):
 #	plt.plot(ana_kappa, abs(D_num[i,:]-epsilon[i]*epsilon[i]*ana_deff+D_num[0,0])/abs(D_num[i,:]), color="C"+str(i))
+
+
+
+import numpy as np 
+import matplotlib.pyplot as plt 
+import scipy.integrate as sci
+
+Lx = np.array([4.48])
+kappa = 2*np.pi/Lx
+nu = np.logspace(-2, 2, 10)[:9]
+
+base = "../data_test/vary_nu/"
+D = np.zeros((len(nu)))
+difference = np.zeros(np.shape(D))
+U  = np.zeros(np.shape(D))
+
+T = 750
+tau = 3.0
+
+print(nu)
+ana_D = np.load("data/vary:nu.npy")
+D0 = np.zeros(len(ana_D))
+for i in range(len(nu)):
+	gamma = np.sqrt(1j*omega/(nu[i]))
+	gamma_c = np.conjugate(gamma)
+	data = np.loadtxt(base+"Lx4.48_tau3.0_eps0.5_nu" + str(nu[i])[:4]+"_D1.0_fzero0.0_fone" + str(12*nu[i])[:5] + "_res150_dt0.004/tdata.dat")
+	print(np.shape(data), np.shape(D))
+	D[i] = sci.trapz(  data[-T:, 8],  data[-T:, 0] )/tau
+	U[i] = sci.trapz(  data[-T:, 4],  data[-T:, 0] )/tau
+	#plt.scatter(nu[i], data[-1, 0]/tau)
+	difference[i] = abs(D[i] - sci.trapz(  data[-2*T:-T, 8],  data[-2*T:-T, 0] )/tau)/D[i]
+	#plt.plot(np.trim_zeros(data[:, 0])/tau, np.trim_zeros(data[:, 8]))
+	#plt.plot(np.trim_zeros(data[:, 0])[-T:]/tau, np.trim_zeros(data[:, 8])[-T:])
+	#plt.show()
+	D0[i] = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma**4 - rho**4))*(1/(gamma*gamma)*(gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c)) - 1/(rho*rho)*(rho/np.tanh(rho) - rho_c/np.tanh(rho_c)))
+
+plt.plot(nu, D)
+plt.plot(nu, 0.5*0.5*ana_D +D0 )
+plt.xscale("log")
+plt.show()
+
+
+plt.plot(nu, ana_D)
+plt.xscale("log")
+plt.show()

@@ -132,7 +132,10 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 tol   = 1e-6
 k     = np.arange(-10, 10+0.01, 1)
 xi    = np.linspace(-1, 1, int(1e5))
-kappas   = np.arange(0.2, 2.201, 0.1) #np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
+Lx = 4.48
+kappa = 2*np.pi/Lx
+nus = np.logspace(-2, 2, 10)[:9]
+#kappas   = np.arange(0.2, 2.201, 0.1) #np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
 
 #system parameters
 nu  = 1.2
@@ -141,11 +144,13 @@ F0  = 12/nu
 Pe = 1/D
 
 omega = 2*np.pi/3.0 #np.logspace(-1.5, 2.5, 10)
-D_parallels = np.zeros(len(kappas))
+D_parallels = np.zeros(len(nus))
 
-for K in range(len(kappas)):
-	kappa = kappas[K]
+for K in range(len(nus)):
+	#kappa = kappas[K]
 	#omega = omegas[K]
+	nu = nus[K]
+	F0 = 12
 
 	#implicitly defined parameters
 	gamma   = np.sqrt(1j*omega/nu)
@@ -160,9 +165,6 @@ for K in range(len(kappas)):
 	uy1 = 0.5*(kappa*P_1*np.sinh(kappa)/(gamma*gamma))*( np.sinh(kappa_p*xi)/np.sinh(kappa_p) - np.sinh(kappa*xi)/np.sinh(kappa))
 	ux2 = 0.5*(P_1*kappa*kappa*np.sinh(kappa)*(xi*np.sinh(kappa*xi)/np.sinh(kappa) - np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma) + F0*np.cosh(gamma*xi)*(1-xi*xi)/(4*np.cosh(gamma)) + P_1*kappa_p*kappa_p*np.sinh(kappa)*(np.cosh(gamma*xi)/np.cosh(gamma)-xi*np.sinh(kappa_p*xi)/np.sinh(kappa_p))/(2*gamma*gamma))
 	ux2 -= scpi.trapz(ux2, xi)/2 + scpi.trapz(ux1, xi)/4
-	#plt.plot(xi, ux1)
-	#plt.plot(xi, ux2)
-	#plt.show()
 
 	B0             = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.cosh(rho*xi)/(rho*np.sinh(rho)) - np.cosh(gamma*xi)/(gamma*np.sinh(gamma))) + Pe*F0*np.tanh(gamma)/(2*gamma*gamma*gamma*rho*rho)
 	B0_deriv       = (Pe*F0*np.tanh(gamma)/(2*gamma*(rho*rho-gamma*gamma)))*(np.sinh(rho*xi)/np.sinh(rho) - np.sinh(gamma*xi)/np.sinh(gamma))
@@ -326,7 +328,7 @@ for K in range(len(kappas)):
 	#print("HERE:", np.max(np.imag(total_D)))
 
 	D_parallels[K] = scpi.trapz(np.real(total_D), t)/(2*np.pi/(omega))
-	print(kappas[K], D_parallels[K])
+	print(nus[K], D_parallels[K])
 	np.save("data/total_D_kappa"+str(kappa)[:4], D_eff)
 
 	plt.figure(1)
@@ -341,5 +343,5 @@ for K in range(len(kappas)):
 	plt.ylabel(r"Brenner field", fontsize=12)
 	plt.savefig("figures/Brenner_field_vs_t.pdf")
 	#plt.show()
-np.save("data/D_parallels_kappa_D1", D_parallels)
+np.save("data/vary:nu", D_parallels)
 plt.show()
