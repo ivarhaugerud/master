@@ -1,9 +1,46 @@
 from sympy import * 
+#import sympy as sy
+"""
+from numpy import *
+import scipy.integrate as scp
+import matplotlib.pyplot as plt 
+F0 = 6
+tau = 3.0
+D = 0.1
+Pe = 1/D
+omega = 2*pi/tau
+nu = 1e3
+xi = linspace(-1, 1, int(1e4))
 
+kappa = 0.01
+omega = logspace(-1.5, 1.5, 60)
+rho = sqrt(1j*omega/D)
+
+one = F0**2*Pe**2*(0.125*rho**7*tanh(conjugate(rho))**3 - 0.416666666666667*rho**6*tanh(rho)**3*tanh(conjugate(rho))**3 + 0.5*rho**6*tanh(rho)**3*tanh(conjugate(rho)) + 0.5*rho**6*tanh(rho)*tanh(conjugate(rho))**3 - rho**5*(0.125*rho**2 + 0.375)*tanh(rho)**2*tanh(conjugate(rho))**3 - (0.03125*rho**4 - 0.0625*rho**2*conjugate(rho)**2 + 0.03125*conjugate(rho)**4)*tanh(rho)**3*conjugate(rho)**3 + 0.03125*(rho**4*conjugate(rho)**2 + 3.5*rho**4 - 2*rho**2*conjugate(rho)**4 - 8*rho**2*conjugate(rho)**2 + conjugate(rho)**6 + 0.5*conjugate(rho)**4)*tanh(rho)**3*tanh(conjugate(rho))**2*conjugate(rho))/(rho**10*tanh(rho)**3*tanh(conjugate(rho))**3)
+two = F0**2*Pe**2*(0.125*rho**7*tanh(conjugate(rho))**3 - 0.416666666666667*rho**6*tanh(rho)**3*tanh(conjugate(rho))**3 + 0.5*rho**6*tanh(rho)**3*tanh(conjugate(rho)) + 0.5*rho**6*tanh(rho)*tanh(conjugate(rho))**3 - rho**5*(0.125*rho**2 + 0.375)*tanh(rho)**2*tanh(conjugate(rho))**3 - (0.03125*rho**4 - 0.0625*rho**2*conjugate(rho)**2 + 0.03125*conjugate(rho)**4)*tanh(rho)**3*conjugate(rho)**3 + 0.03125*(rho**4*conjugate(rho)**2 + 3.5*rho**4 - 2*rho**2*conjugate(rho)**4 - 8*rho**2*conjugate(rho)**2 + conjugate(rho)**6 + 0.5*conjugate(rho)**4)*tanh(rho)**3*tanh(conjugate(rho))**2*conjugate(rho))/(rho**10*tanh(rho)**3*tanh(conjugate(rho))**3)
+two = F0**2*Pe**2*(0.125*rho**7*tanh(conjugate(rho))**3 - 0.416666666666667*rho**6*tanh(rho)**3*tanh(conjugate(rho))**3 + 0.5*rho**6*tanh(rho)**3*tanh(conjugate(rho)) + 0.5*rho**6*tanh(rho)*tanh(conjugate(rho))**3 - rho**5*(0.125*rho**2 + 0.375)*tanh(rho)**2*tanh(conjugate(rho))**3 - (rho**4/8)*tanh(rho)**3*conjugate(rho)**3 + 0.03125*(-rho**6 + 3.5*rho**4 - 2*rho**6 + 8*rho**4 - (rho)**6 + 0.5*(rho)**4)*tanh(rho)**3*tanh(conjugate(rho))**2*conjugate(rho))/(rho**10*tanh(rho)**3*tanh(conjugate(rho))**3)
+two = rho/tanh(rho) - 4/(tanh(rho)*tanh(rho)) - rho/(tanh(rho)**3) + 3/(rho*tanh(rho))
+two += conjugate(two) + 10/3 
+two *= - F0*F0*Pe*Pe/(8*rho**4)
+
+plt.plot(omega, one)
+plt.plot(omega, two, "--")
+plt.xscale("log")
+plt.show()
+"""
 #define variables
 xi = symbols("xi", real=True)
-kappa, F0, Pe, r = symbols("kappa F0 Pe r", real=True)
-#rho = symbols("rho")
+kappa, F0, Pe = symbols("kappa F0 Pe", real=True)
+rho, gamma = symbols("rho gamma")
+
+#print(simplify(F0**2*Pe**2*(0.125*rho**7*tanh(conjugate(rho))**3 - 0.416666666666667*rho**6*tanh(rho)**3*tanh(conjugate(rho))**3 + 0.5*rho**6*tanh(rho)**3*tanh(conjugate(rho)) + 0.5*rho**6*tanh(rho)*tanh(conjugate(rho))**3 - rho**5*(0.125*rho**2 + 0.375)*tanh(rho)**2*tanh(conjugate(rho))**3 - (rho**4/8)*tanh(rho)**3*conjugate(rho)**3 + 0.03125*(-rho**6 + 3.5*rho**4 - 2*rho**6 + 8*rho**4 - (rho)**6 + 0.5*(rho)**4)*tanh(rho)**3*tanh(conjugate(rho))**2*conjugate(rho))/(rho**10*tanh(rho)**3*tanh(conjugate(rho))**3)))
+
+
+D0 = 1 + Pe*Pe*F0*F0*tanh(gamma)*tanh(conjugate(gamma))/(4*gamma*conjugate(gamma)*(gamma**4 - rho**4))*(1/(gamma*gamma)*(gamma/tanh(gamma) - conjugate(gamma/tanh(gamma))) - 1/(rho*rho)*(rho/tanh(rho) - conjugate(rho/tanh(rho))))
+#D0 = sy.cos(gamma)
+a = series(D0, gamma, n=4)
+print(simplify(a))
+# = series(expr=D0, x=gamma, x0=0, n=2, dir="+")
 
 """
 B0 =  F0*Pe*cosh(rho*xi)/(2*rho*rho*rho*sinh(rho)) - F0*Pe*xi*xi/(4*rho*rho) #
@@ -28,22 +65,26 @@ B2 -= F0*Pe*cosh(rho*xi)*(rho*rho + 6 - 2*rho*rho/(tanh(rho)**2) -4*rho/tanh(rho
 #print("result: ", integrated_full)
 #print("\n\n\n simplified result: ", simplify(integrated_full))
 """
-rho = sqrt(I*r)
+#rho = a + b*I
 full = 1/2*F0**2*Pe**2*(7/12*rho**8*conjugate(rho)**2 + rho**8/2 + rho**8*conjugate(rho)**3/(2*tanh(conjugate(rho))) + 7/4*rho**8*conjugate(rho)/tanh(conjugate(rho)) - 7/4*rho**8*conjugate(rho)**2/tanh(conjugate(rho))**2 - 1/2*rho**8*conjugate(rho)**3/tanh(conjugate(rho))**3 - 1/2*rho**7*conjugate(rho)**4/tanh(rho) + 1/2*rho**7*conjugate(rho)**4/tanh(rho)**3 - 11/4*rho**6*conjugate(rho)**4 - rho**6*conjugate(rho)**2 - rho**6*conjugate(rho)**5/tanh(conjugate(rho)) - 4*rho**6*conjugate(rho)**3/tanh(conjugate(rho)) + 4*rho**6*conjugate(rho)**4/tanh(conjugate(rho))**2 + rho**6*conjugate(rho)**5/tanh(conjugate(rho))**3 + 9/4*rho**6*conjugate(rho)**4/tanh(rho)**2 + rho**5*conjugate(rho)**6/tanh(rho) - 1/4*rho**5*conjugate(rho)**4/tanh(rho) - rho**5*conjugate(rho)**6/tanh(rho)**3 + 11/4*rho**4*conjugate(rho)**6 + 1/2*rho**4*conjugate(rho)**7/tanh(conjugate(rho)) + 1/4*rho**4*conjugate(rho)**5/tanh(conjugate(rho)) - 9/4*rho**4*conjugate(rho)**6/tanh(conjugate(rho))**2 - 1/2*rho**4*conjugate(rho)**7/tanh(conjugate(rho))**3 - 4*rho**4*conjugate(rho)**6/tanh(rho)**2 - 1/2*rho**3*conjugate(rho)**8/tanh(rho) + 4*rho**3*conjugate(rho)**6/tanh(rho) + 1/2*rho**3*conjugate(rho)**8/tanh(rho)**3 - 7/12*rho**2*conjugate(rho)**8 + rho**2*conjugate(rho)**6 + 7/4*rho**2*conjugate(rho)**8/tanh(rho)**2 - 7/4*rho*conjugate(rho)**8/tanh(rho) - 1/2*conjugate(rho)**8)/(rho**4*(rho**6 - 3*rho**4*conjugate(rho)**2 + 3*rho**2*conjugate(rho)**4 - conjugate(rho)**6)*conjugate(rho)**4)
-full -= -1/(kappa*kappa) + 1/(kappa*tanh(kappa)) + 1 #approx 8/3 + O(kappa^2)
-#full = simplify(full.subs(rho*rho, I*r))
+#full -= -1/(kappa*kappa) + 1/(kappa*tanh(kappa)) + 1 #approx 8/3 + O(kappa^2)
+full = simplify(full.subs(conjugate(rho)**2 , -rho*rho))
+#print((full))
 #print(simplify(full))
 #maybe look at beta0 including kappa ^2
+
+
+
 
 #print(full)
 #print(simplify(full)) #
 #print(series(full, r, n=4)) # -1.38777878078145e-17*F0**2*Pe**2/r**2 - 0.00687830687830688*F0**2*Pe**2 - 5.42101086242752e-20*I*F0**2*Pe**2*r + 1.60333493666827e-5*F0**2*Pe**2*r**2 + 4.2351647362715e-22*I*F0**2*Pe**2*r**3 + O(r**4
 #print(limit(full, r, 0))
-#print(limit(full, r, oo))
+#print(limit(full, r, oo)) 
 
 #print(simplify(full.subs(rho, 1000)))
 #print("taylor small rho: ", simplify(series(full, rho, n=4)))
-
+"""
 from numpy import *
 import scipy.integrate as scp
 import matplotlib.pyplot as plt 
@@ -159,3 +200,7 @@ for i in range(len(kappa[:2])):
 plt.plot(2*np.pi/tau, D_0, "k")
 plt.xscale("log")
 plt.show()
+
+"""
+
+#-F0**2*Pe**2*(0.125*rho**3/tanh(rho) - 0.125*rho**3/tanh(rho)**3 + 0.416666666666667*rho**2 + 0.125*rho**2*conjugate(rho)/tanh(conjugate(rho)) - 0.5*rho**2/tanh(conjugate(rho))**2 - 0.5*rho**2/tanh(rho)**2 + 0.375*rho/tanh(rho) - 0.375*conjugate(rho)/tanh(conjugate(rho)) + 0.125*conjugate(rho)**3/tanh(conjugate(rho))**3)/rho**6
