@@ -138,20 +138,25 @@ nus = np.logspace(-2, 2, 10)[:9]
 #kappas   = np.arange(0.2, 2.201, 0.1) #np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
 
 #system parameters
-nu  = 1.2
-D   = 1.0
-F0  = 12/nu
+#nu  = 1.2
+#D   = 1.0
+#F0  = 12/nu
+#Pe = 1/D
+
+nu = 8000
+kappa = 0.2
+D = 0.1
+F0 = 96000/nu 
 Pe = 1/D
+tau = np.logspace(-1, 2, 5)
 
-omega = 2*np.pi/3.0 #np.logspace(-1.5, 2.5, 10)
-D_parallels = np.zeros(len(nus))
+omegas = 2*np.pi/tau #np.logspace(-1.5, 2.5, 10)
+D_parallels = np.zeros(len(tau))
 
-for K in range(len(nus)):
+for K in range(len(tau)):
 	#kappa = kappas[K]
 	#omega = omegas[K]
-	nu = nus[K]
-	F0 = 12
-
+	omega = omegas[K]
 	#implicitly defined parameters
 	gamma   = np.sqrt(1j*omega/nu)
 	rho     = np.sqrt(1j*omega/D)
@@ -328,7 +333,7 @@ for K in range(len(nus)):
 	#print("HERE:", np.max(np.imag(total_D)))
 
 	D_parallels[K] = scpi.trapz(np.real(total_D), t)/(2*np.pi/(omega))
-	print(nus[K], D_parallels[K])
+	print(omegas[K], D_parallels[K])
 	np.save("data/total_D_kappa"+str(kappa)[:4], D_eff)
 
 	plt.figure(1)
@@ -343,5 +348,5 @@ for K in range(len(nus)):
 	plt.ylabel(r"Brenner field", fontsize=12)
 	plt.savefig("figures/Brenner_field_vs_t.pdf")
 	#plt.show()
-np.save("data/vary:nu", D_parallels)
+np.save("data/vary_omega", D_parallels)
 plt.show()
