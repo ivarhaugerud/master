@@ -123,7 +123,7 @@ for i in range(len(nu)):
 	D0[i] = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma**4 - rho**4))*(1/(gamma*gamma)*(gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c)) - 1/(rho*rho)*(rho/np.tanh(rho) - rho_c/np.tanh(rho_c)))
 
 plt.plot(nu, D)
-plt.plot(nu, 0.5*0.5*ana_D +D0 )
+plt.plot(nu, 0.25*0.25*ana_D +D0 )
 plt.xscale("log")
 plt.show()
 

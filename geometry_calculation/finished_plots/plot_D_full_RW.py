@@ -122,10 +122,16 @@ for i in range(len(epsilon)-1):
 			D_num[i+1, j]   = sci.trapz(numeric[i, j, -T:, 8], numeric[i, j, -T:, 0])/(tau)
 	#plt.show()
 
+ana_kappa = np.arange(0.2, 2.201, 0.4)
+ana_deff = np.load("../finite_element/data/D_parallels_kappa_D1.npy")
+
 plt.figure(3)
 for i in range(len(epsilon)):
 	plt.plot(kappa, D_num[i,:], color="C"+str(i), label=r"$\epsilon=$"+str(epsilon[i]))
 	plt.plot(kappa, D_num[i,:], "o", markersize=3, color="C"+str(i))
+	plt.plot(ana_kappa, epsilon[i]*epsilon[i]*ana_deff+D_num[0,0], "--", color="C"+str(i))
+
+
 plt.legend(loc="best", fontsize=8, ncol=2)
 plt.xlabel(r"Wave number $\kappa$", fontsize=8)
 plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
