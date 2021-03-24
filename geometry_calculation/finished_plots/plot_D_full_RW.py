@@ -15,17 +15,46 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 RW_sim_old  = np.load("../data_test/final_run_RW_D0.1.npy")
 RW_sim  = np.load("../data_test/RW_pos_03_03__D01.npy")
 
-numeric = np.load("../data_test/tdata_04_03_D01.npy")
 t = np.linspace(0, 300*3, len(RW_sim[0,0,:]))
-
-EPS = np.array([0.1, 0.2, 0.3])
 epsilon = np.array([0.1, 0.2, 0.3])
-eps_num = epsilon #np.arange(0.05, 0.51, 0.05)
 
 kappa       = np.array([0.2, 0.6, 1.0, 1.4, 1.7, 2.1]) #0.2
 kappa_num   = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2, 2.5]) #0.2
 
-print(len(kappa_num), np.shape(numeric))
+eps2 = np.arange(0.4, 0.501, 0.1)
+additional_RW = np.zeros((len(eps2), len(kappa_num), 2))
+for i in range(len(eps2)):
+	for j in range(len(kappa)):
+		data = np.load("../data_test/RW_eps_04_05/var_over_2Dm_D01_kappa%3.2f" %(kappa_num[j])+"_eps"+str(eps2[i])+"_periods400.npy")
+		t2 = np.linspace(0, 600*3, len(data))
+		cutoff = int(len(t2)/2)
+		print(data)
+		additional_RW[i, j, 0] = np.mean(data[cutoff:]/t2[cutoff:])
+		additional_RW[i, j, 1] = np.std( data[cutoff:]/t2[cutoff:])
+		#plt.plot(t2, data/t2)
+		#plt.plot(t2[cutoff:], data[cutoff:]/t2[cutoff:])
+	#plt.show()
+
+eps3 = np.array([0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50])
+T3 = int(3.0/0.004)
+Lx3 = np.array([31.41, 10.47, 6.283, 4.487, 3.49, 2.855])
+kappa3 = 2*np.pi/Lx3
+bren_D01 = np.zeros((len(eps3), len(kappa3)))
+difference = np.zeros(np.shape(bren_D01))
+
+for i in range(len(eps3)):
+	for j in range(len(kappa3)):
+		data = np.loadtxt("../data_test/tdatas_tau3.0_nu1.2_D0.1_fone12.0/Lx"+str(Lx3[j])+"_tau3.0_eps"+str(eps3[i])+"_nu1.2_D0.1_fzero0.0_fone12.0_res150_dt0.004/tdata.dat")
+		bren_D01[i,j] = sci.trapz(data[-T3:, 8], data[-T3:, 0])/3.0
+		difference[i, j] = abs(bren_D01[i,j]-sci.trapz(data[-2*T3:-T3, 8], data[-2*T3:-T3, 0])/3.0)/(bren_D01[i,j])
+		#plt.plot(data[:, 0], data[:, 8])
+		#plt.plot(data[-T3:, 0], data[-T3:, 8])
+	#plt.show()
+
+for i in range(len(eps3)):
+	plt.plot(kappa3, difference[i,:])
+plt.yscale("log")
+plt.show()
 tau = 3
 dt  = 0.004
 nu  = 1.2
@@ -44,39 +73,41 @@ D0_ana = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma
 
 cutoff = int(len(t)*0.5)
 D_RW  = np.zeros((len(epsilon), len(kappa), 2))
-RW_sim2  = np.zeros((len(EPS), len(kappa), 2))
-
-D_num = np.zeros((len(eps_num), len(kappa_num)))
-
-for i in range(len(eps_num)):
-	for j in range(len(kappa_num)):
-		D_num[i, j]   = sci.trapz(numeric[i, j, -T:, 8], numeric[i, j, -T:, 0])/(tau)
+RW_sim2  = np.zeros((len(epsilon), len(kappa), 2))
 
 for i in range(len(epsilon)):
 	for j in range(len(kappa)):
 		D_RW[i, j, 0] = np.mean(RW_sim[i, j, cutoff:]/t[cutoff:])
 		D_RW[i, j, 1] = np.std( RW_sim[i, j, cutoff:]/t[cutoff:])
 
-for i in range(len(EPS)):
+for i in range(len(epsilon)):
 	for j in range(len(kappa)):
 		RW_sim2[i, j, 0] = (np.mean(RW_sim_old[i, j, cutoff:]) + D_RW[i, j, 0])/2
-		RW_sim2[i, j, 1] = np.sqrt( np.std( RW_sim_old[i, j, cutoff:])**2 + D_RW[i, j, 1]**2 )
+		RW_sim2[i, j, 1] = np.sqrt( np.std( RW_sim_old[i, j, cutoff:])**2 + D_RW[i, j, 1]**2 )/np.sqrt(2)
 
 
 plt.figure(1)
 for i in range(len(epsilon)):
 	plt.errorbar(kappa, RW_sim2[i, :, 0], yerr=RW_sim2[i, :, 1], markersize=2, fmt="o", color="C"+str(i), label=r"$\epsilon = $"+str(epsilon[i]))
-	plt.plot(kappa_num, D_num[i,:], color="C"+str(i))
-plt.legend(loc="best", ncol=3, fontsize=8)
+	#plt.plot(kappa_num, D_num[i,:], color="C"+str(i))
+for i in range(len(eps2)):
+	plt.errorbar(kappa_num, additional_RW[i, :, 0], yerr=additional_RW[i, :, 1], markersize=2, fmt="o", color="C"+str(i+3), label=r"$\epsilon = $"+str(eps2[i]))
+
+counter = 0
+for i in range(len(eps3)):
+	if (i + 1)%2 == 0:
+		plt.plot(kappa3, bren_D01[i,:], color="C"+str(counter))
+		counter += 1
 plt.plot(kappa_num+np.linspace(-2, 2, len(kappa_num)), np.ones(len(kappa_num))*D0_ana, "k", label=r"$\epsilon = 0$")
+plt.legend(loc="upper center", ncol=3, fontsize=8)
 plt.xlabel(r"Wave number $\kappa$", fontsize=8)
-plt.axis([0.05, 2.55, 1.65, 2.5])
+plt.axis([0.05, 2.35, 1.15, 2.76])
 plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-#filename = root+"figures/comparison_RW_brenner.pdf"
-#plt.savefig(filename, bbox_inches="tight")
-#os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+filename = root+"figures/comparison_RW_brenner.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 
 
 
@@ -122,14 +153,10 @@ for i in range(len(epsilon)-1):
 			D_num[i+1, j]   = sci.trapz(numeric[i, j, -T:, 8], numeric[i, j, -T:, 0])/(tau)
 	#plt.show()
 
-ana_kappa = np.arange(0.2, 2.201, 0.4)
-ana_deff = np.load("../finite_element/data/D_parallels_kappa_D1.npy")
-
 plt.figure(3)
 for i in range(len(epsilon)):
 	plt.plot(kappa, D_num[i,:], color="C"+str(i), label=r"$\epsilon=$"+str(epsilon[i]))
 	plt.plot(kappa, D_num[i,:], "o", markersize=3, color="C"+str(i))
-	plt.plot(ana_kappa, epsilon[i]*epsilon[i]*ana_deff+D_num[0,0], "--", color="C"+str(i))
 
 
 plt.legend(loc="best", fontsize=8, ncol=2)
