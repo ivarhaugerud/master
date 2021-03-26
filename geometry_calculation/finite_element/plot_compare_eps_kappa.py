@@ -12,49 +12,15 @@ matplotlib.rc('ytick', labelsize=8)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-RW_sim_old  = np.load("../data_test/final_run_RW_D0.1.npy")
-RW_sim  = np.load("../data_test/RW_pos_03_03__D01.npy")
 
-t = np.linspace(0, 300*3, len(RW_sim[0,0,:]))
-epsilon = np.array([0.1, 0.2, 0.3])
+numeric = np.load("../data_test/tdata_04_03_D01.npy")
+
+eps_num = np.array([0.1, 0.2, 0.3])#np.arange(0.05, 0.51, 0.05)
+epsilon = eps_num
 
 kappa       = np.array([0.2, 0.6, 1.0, 1.4, 1.7, 2.1]) #0.2
-kappa_num   = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2, 2.5]) #0.2
-
-eps2 = np.arange(0.4, 0.501, 0.1)
-additional_RW = np.zeros((len(eps2), len(kappa_num), 2))
-for i in range(len(eps2)):
-	for j in range(len(kappa)):
-		data = np.load("../data_test/RW_eps_04_05/var_over_2Dm_D01_kappa%3.2f" %(kappa_num[j])+"_eps"+str(eps2[i])+"_periods400.npy")
-		t2 = np.linspace(0, 600*3, len(data))
-		cutoff = int(len(t2)/2)
-		print(data)
-		additional_RW[i, j, 0] = np.mean(data[cutoff:]/t2[cutoff:])
-		additional_RW[i, j, 1] = np.std( data[cutoff:]/t2[cutoff:])
-		#plt.plot(t2, data/t2)
-		#plt.plot(t2[cutoff:], data[cutoff:]/t2[cutoff:])
-	#plt.show()
-
-eps3 = np.array([0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50])
-T3 = int(3.0/0.004)
-Lx3 = np.array([31.41, 10.47, 6.283, 4.487, 3.49, 2.855])
-kappa3 = 2*np.pi/Lx3
-bren_D01 = np.zeros((len(eps3), len(kappa3)))
-difference = np.zeros(np.shape(bren_D01))
-
-for i in range(len(eps3)):
-	for j in range(len(kappa3)):
-		data = np.loadtxt("../data_test/tdatas_tau3.0_nu1.2_D0.1_fone12.0/Lx"+str(Lx3[j])+"_tau3.0_eps"+str(eps3[i])+"_nu1.2_D0.1_fzero0.0_fone12.0_res150_dt0.004/tdata.dat")
-		bren_D01[i,j] = sci.trapz(data[-T3:, 8], data[-T3:, 0])/3.0
-		difference[i, j] = abs(bren_D01[i,j]-sci.trapz(data[-2*T3:-T3, 8], data[-2*T3:-T3, 0])/3.0)/(bren_D01[i,j])
-		#plt.plot(data[:, 0], data[:, 8])
-		#plt.plot(data[-T3:, 0], data[-T3:, 8])
-	#plt.show()
-
-for i in range(len(eps3)):
-	plt.plot(kappa3, difference[i,:])
-plt.yscale("log")
-plt.show()
+kappa_num   = kappa#np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2, 2.5]) #0.2
+print(np.shape(numeric))
 tau = 3
 dt  = 0.004
 nu  = 1.2
@@ -70,88 +36,66 @@ rho_c = np.conj(rho)
 T = int(tau/dt)
 
 D0_ana = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma**4 - rho**4))*(1/(gamma*gamma)*(gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c)) - 1/(rho*rho)*(rho/np.tanh(rho) - rho_c/np.tanh(rho_c)))
+D_num = np.zeros((len(epsilon), len(kappa)))
+differene = np.zeros(np.shape(D_num))
 
-cutoff = int(len(t)*0.5)
-D_RW  = np.zeros((len(epsilon), len(kappa), 2))
-RW_sim2  = np.zeros((len(epsilon), len(kappa), 2))
-
+print(np.shape(numeric))
 for i in range(len(epsilon)):
 	for j in range(len(kappa)):
-		D_RW[i, j, 0] = np.mean(RW_sim[i, j, cutoff:]/t[cutoff:])
-		D_RW[i, j, 1] = np.std( RW_sim[i, j, cutoff:]/t[cutoff:])
-
-for i in range(len(epsilon)):
-	for j in range(len(kappa)):
-		RW_sim2[i, j, 0] = (np.mean(RW_sim_old[i, j, cutoff:]) + D_RW[i, j, 0])/2
-		RW_sim2[i, j, 1] = np.sqrt( np.std( RW_sim_old[i, j, cutoff:])**2 + D_RW[i, j, 1]**2 )/np.sqrt(2)
-
-
-plt.figure(1)
-for i in range(len(epsilon)):
-	plt.errorbar(kappa, RW_sim2[i, :, 0], yerr=RW_sim2[i, :, 1], markersize=2, fmt="o", color="C"+str(i), label=r"$\epsilon = $"+str(epsilon[i]))
-	#plt.plot(kappa_num, D_num[i,:], color="C"+str(i))
-for i in range(len(eps2)):
-	plt.errorbar(kappa_num, additional_RW[i, :, 0], yerr=additional_RW[i, :, 1], markersize=2, fmt="o", color="C"+str(i+3), label=r"$\epsilon = $"+str(eps2[i]))
-
-counter = 0
-for i in range(len(eps3)):
-	if (i + 1)%2 == 0:
-		plt.plot(kappa3, bren_D01[i,:], color="C"+str(counter))
-		counter += 1
-plt.plot(kappa_num+np.linspace(-2, 2, len(kappa_num)), np.ones(len(kappa_num))*D0_ana, "k", label=r"$\epsilon = 0$")
-plt.legend(loc="upper center", ncol=3, fontsize=8)
-plt.xlabel(r"Wave number $\kappa$", fontsize=8)
-plt.axis([0.05, 2.35, 1.15, 2.76])
-plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
-plt.tick_params(axis='both', which='major', labelsize=8)
-plt.tick_params(axis='both', which='minor', labelsize=8)
-filename = root+"figures/comparison_RW_brenner.pdf"
-plt.savefig(filename, bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
-
-
-
+		D_num[i, j]        = sci.trapz(numeric[i, j, -T:, 8], numeric[i, j, -T:, 0])/(tau)
+		differene[i, j]   = abs(D_num[i,j]-sci.trapz(numeric[i, j, -2*T:-T, 8], numeric[i, j, -2*T:-T, 0])/(tau))/D_num[i,j]
+		#plt.plot(numeric[i, j, :, 0], numeric[i, j, :, 8])
+		#plt.plot(numeric[i, j, -T:, 0], numeric[i, j, -T:, 8])
+	#plt.show()
+"""
+for i in range(len(kappa)):
+	plt.plot(epsilon, differene[:, i])
+plt.yscale("log")
+plt.show()
+"""
 numeric = np.load("../data_test/tdata_03_03_D01_.npy")
+print(np.shape(numeric))
 epsilon = np.array([0.0, 0.1, 0.2, 0.3, 0.5])
 kappa   = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2]) #0.2
 D_num = np.zeros((len(epsilon), len(kappa)))
 D_num[0, :] = D0_ana
-
-D_ana = np.load("../finite_element/data/vary_kappa_D0.1.npy")
 
 for i in range(len(epsilon)-1):
 	for j in range(len(kappa)):
 		D_num[i+1, j]   = sci.trapz(numeric[i, j, -T:, 8], numeric[i, j, -T:, 0])/(tau)
 
 plt.figure(2)
+ana_kappa     = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2]) #0.2
+ana_deff = np.load("../finite_element/data/vary_kappa_single.npy")[:-1]
 for i in range(len(kappa)):
 	plt.plot(epsilon, D_num[:,i], color="C"+str(i), label=r"$\kappa=$"+str(kappa_num[i]))
-	plt.plot(epsilon, D_ana[i]*epsilon*epsilon + D0_ana, "o", color="C"+str(i))
+	plt.plot(epsilon, epsilon*epsilon*ana_deff[i,0]+D0_ana, "o", markersize=3, color="C"+str(i))
 plt.legend(loc="best", fontsize=8)
 plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=8)
 plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-#filename = root+"figures/D_eff_vs_eps_D01.pdf"
-#plt.savefig(filename, bbox_inches="tight")
-#os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 
-plt.figure(10)
-for i in range(len(kappa[:3])):
-	#plt.plot(epsilon, D_num[:,i], color="C"+str(i), label=r"$\kappa=$"+str(kappa_num[i]))
-	plt.plot(epsilon, abs(-D_num[:,i] + D_ana[i]*epsilon*epsilon + D0_ana)/D_num[:,i], "o", label=r"$\kappa=$%3.2f" % kappa[i])
-plt.plot(epsilon, epsilon**4, "k")
-plt.plot(epsilon, epsilon**2, "r")
+
+plt.figure(5)
+ana_kappa     = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2]) #0.2
+ana_deff = np.load("../finite_element/data/vary_kappa_single.npy")[:-1]
+for i in range(len(kappa)):
+	plt.plot(epsilon, 1e-5+abs(D_num[:,i]-(D0_ana+epsilon*epsilon*ana_deff[i,0]))/(D_num[:,i]), color="C"+str(i), label=r"$\kappa=$"+str(kappa_num[i]))
+	#plt.plot(epsilon, epsilon*epsilon*ana_deff[i,0], "--", color="C"+str(i))
+E = np.linspace(0.05, max(epsilon), int(1e4))
+plt.plot(E, E**4, "ok", label=r"$\epsilon^4$", markersize=1.5)
+plt.xscale("log")
 plt.legend(loc="best", fontsize=8)
+plt.yscale("log")
 plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=8)
-plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
+plt.ylabel(r"$(D_\parallel-D_\parallel^{(2)})$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-plt.yscale("log")
+#plt.show()
 #filename = root+"figures/D_eff_vs_eps_D01.pdf"
 #plt.savefig(filename, bbox_inches="tight")
 #os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
-plt.show()
 
 numeric = np.load("../data_test/tdata_04_03_D1_.npy")
 epsilon = np.array([0.0, 0.1, 0.2, 0.3])
@@ -165,18 +109,19 @@ D_num[0, :] = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(
 
 for i in range(len(epsilon)-1):
 	for j in range(len(kappa)):
-		#plt.plot(numeric[i, j,   :, 0], numeric[i, j,   :, 8])
-		#plt.plot(numeric[i, j, -T:, 0], numeric[i, j, -T:, 8])
 		if i == 2:
 			D_num[i+1, j]   = sci.trapz(numeric[i, j, -2*T:-T, 8], numeric[i, j, -2*T:-T, 0])/(tau)
 		else:
 			D_num[i+1, j]   = sci.trapz(numeric[i, j, -T:, 8], numeric[i, j, -T:, 0])/(tau)
-	#plt.show()
+
+ana_kappa     = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2]) #0.2
+ana_deff = np.load("../finite_element/data/vary_kappa_single_D1.npy")[:-1]
 
 plt.figure(3)
 for i in range(len(epsilon)):
 	plt.plot(kappa, D_num[i,:], color="C"+str(i), label=r"$\epsilon=$"+str(epsilon[i]))
 	plt.plot(kappa, D_num[i,:], "o", markersize=3, color="C"+str(i))
+	plt.plot(ana_kappa, epsilon[i]*epsilon[i]*ana_deff+D_num[0,0], "--", color="C"+str(i))
 
 
 plt.legend(loc="best", fontsize=8, ncol=2)
@@ -184,11 +129,30 @@ plt.xlabel(r"Wave number $\kappa$", fontsize=8)
 plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-#filename = root+"figures/D_eff_vs_eps_D1.pdf"
-#plt.savefig(filename, bbox_inches="tight")
-#os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+
+plt.figure(4)
+print(np.shape(D_num))
+print(np.shape(epsilon))
+print(np.shape(kappa))
+
+for i in range(len(kappa)):
+	plt.plot(epsilon, abs((1e-5+D_num[:,i]-(epsilon*epsilon*ana_deff[i]+D_num[0,0]))), color="C"+str(i), label=r"$\kappa=$"+str(kappa[i]))
+	plt.plot(epsilon, abs((1e-5+D_num[:,i]-(epsilon*epsilon*ana_deff[i]+D_num[0,0]))), "o", color="C"+str(i), markersize=3)
+	#plt.plot(ana_kappa, epsilon[i]*epsilon[i]*ana_deff+D_num[0,0], "--", color="C"+str(i))
+
+E = np.linspace(0.05, 0.3, int(1e4))
+plt.plot(E, E**4, "ok", label=r"$\epsilon^4$", markersize=1.5)
+plt.xscale("log")
+plt.yscale("log")
+plt.legend(loc="best", fontsize=8, ncol=2)
+plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=8)
+plt.ylabel(r"$(D_\parallel-D_\parallel^{(2)})$", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
 
 
+plt.show()
+"""
 numeric = np.load("../data_test/tdata_04_03_D10_.npy")
 epsilon = np.array([0.0, 0.1, 0.2, 0.3, 0.4, 0.5])
 kappa   = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2]) #0.2
@@ -232,3 +196,4 @@ plt.show()
 
 
 
+"""

@@ -11,7 +11,7 @@ D = np.zeros((len(kappa), len(tau)))
 difference = np.zeros(np.shape(D))
 dt = tau/500
 #dt[1:5] = tau[1:5]/500
-Ts = np.ones(len(tau), dtype="int")*int(750)
+Ts = np.ones(len(tau), dtype="int")*int(500)
 #Ts[1:5] = np.ones(len(tau[1:5]), dtype="int")*int(500)
 
 for i in range(len(kappa)):
@@ -29,7 +29,7 @@ for i in range(len(kappa)):
 for i in range(len(tau)):
 	plt.plot(kappa, D[:, i], label=str(tau[i]))
 
-#plt.xscale("log")
-plt.yscale("log")
+plt.xscale("log")
+#plt.yscale("log")
 plt.legend(loc="best")
 plt.show()
