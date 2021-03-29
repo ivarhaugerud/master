@@ -25,9 +25,13 @@ T = int(3.0/0.004)
 tau = 3.0
 omega = 2*np.pi/tau
 
-for i in range(len(epsilon)):
+for i in range(len(epsilon)-2):
 	res = int(100*(1+2*epsilon[i]))
-	data = np.loadtxt(base+"Lx4.48_tau3.0_eps"+str(epsilon[i])+"_nu1.2_D0.5_fzero0.0_fone12.0_res"+str(res)+"_dt0.004/tdata.dat")
+	if epsilon[i] < 0.55:
+		data = np.loadtxt(base+"Lx4.48_tau3.0_eps"+str(epsilon[i])+"_nu1.2_D0.5_fzero0.0_fone12.0_res"+str(res)+"_dt0.004/tdata.dat")
+
+	else:
+		data = np.loadtxt(base+"Lx4.48_tau3.0_eps"+str(epsilon[i])+"_nu1.2_D0.5_fzero0.0_fone12.0_res120_dt0.003/tdata.dat")
 	try:
 		D[i] = sci.trapz(  data[-T:, 8],  data[-T:, 0] )/tau
 		U[i] = sci.trapz(  data[-T:, 4],  data[-T:, 0] )/tau

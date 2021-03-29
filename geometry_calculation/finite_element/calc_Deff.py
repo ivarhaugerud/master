@@ -455,7 +455,7 @@ for i in range(len(new_k)):
 	D_eff[i] = scpi.trapz(D_eff_xi[:, i], xi)/2
 	total_D += np.exp(1j*omega*new_k[i]*t)*D_eff[i]
 
-#print("HERE:", np.max(np.imag(total_D)))
+#print("HERE:", np.max(np.imag(total_D)))B_1
 
 D_parallels = scpi.trapz(np.real(total_D), t)/(2*np.pi/(omega))
 print("D_eff = ", D_parallels)

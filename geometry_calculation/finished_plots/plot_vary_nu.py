@@ -13,8 +13,9 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 root = "../../../master_latex/results/"
 
 
-Lx = np.array([3.14, 4.48, 7.85])
+Lx = np.array([2.41, 3.14, 4.48, 7.85])
 kappa = 2*np.pi/Lx
+kappa[0] = 2.60
 nu = np.logspace(-2, 2, 10)[:9]
 
 base = "../data_test/vary_nu/"
@@ -29,15 +30,19 @@ print(nu)
 
 for j in range(len(kappa)):
 	for i in range(len(nu)):
-		data = np.loadtxt(base+"Lx"+str(Lx[j]) + "_tau3.0_eps0.5_nu" + str(nu[i])[:4]+"_D1.0_fzero0.0_fone" + str(12*nu[i])[:5] + "_res150_dt0.004/tdata.dat")
-		print(np.shape(data), np.shape(D))
-		D[j, i] = sci.trapz(  data[-T:, 8],  data[-T:, 0] )/tau
-		U[j, i] = sci.trapz(  data[-T:, 4],  data[-T:, 0] )/tau
-		#plt.scatter(nu[i], data[-1, 0]/tau)
-		difference[j, i] = abs(D[j,i] - sci.trapz(  data[-2*T:-T, 8],  data[-2*T:-T, 0] )/tau)/D[j, i]
-		#plt.plot(np.trim_zeros(data[:, 0])/tau, np.trim_zeros(data[:, 8]))
-		#plt.plot(np.trim_zeros(data[:, 0])[-T:]/tau, np.trim_zeros(data[:, 8])[-T:])
-		#plt.show()
+		try:
+			data = np.loadtxt(base+"Lx"+str(Lx[j]) + "_tau3.0_eps0.5_nu" + str(nu[i])[:4]+"_D1.0_fzero0.0_fone" + str(12*nu[i])[:5] + "_res150_dt0.004/tdata.dat")
+			print(np.shape(data))
+			T = 750
+			D[j, i] = sci.trapz(  data[-T:, 8],  data[-T:, 0] )/tau
+			U[j, i] = sci.trapz(  data[-T:, 4],  data[-T:, 0] )/tau
+			#plt.scatter(nu[i], data[-1, 0]/tau)
+			difference[j, i] = abs(D[j,i] - sci.trapz(  data[-2*T:-T, 8],  data[-2*T:-T, 0] )/tau)/D[j, i]
+			#plt.plot(np.trim_zeros(data[:, 0])/tau, np.trim_zeros(data[:, 8]))
+			#plt.plot(np.trim_zeros(data[:, 0])[-T:]/tau, np.trim_zeros(data[:, 8])[-T:])
+			#plt.show()
+		except:
+			print("Did not work for ", nu[i], kappa[j])
 
 interpool_nu = np.logspace(np.log10(min(nu)), np.log10(max(nu)), int(1e4))
 plt.figure(2)
@@ -58,10 +63,19 @@ plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
-"""
+
+plt.show()
+for i in range(len(Lx)):
+	ind = len(Lx)-1-i
+	plt.plot((omega/nu), difference[ind, :], "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[ind], markersize=3)
+	#plt.plot((omega/nu), D[ind, :], color="C"+str(i), linewidth=1)
+plt.yscale("log")
+plt.show()
+
+
 plt.figure(3)
 for i in range(len(Lx)):
-	plt.plot(nu, U[i, :], "o")
+	plt.plot(omega/nu, U[i, :], "o")
 
 plt.xscale("log")
 plt.ylabel(r"$\langle u^2 \rangle $")
@@ -79,4 +93,3 @@ plt.yscale("log")
 plt.legend(loc="best")
 
 plt.show()
-"""
