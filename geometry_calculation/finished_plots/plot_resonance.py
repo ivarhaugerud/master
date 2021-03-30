@@ -1,12 +1,21 @@
+import os
 import numpy as np 
 import matplotlib.pyplot as plt 
 import scipy.integrate as sci
+
+plt.style.use(['science','no-latex', 'grid'])
+import matplotlib
+matplotlib.rc('xtick', labelsize=8)
+matplotlib.rc('ytick', labelsize=8)
+matplotlib.rcParams['mathtext.fontset'] = 'stix'
+matplotlib.rcParams['font.family'] = 'STIXGeneral'	
+root = "../../../master_latex/results/"
 
 tau = np.array([2.0, 2.6, 3.69])
 Lx = np.array([4.487, 4.654, 4.833, 5.026, 5.235, 5.463, 5.711, 5.983, 6.283, 6.613, 6.981, 7.391, 7.853, 8.377, 8.975])
 kappa = 2*np.pi/Lx 
 
-base = "data_test/find_resonance_try3/"
+base = "../data_test/find_resonance_try3/"
 D = np.zeros((len(kappa), len(tau)))
 difference = np.zeros(np.shape(D))
 dt = tau/500
@@ -27,10 +36,24 @@ for i in range(len(kappa)):
 			#plt.title(str(kappa[i]) + ","+ str(tau[j]))
 			#plt.show()
 
-for i in range(len(tau)):
-	plt.plot(kappa, D[:, i], "o", label=str(tau[i]))
+gamma = np.sqrt(2*np.pi/(tau*1.2))
 
-#plt.xscale("log")
-#plt.yscale("log")
-plt.legend(loc="best")
+
+for i in range(len(tau)):
+	plt.plot(kappa, difference[:, i], "o", markersize=3, label=r"$\gamma=%3.2f$" % gamma[i])
+plt.yscale("log")
+plt.show()
+
+for i in range(len(tau)):
+	plt.plot(kappa, D[:, i], "o", markersize=3, label=r"$\gamma=%3.2f$" % gamma[i])
+
+plt.axis([0.65, 1.45, 0.84, 0.98])
+plt.xlabel(r" Wave number $\kappa$", fontsize=8)
+plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel $",  fontsize=8)
+plt.legend(loc="best", fontsize=8, ncol=len(tau))
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+filename = root + "figures/semi_ana_resonance.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()

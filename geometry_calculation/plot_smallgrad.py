@@ -13,35 +13,35 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 root = "../../../master_latex/results/"
 
 
-Lx = np.array([125.66, 62.83])#, 41.89])
+Lx = np.array([125.66])#, 62.83])#, 41.89])
 kappa = 2*np.pi/Lx
-epsilon = np.array([0.0178, 0.0316, 0.056, 0.1, 0.177])
-base = "data_test/benchmark/"
+epsilon = np.array([0.0, 0.0178, 0.0316, 0.056, 0.1, 0.177, 0.245, 0.31])
+base = "data_test/benchmark_2/"
 
 D          = np.zeros((len(epsilon), len(Lx)))
 difference = np.zeros(np.shape(D))
 U          = np.zeros(np.shape(D))
 
-T = int(3.0/(0.5*0.003))
-tau = 3.0*2
+T = int(6/(0.006))
+tau = 6
 omega = 2*np.pi/tau
 
 for i in range(len(epsilon)):
 	for j in range(len(kappa)):
-		res = int(100*(1+4*epsilon[i]))
-		data = np.loadtxt(base+"Lx"+str(Lx[j])+"_tau3.0_eps"+str(epsilon[i])+"_nu1.2_D1.0_fzero0.0_fone12.0_res"+str(res)+"_dt0.003/tdata.dat")
+		res = int(170)
+		data = np.loadtxt(base+"Lx"+str(Lx[j])+"_tau6.0_eps"+str(epsilon[i])+"_nu100.0_D0.5_fzero0.0_fone1000.0_res"+str(res)+"_dt0.006/tdata.dat")
 		D[i, j] = sci.trapz(  data[-T:, 8],  data[-T:, 0] )/tau
 		U[i, j] = sci.trapz(  data[-T:, 4],  data[-T:, 0] )/tau
 		difference[i, j] = abs(D[i,j] - sci.trapz(  data[-2*T:-T, 8],  data[-2*T:-T, 0] )/tau)/D[i,j]
 		plt.plot(np.trim_zeros(data[:, 0])/tau, np.trim_zeros(data[:, 8]))
 		plt.plot(np.trim_zeros(data[:, 0])[-T:]/tau, np.trim_zeros(data[:, 8])[-T:])
-	plt.show()
+		plt.show()
 
 
-tau = 3
-nu  = 1.2
-Dm   = 1.0
-F0  = 12/nu 
+tau = 6.0
+nu  = 100
+Dm   = 0.5
+F0  = 1000/nu 
 omega = 2*np.pi/tau
 Pe = 1/Dm
 gamma = np.sqrt(1j*omega/nu)
