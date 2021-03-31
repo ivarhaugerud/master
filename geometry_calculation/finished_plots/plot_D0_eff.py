@@ -16,8 +16,8 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
 F0 = 3
 Pe = 1.0
-D   = np.logspace(-3, 3, 300)
-n   = np.logspace(-3.001, 3.001, 300)
+D   = np.logspace(-2, 3, 300)
+n   = np.logspace(-2.001, 3.001, 350)
 Gamma = np.sqrt(1j/n)
 rho   = np.sqrt(1j/D)
 Gamma_c = np.conjugate(Gamma)
@@ -26,6 +26,9 @@ from numpy import *
 
 D_eff  = np.zeros((len(D), len(n), 2))
 D_eff2 = np.zeros((len(D), len(n), 2))
+
+G = np.sqrt(1/n)
+R = np.sqrt(1/D)
 
 for i in range(len(n)):
     gamma = Gamma[i]
@@ -36,26 +39,25 @@ for i in range(len(n)):
     D_eff[:, i, 1] = 2*np.sqrt(np.real(amp)**2 + np.imag(amp)**2)
 D_eff *= 18*105/2
 
-"""
 fig = plt.figure(1)
-x_, y_ = np.meshgrid(D, n)
+x_, y_ = np.meshgrid(R, G)
 
 ax1 = plt.contourf(x_,y_, np.transpose((D_eff[:,:,0])), levels=np.linspace(0, 1.001, 11))
 cbar = fig.colorbar(ax1, format='%1.2f')
 cbar.ax.set_ylabel(r'Geometric factor $g$', fontsize=8)
 plt.xscale('log')
 plt.yscale('log')
-plt.xlabel(r"Molecular Womserley number $\frac{\omega a^2}{D}$", fontsize=8)
-plt.ylabel(r"Womserley number $\frac{\omega a^2}{\nu}$", fontsize=8)
+plt.xlabel(r"Diffusive Womserley number $\sqrt{\frac{\omega a^2}{D}}$", fontsize=8)
+plt.ylabel(r"Womserley number $\sqrt{\frac{\omega a^2}{\nu}}$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
 filename = root + "figures/D_0_eff.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
-"""
 
-Schmidt = np.logspace(-3.6, 2.6, int(1e4))
+"""
+Schmidt = np.logspace(-4, 4, int(1e4))
 D = np.logspace(-3, 2, 6)
 Pe = 1/D
 rhos = np.sqrt(1j/D)
@@ -66,8 +68,8 @@ D_eff2 = np.zeros((len(Schmidt), len(rhos), 2))
 for i in range(len(rhos)):
 	rho   = rhos[i]
 	rho_c = rhos_c[i]
-	gamma = rho*np.sqrt(Schmidt)
-	gamma_c = rho_c*np.sqrt(Schmidt)
+	gamma = rho/np.sqrt(Schmidt)
+	gamma_c = np.conjugate(gamma)
 
 	D_eff2[:, i, 0] = 1+ F0*F0*Pe[i]*Pe[i]*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma**4 - rho**4))*(1/(gamma*gamma)*(gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c)) - 1/(rho*rho)*(rho/np.tanh(rho) - rho_c/np.tanh(rho_c)))    
 	amp = F0*F0*Pe[i]*Pe[i]*tanh(gamma)*tanh(gamma)/(4*gamma*gamma*(rho*rho-gamma*gamma)**2) * ( (1/(rho*tanh(rho)) - 1/(sinh(rho)**2) + 1/(gamma*tanh(gamma)) - 1/(sinh(gamma)**2) - 4*(rho/tanh(rho) - gamma/tanh(gamma))/(rho*rho-gamma*gamma))/2)
@@ -90,3 +92,4 @@ filename = root + "figures/D0_vs_Schmidt.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
+"""
