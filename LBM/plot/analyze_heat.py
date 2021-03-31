@@ -5,13 +5,13 @@ import os
 import matplotlib
 import pandas as pd 
 
-plt.style.use("bmh")
-sns.color_palette("hls", 1)
-
-matplotlib.rc('xtick', labelsize=14)
-matplotlib.rc('ytick', labelsize=14)
+plt.style.use(['science','no-latex', 'grid'])
+import matplotlib
+matplotlib.rc('xtick', labelsize=8)
+matplotlib.rc('ytick', labelsize=8)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
+root = "../../../master_latex/results/"
 
 Nx = 140
 Ny = 64
@@ -44,14 +44,18 @@ x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
 plt.figure(1)
-plt.plot(t, C_back[Dx, Dy, :]*1e3, label=r"$C_{A_{matter}}(\mathbf{x}_B, t)$")
-plt.plot(t, C_front[Sx, Sy, :]*1e3, "--", label=r"$C_{B_{heat}}(\mathbf{x}_A, t)$")
-plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
-plt.ylabel(r"Normalized concentration $\times 10^3$", fontsize=14)
-plt.axis([0.3, 1.01, -0.00005, 0.002])
-plt.legend(loc="best", fontsize=16)
-plt.savefig("../powerpoint/figures/recirpocal_heatmatter.pdf", bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/recirpocal_heatmatter.pdf", "../powerpoint/figures/recirpocal_heatmatter.pdf"))
+plt.plot(t, C_back[Dx, Dy, :]/max(C_back[Dx, Dy,  10:]), label=r"$C_{A_{matter}}(\mathbf{x}_B, t)$")
+plt.plot(t, C_front[Sx, Sy, :]/max(C_back[Dx, Dy, 10:]), color="C3", label=r"$C_{B_{heat}}(\mathbf{x}_A, t)$")
+plt.xlabel(r"Time [$T_{max}$]", fontsize=8)
+plt.ylabel(r"Normalized Concentration", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+plt.axis([0.2, 1.05, -0.05, 1.03])
+plt.legend(loc="best", fontsize=8)
+filename = root + "heat_and_matter.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+plt.show()
 
 u = np.loadtxt("../data/2003_oneway___u.txt")
 u_x = u[0, :]
@@ -90,4 +94,3 @@ Pe = average_disc_diameter*U/D
 print("Reynolds number: ", Re)
 print("Peclet number: ", Pe)
 plt.show()
-

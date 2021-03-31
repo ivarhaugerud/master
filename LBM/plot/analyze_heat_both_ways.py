@@ -5,13 +5,13 @@ import os
 import matplotlib
 import pandas as pd 
 
-plt.style.use("bmh")
-sns.color_palette("hls", 1)
-
-matplotlib.rc('xtick', labelsize=14)
-matplotlib.rc('ytick', labelsize=14)
+plt.style.use(['science','no-latex', 'grid'])
+import matplotlib
+matplotlib.rc('xtick', labelsize=8)
+matplotlib.rc('ytick', labelsize=8)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
+root = "../../../master_latex/results/"
 
 Nx = 140
 Ny = 64
@@ -45,14 +45,18 @@ x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
 plt.figure(1)
-plt.plot(t, C_front[Sx, Sy, :]*1e3, label=r"$C_A(\mathbf{x}_B, t)$")
-plt.plot(t, C_back[Dx, Dy, :]*1e3, "--", label=r"$C_B(\mathbf{x}_A, t)$")
-plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
-plt.ylabel(r"Concentration $\times 10^3$", fontsize=14)
-plt.axis([0.05, 1.05, -0.003, 0.06])
-plt.legend(loc="best", fontsize=14)
-plt.savefig("../powerpoint/figures/heat_both_ways.pdf", bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/heat_both_ways.pdf", "../powerpoint/figures/heat_both_ways.pdf"))
+plt.plot(t, C_front[Sx, Sy, :]/max(C_front[Sx,Sy,:]), label=r"$C_A(\mathbf{x}_B, t)$")
+plt.plot(t, C_back[Dx, Dy, :]/max(C_front[Sx,Sy,:]), "--", color="C3", label=r"$C_B(\mathbf{x}_A, t)$")
+
+plt.xlabel(r"Time [$T_{max}$]", fontsize=8)
+plt.ylabel(r"Normalized Concentration", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+plt.axis([0.05, 1.05, -0.05, 1.03])
+plt.legend(loc="best", fontsize=8)
+filename = root + "heat_both_ways.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 
 plt.show()
 u = np.loadtxt("../data/0303heat_F10-7_heat_u.txt")
@@ -75,8 +79,8 @@ plt.axis("equal")
 plt.plot([Sy], [Sx], "o", color="k", label="Drain")
 plt.plot([Dy], [Dx], "o", color=sns.color_palette()[1], label="Source")
 plt.legend(loc="best", fontsize=12)
-plt.savefig("../figures/reciprocal_symmetry3.pdf", bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%("../figures/reciprocal_symmetry3.pdf", "../figures/reciprocal_symmetry3.pdf"))
+#plt.savefig("../figures/reciprocal_symmetry3.pdf", bbox_inches="tight")
+#os.system('pdfcrop %s %s &> /dev/null &'%("../figures/reciprocal_symmetry3.pdf", "../figures/reciprocal_symmetry3.pdf"))
 
 boundary_size = np.sum(np.where(abs(u) < 1e-8)[0])
 print(boundary_size)
