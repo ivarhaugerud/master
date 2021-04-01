@@ -5,13 +5,13 @@ import os
 import matplotlib
 import pandas as pd 
 
-plt.style.use("bmh")
-sns.color_palette("hls", 1)
-
-matplotlib.rc('xtick', labelsize=14)
-matplotlib.rc('ytick', labelsize=14)
+plt.style.use(['science','no-latex', 'grid'])
+import matplotlib
+matplotlib.rc('xtick', labelsize=8)
+matplotlib.rc('ytick', labelsize=8)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
+root = "../../../master_latex/results/"
 
 Nx = 140
 Ny = 64
@@ -34,34 +34,41 @@ for i in range(datafiles):
 	data_front = np.loadtxt("../data/1102reciproc_2_C_"+str(i)+"_front.txt")
 	C_front[:, :, i] = (np.reshape(data_front, (Nx, Ny)))
 
-C_back  /= np.sum(np.sum(C_back[:,:, 0]))
-C_front /= np.sum(np.sum(C_front[:,:, 0]))
+#C_back  /= np.sum(np.sum(C_back[:,:, 0]))
+#C_front /= np.sum(np.sum(C_front[:,:, 0]))
 
 x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
 plt.figure(2)
-plt.plot(t,  C_back[Dx, Dy, :]*1e3, label=r"$C_{A}(\mathbf{x}_B, t)$")
-plt.plot(t, C_front[Sx, Sy, :]*1e3, label=r"$C_{B}(\mathbf{x}_A, t)$")
-plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
-plt.ylabel(r"Normalized concentration $\times 10^3$", fontsize=14)
-plt.axis([0.13, 1.02, -0.03, 0.45])
-plt.legend(loc="best", fontsize=16, ncol=2)
-plt.savefig("../powerpoint/figures/same_peclet.pdf", bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/same_peclet.pdf", "../powerpoint/figures/same_peclet.pdf"))
+plt.plot(t,  C_back[Dx, Dy, :]/max(C_back[Dx,Dy, 30:]), label=r"$C_{A}(\mathbf{x}_B, t)$")
+plt.plot(t, C_front[Sx, Sy, :]/max(C_back[Dx,Dy, 30:]), color="C3", label=r"$C_{B}(\mathbf{x}_A, t)$")
+plt.axis([0.10, 1.025, -0.025, 1.05])
+plt.xlabel(r"Time [$T_{max}$]", fontsize=8)
+plt.ylabel(r"Normalized Concentration", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+plt.legend(loc="best", fontsize=8, ncol=3)
+filename = root + "same_Pe.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
+
 
 plt.figure(2)
-plt.plot(t*2, C_back[Dx, Dy, :]*1e3, label=r"$C_{A}(\mathbf{x}_B, \alpha t)$")
-plt.plot(t, C_front[Sx, Sy, :]*1e3,  "--", label=r"$C_{B}(\mathbf{x}_A, t)$")
-plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
-plt.ylabel(r"Normalized concentration $\times 10^3$", fontsize=14)
-plt.axis([0.25, 2.04, -0.03, 0.45])
-plt.legend(loc="best", fontsize=16)
-plt.savefig("../powerpoint/figures/same_peclet_scaled.pdf", bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/same_peclet_scaled.pdf", "../powerpoint/figures/same_peclet_scaled.pdf"))
+plt.plot(t*2, C_back[Dx, Dy, :]/max(C_back[Dx,Dy,30:]), label=r"$C_{A}(\mathbf{x}_B, \alpha t)$")
+plt.plot(t,  C_front[Sx, Sy, :]/max(C_back[Dx,Dy,30:]),  "--", color="C3", label=r"$C_{B}(\mathbf{x}_A, t)$")
+plt.axis([0.10, 2.05, -0.025, 1.05])
+plt.xlabel(r"Time [$T_{max}$]", fontsize=8)
+plt.ylabel(r"Normalized Concentration", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+plt.legend(loc="best", fontsize=8, ncol=3)
+filename = root + "same_Pe_rescaled.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
-
+"""
 
 u = np.loadtxt("../data/1102reciproc_2_to_u.txt")
 u_x = u[0, :]
@@ -86,3 +93,4 @@ Pe = average_disc_diameter*U/D
 print("Reynolds number: ", Re)
 print("Peclet number: ", Pe)
 
+"""

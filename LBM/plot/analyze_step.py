@@ -5,13 +5,14 @@ import os
 import matplotlib
 import pandas as pd 
 
-plt.style.use("bmh")
-sns.color_palette("hls", 1)
-
-matplotlib.rc('xtick', labelsize=14)
-matplotlib.rc('ytick', labelsize=14)
+plt.style.use(['science','no-latex', 'grid'])
+import matplotlib
+matplotlib.rc('xtick', labelsize=8)
+matplotlib.rc('ytick', labelsize=8)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
+root = "../../../master_latex/results/"
+
 
 Nx = 140
 Ny = 64
@@ -36,32 +37,39 @@ for i in range(datafiles):
   C_front[:, :, i] = (np.reshape(data_front, (Nx, Ny)))
 
 #print(np.sum(C_back[:,:, 0]), np.sum(C_front[:,:, 0]))
-C_back  /= np.sum(np.sum(C_back[ :,:, -1]))
-C_front /= np.sum(np.sum(C_front[:,:, -1]))
+#C_back  /= np.sum(np.sum(C_back[ :,:, -1]))
+#C_front /= np.sum(np.sum(C_front[:,:, -1]))
 
 x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
 plt.figure(1)
 plt.plot(t, C_back[Dx, Dy, :]/max(C_back[Dx, Dy, -100:]), label="Step ")
-plt.plot(t, C_front[Sx, Sy, :]/max(C_front[Sx, Sy, -100:]), label="Pulse")
-plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
-plt.ylabel(r"Normalized concentration", fontsize=14)
+plt.plot(t, C_front[Sx, Sy, :]/max(C_front[Sx, Sy, -100:]), color="C3", label="Pulse")
 plt.axis([0.6, 1.01, -0.05, 1.05])
-plt.legend(loc="best", fontsize=12)
-plt.savefig("../powerpoint/figures/step_1.pdf", bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/step_1.pdf", "../powerpoint/figures/step_1.pdf"))
+plt.xlabel(r"Time [$T_{max}$]", fontsize=8)
+plt.ylabel(r"Normalized Concentration", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+plt.legend(loc="best", fontsize=8, ncol=3)
+filename = root + "step_injection.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
 plt.figure(2)
-plt.plot(t[:-1], np.diff(C_back[Dx, Dy, :])/max(np.diff(C_back[Dx, Dy, :])), label="Derivative of step")
-plt.plot(t, C_front[Sx, Sy, :]/max(C_front[Sx, Sy, int(0.5*datafiles):]), "--", label="Pulse")
-plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
-plt.ylabel(r"Normalized concentration", fontsize=14)
-plt.axis([0.6, 1.01, -0.04, 1.05])
-plt.legend(loc="best", fontsize=12)
-plt.savefig("../powerpoint/figures/step_2.pdf", bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/step_2.pdf", "../powerpoint/figures/step_2.pdf"))
+deriv = np.gradient(C_back[Dx, Dy, :], t)
+plt.plot(t, deriv/max(deriv), label="Derivative of step")
+plt.plot(t, C_front[Sx, Sy, :]/max(C_front[Sx, Sy, int(0.5*datafiles):]), "--", color="C3", label="Pulse")
+plt.axis([0.6, 1.01, -0.05, 1.05])
+plt.xlabel(r"Time [$T_{max}$]", fontsize=8)
+plt.ylabel(r"Normalized Concentration", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+plt.legend(loc="best", fontsize=8, ncol=1)
+filename = root + "step_injection_integral.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
 import scipy.integrate as sci 
@@ -69,13 +77,16 @@ import scipy.integrate as sci
 integrated = sci.cumtrapz(C_front[Sx,Sy, int(0.5*datafiles):])
 plt.figure(2)
 plt.plot(t, C_back[Dx, Dy, :]/C_back[Dx, Dy, -1], label="Step")
-plt.plot(t[int(0.5*datafiles)+1:], integrated/integrated[-1], "--", label="Integrate of pulse")
-plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
-plt.ylabel(r"Normalized concentration", fontsize=14)
-plt.axis([0.6, 1.01, -0.02, 1.05])
-plt.legend(loc="best", fontsize=12)
-plt.savefig("../powerpoint/figures/step_3.pdf", bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/step_3.pdf", "../powerpoint/figures/step_3.pdf"))
+plt.plot(t[int(0.5*datafiles)+1:], integrated/integrated[-1], "--", color="C3", label="Integrate of pulse")
+plt.axis([0.6, 1.01, -0.05, 1.05])
+plt.xlabel(r"Time [$T_{max}$]", fontsize=8)
+plt.ylabel(r"Normalized Concentration", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+plt.legend(loc="best", fontsize=8, ncol=3)
+filename = root + "step_injection_derivative.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
 

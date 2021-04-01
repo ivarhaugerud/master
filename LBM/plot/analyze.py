@@ -50,28 +50,23 @@ dx = 0.005
 plt.figure(1)
 #plt.title("Change of factor 1.05", fontsize=16)
 plt.plot(t, C_back[Dx, Dy, :], label=r"$C_A(\mathbf{x}_B, t)$")
-plt.plot(t, C_front[Sx, Sy, :], color="C3", label="$C_B(\mathbf{x}_A, t)$")
-plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 
 checks = (0.25+np.linspace(0, 3, 4))/4
 
-print(checks)
-
+plt.plot(t, C_front[Sx, Sy, :], color="C3", label="$C_B(\mathbf{x}_A, t)$")
 for i in range(len(checks)):
 	if i > 0:
 		if i == 1:
-			plt.fill_between([checks[i]-dx, checks[i]+dx], [-1, -1], [1, 1], color="green", alpha=0.3, label="Predicted crossing")
+			plt.fill_between([checks[i]-dx, checks[i]+dx], [-1, -1], [4, 4], color="green", alpha=0.3, label="Crossing")
 		else:
-			plt.fill_between([checks[i]-dx, checks[i]+dx], [-1, -1], [1, 1], color="green", alpha=0.3)
-
+			plt.fill_between([checks[i]-dx, checks[i]+dx], [-1, -1], [4, 4], color="green", alpha=0.3)
 
 plt.axis([0.10, 1.02, -0.15, 1.05])
 plt.xlabel(r"Time [$T_{max}$]", fontsize=8)
 plt.ylabel(r"Normalized Concentration", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-#plt.axis([0.2, 1.05, -0.05, 1.03])
-plt.legend(loc="lower right", fontsize=8, ncol=3)
+plt.legend(loc="lower right", fontsize=7, ncol=3)
 filename = root + "predicted_crossing.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))

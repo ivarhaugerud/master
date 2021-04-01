@@ -299,7 +299,7 @@ void MainClass::run()
   {
   	L2 = sqrt(sum_difference/sum);
     cout << t << " " << sqrt((L2-prev_L2)*(L2-prev_L2)/(L2*L2)) << " " << L2 << " " << sum_difference/(Nx*Ny) << endl;
-	  if (sqrt((L2-prev_L2)*(L2-prev_L2)/(L2*L2)) <  pow(10, -5))
+	  if (sqrt((L2-prev_L2)*(L2-prev_L2)/(L2*L2)) <  pow(10, -12))
 	      {equil = true;
 	       cout << (L2-prev_L2)/L2 << " number of steps to equilibration: " << counter << endl;}
     prev_L2 = L2;
@@ -651,7 +651,7 @@ void MainClass::ADE_back(int T, mat C_in, string name, int injection_T)
        y = get<1>(rest[k]);
 
       C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
-      update_g_reversed_oscillate(t/float(T));
+      update_g_reversed();
       propegate(x, y);
     }
 
@@ -695,7 +695,7 @@ void MainClass::ADE_back_no_source(int T, string name)
        y = get<1>(rest[k]);
 
       C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
-      update_g_reversed_oscillate(t/float(T));
+      update_g_reversed();
       propegate(x, y);
     }
 
