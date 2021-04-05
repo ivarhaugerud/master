@@ -42,6 +42,8 @@ t   = np.linspace(0, periods*tau, periods*timesteps)
 xi = np.linspace(-1, 1, 1000)
 ETA = np.linspace(-3*l , 3*l, 500)
 
+stream_points   = np.array(list(zip( pi/(2*kappa)*np.ones(20), np.linspace(-1-epsilon, 1+epsilon, 20))))
+
 for i in range(len(eps)):
     epsilon = eps[i]
     prev_pos = np.zeros((2, N))

@@ -13,35 +13,35 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 root = "../../../master_latex/results/"
 
 
-Lx = np.array([125.66])#, 62.83])#, 41.89])
+Lx = np.array([41.89])#, 62.83])#, 41.89])
 kappa = 2*np.pi/Lx
 epsilon = np.array([0.0, 0.0178, 0.0316, 0.056, 0.1, 0.177, 0.245, 0.31])
-base = "data_test/benchmark_2/"
+base = "data_test/benchmark_3/"
 
 D          = np.zeros((len(epsilon), len(Lx)))
 difference = np.zeros(np.shape(D))
 U          = np.zeros(np.shape(D))
 
-T = int(6/(0.006))
+T = int(6/(0.003))
 tau = 6
 omega = 2*np.pi/tau
 
 for i in range(len(epsilon)):
 	for j in range(len(kappa)):
 		res = int(170)
-		data = np.loadtxt(base+"Lx"+str(Lx[j])+"_tau6.0_eps"+str(epsilon[i])+"_nu100.0_D0.5_fzero0.0_fone1000.0_res"+str(res)+"_dt0.006/tdata.dat")
+		data = np.loadtxt(base+"Lx"+str(Lx[j])+"_tau6.0_eps"+str(epsilon[i])+"_nu100.0_D25.0_fzero0.0_fone5000.0_res"+str(res)+"_dt0.003/tdata.dat")
 		D[i, j] = sci.trapz(  data[-T:, 8],  data[-T:, 0] )/tau
 		U[i, j] = sci.trapz(  data[-T:, 4],  data[-T:, 0] )/tau
 		difference[i, j] = abs(D[i,j] - sci.trapz(  data[-2*T:-T, 8],  data[-2*T:-T, 0] )/tau)/D[i,j]
-		plt.plot(np.trim_zeros(data[:, 0])/tau, np.trim_zeros(data[:, 8]))
-		plt.plot(np.trim_zeros(data[:, 0])[-T:]/tau, np.trim_zeros(data[:, 8])[-T:])
-		plt.show()
+		#plt.plot(np.trim_zeros(data[:, 0])/tau, np.trim_zeros(data[:, 8]))
+		#plt.plot(np.trim_zeros(data[:, 0])[-T:]/tau, np.trim_zeros(data[:, 8])[-T:])
+		#plt.show()
 
 
 tau = 6.0
 nu  = 100
-Dm   = 0.5
-F0  = 1000/nu 
+Dm   = 25
+F0  = 5000/nu 
 omega = 2*np.pi/tau
 Pe = 1/Dm
 gamma = np.sqrt(1j*omega/nu)
@@ -50,21 +50,24 @@ rho = np.sqrt(1j*omega/Dm)
 rho_c = np.conj(rho)
 
 D0 = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma**4 - rho**4))*(1/(gamma*gamma)*(gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c)) - 1/(rho*rho)*(rho/np.tanh(rho) - rho_c/np.tanh(rho_c)))
-
-
-#epsilon[0] += 1e-3
+from numpy import *
+D2  = 1/2*F0**2*Pe**2*(7/12*rho**8*conjugate(rho)**2 + rho**8/2 + rho**8*conjugate(rho)**3/(2*tanh(conjugate(rho))) + 7/4*rho**8*conjugate(rho)/tanh(conjugate(rho)) - 7/4*rho**8*conjugate(rho)**2/tanh(conjugate(rho))**2 - 1/2*rho**8*conjugate(rho)**3/tanh(conjugate(rho))**3 - 1/2*rho**7*conjugate(rho)**4/tanh(rho) + 1/2*rho**7*conjugate(rho)**4/tanh(rho)**3 - 11/4*rho**6*conjugate(rho)**4 - rho**6*conjugate(rho)**2 - rho**6*conjugate(rho)**5/tanh(conjugate(rho)) - 4*rho**6*conjugate(rho)**3/tanh(conjugate(rho)) + 4*rho**6*conjugate(rho)**4/tanh(conjugate(rho))**2 + rho**6*conjugate(rho)**5/tanh(conjugate(rho))**3 + 9/4*rho**6*conjugate(rho)**4/tanh(rho)**2 + rho**5*conjugate(rho)**6/tanh(rho) - 1/4*rho**5*conjugate(rho)**4/tanh(rho) - rho**5*conjugate(rho)**6/tanh(rho)**3 + 11/4*rho**4*conjugate(rho)**6 + 1/2*rho**4*conjugate(rho)**7/tanh(conjugate(rho)) + 1/4*rho**4*conjugate(rho)**5/tanh(conjugate(rho)) - 9/4*rho**4*conjugate(rho)**6/tanh(conjugate(rho))**2 - 1/2*rho**4*conjugate(rho)**7/tanh(conjugate(rho))**3 - 4*rho**4*conjugate(rho)**6/tanh(rho)**2 - 1/2*rho**3*conjugate(rho)**8/tanh(rho) + 4*rho**3*conjugate(rho)**6/tanh(rho) + 1/2*rho**3*conjugate(rho)**8/tanh(rho)**3 - 7/12*rho**2*conjugate(rho)**8 + rho**2*conjugate(rho)**6 + 7/4*rho**2*conjugate(rho)**8/tanh(rho)**2 - 7/4*rho*conjugate(rho)**8/tanh(rho) - 1/2*conjugate(rho)**8)/(rho**4*(rho**6 - 3*rho**4*conjugate(rho)**2 + 3*rho**2*conjugate(rho)**4 - conjugate(rho)**6)*conjugate(rho)**4)
+D2 += -1/(kappa*kappa) + 1/(kappa*tanh(kappa)) + 1 #approx 8/3 + O(kappa^2)
+DA = D[0,0] + epsilon*epsilon*D2
 D_ana = np.load("finite_element/data/vary_kappa_small.npy")
-
+"""
 for i in range(len(kappa)):
 	plt.plot(epsilon, difference[:,i])
 plt.yscale("log")
 plt.xscale("log")
 plt.show()
-print(np.shape(D0), np.shape(D_ana))
+"""
 
 for j in range(len(kappa)):
 	plt.plot(epsilon, D0 + epsilon*epsilon*D_ana[j])
 	plt.plot(epsilon, D[:,j], "o", markersize=3)
+	plt.plot(epsilon, DA, "ro", markersize=3)
+#plt.xscale("log")
 plt.xlabel(r" Womersley number $\frac{\omega a^2}{\nu}$", fontsize=8)
 plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel $",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
@@ -78,14 +81,17 @@ plt.show()
 
 
 for j in range(len(kappa)):
-	plt.plot(epsilon, abs(D[:,j]-(D0 + epsilon*epsilon*D_ana[j]))/D[:,j], "o")
-	#plt.plot(epsilon, D[:,j], "o", markersize=3)
+	plt.plot(epsilon, abs(D[:,j]-(D[0,0] + epsilon*epsilon*D_ana[j]))/D[:,j], "o", markersize=3, label="Semi-analytic")
+	plt.plot(epsilon, abs(D[:,j]-DA), "o", markersize=3, label="Analytic")
 
-epsilon = np.linspace(0.01, 0.177, 1000)
-plt.plot(epsilon, epsilon**4, "k")
-plt.plot(epsilon, epsilon**2, "r")
-plt.xlabel(r" Womersley number $\frac{\omega a^2}{\nu}$", fontsize=8)
-plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel $",  fontsize=8)
+epsilon = np.linspace(0.01, 0.35, 1000)
+gamma = np.real(gamma)
+plt.plot(epsilon, epsilon**4, label=r"$\epsilon^4$")
+plt.plot(epsilon, epsilon**2, label=r"$\epsilon^2$")
+plt.plot(epsilon, epsilon*epsilon*kappa*kappa, label=r"$\epsilon^2\kappa^2$")
+plt.plot(epsilon, epsilon*epsilon*gamma*gamma, label=r"$\epsilon^2\gamma^2$")
+plt.xlabel(r" Boundary amplitude $\epsilon$", fontsize=8)
+plt.ylabel(r" Relative difference $ D_\parallel $",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.yscale("log")
 plt.xscale("log")

@@ -299,7 +299,7 @@ void MainClass::run()
   {
   	L2 = sqrt(sum_difference/sum);
     cout << t << " " << sqrt((L2-prev_L2)*(L2-prev_L2)/(L2*L2)) << " " << L2 << " " << sum_difference/(Nx*Ny) << endl;
-	  if (sqrt((L2-prev_L2)*(L2-prev_L2)/(L2*L2)) <  pow(10, -12))
+	  if (sqrt((L2-prev_L2)*(L2-prev_L2)/(L2*L2)) <  pow(10, -8))
 	      {equil = true;
 	       cout << (L2-prev_L2)/L2 << " number of steps to equilibration: " << counter << endl;}
     prev_L2 = L2;

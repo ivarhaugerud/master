@@ -143,15 +143,18 @@ nus = np.logspace(-2, 2, 10)[:9]
 #F0  = 12/nu
 #Pe = 1/D
 
-nu = 1.2
-D = 0.1
-F0 = 12/nu 
+nu = 100
+D = 25
+F0 = 5000/nu 
 Pe = 1/D
 tau = np.arange(2.0, 4.0, 0.25)
-tau = np.array([3.0])
+tau = np.array([6.0])
 kappas = np.arange(0.5, 1.5, 0.05)
 kappas   = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2]) #0.2
 
+
+Lx = np.array([41.89])
+kappas = 2*np.pi/Lx
 #Lx = np.array([125.66, 62.83, 41.89])
 #kappas = 2*np.pi/Lx
 #kappas    = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2, 2.5]) #0.2
@@ -382,5 +385,5 @@ for K in range(len(tau)):
 		plt.ylabel(r"Brenner field", fontsize=12)
 		plt.savefig("figures/Brenner_field_vs_t.pdf")
 		#plt.show()
-np.save("data/vary_kappa_D0.1", D_parallels)
+np.save("data/vary_kappa_small", D_parallels)
 plt.show()

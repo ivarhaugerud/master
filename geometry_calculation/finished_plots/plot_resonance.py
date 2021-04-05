@@ -47,11 +47,12 @@ for i in range(len(kappa)):
 		difference[i, j] = abs(D[i, j] - sci.trapz(  np.trim_zeros(data[:, 8])[-2*T:-T],  np.trim_zeros(data[:, 0])[-2*T:-T] )/tau[j])/D[i,j]
 
 		#if D[i, j] > 1.0:
-		#	D[i,j] = 0
-		#plt.plot(np.trim_zeros(data[:, 0])/tau[j], np.trim_zeros(data[:, 8]))
+		plt.plot(np.trim_zeros(data[:, 0])/tau[j], np.trim_zeros(data[:, 8]))
 		plt.plot(np.trim_zeros(data[:, 0])[-T:]/tau[j], np.trim_zeros(data[:, 8])[-T:])
 		plt.title(str(kappa[i]) + ","+ str(tau[j]))
-plt.show()
+		plt.xlabel(r" Time [periods]", fontsize=8)
+		plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel $",  fontsize=8)
+		plt.show()
 
 gamma = np.sqrt(2*np.pi/(tau*1.2))
 rho   = np.sqrt(2*np.pi/(tau*1))
