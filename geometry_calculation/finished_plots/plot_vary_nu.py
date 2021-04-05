@@ -13,12 +13,13 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 root = "../../../master_latex/results/"
 
 
-Lx = np.array([2.41, 3.14, 4.48, 7.85])
+Lx = np.array([1.96, 2.41, 3.14, 4.48, 7.85])
 kappa = 2*np.pi/Lx
-kappa[0] = 2.60
+kappa[0] = 3.20
+kappa[1] = 2.60
 nu = np.logspace(-2, 2, 10)[:9]
 
-base = "../data_test/vary_nu/"
+base = "../data_test/vary_nu_try2/"
 D          = np.zeros((len(kappa), len(nu)))
 difference = np.zeros(np.shape(D))
 U          = np.zeros(np.shape(D))
@@ -45,7 +46,7 @@ for j in range(len(kappa)):
 			print("Did not work for ", nu[i], kappa[j])
 
 interpool_nu = np.logspace(np.log10(min(nu)), np.log10(max(nu)), int(1e4))
-plt.figure(2)
+plt.figure(1)
 for i in range(len(Lx)):
 	ind = len(Lx)-1-i
 	plt.plot((omega/nu), D[ind, :], "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[ind], markersize=3)
@@ -61,21 +62,20 @@ plt.xscale("log")
 filename = root + "figures/D_eff_vs_nu.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
-plt.show()
+#plt.show()
 
-
-plt.show()
+plt.figure(2)
 for i in range(len(Lx)):
 	ind = len(Lx)-1-i
 	plt.plot((omega/nu), difference[ind, :], "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[ind], markersize=3)
 	#plt.plot((omega/nu), D[ind, :], color="C"+str(i), linewidth=1)
 plt.yscale("log")
-plt.show()
+#plt.show()
 
 
 plt.figure(3)
 for i in range(len(Lx)):
-	plt.plot(omega/nu, U[i, :], "o")
+	plt.plot(omega/nu, U[i, :], label=r"$\kappa = %3.2f$" % kappa[i])
 
 plt.xscale("log")
 plt.ylabel(r"$\langle u^2 \rangle $")
@@ -84,8 +84,9 @@ plt.legend(loc="best")
 
 
 plt.figure(4)
+g = (D - 1)*(105/2)
 for i in range(len(Lx)):
-	plt.plot(nu, abs((D[i,:])/(U[i,:])))
+	plt.plot(nu, abs(g[i, :]*nu/U[i,:]))
 plt.ylabel(r"$D/U^2$")
 plt.xlabel(r"viscosity $\nu$")
 plt.xscale("log")

@@ -10,7 +10,7 @@ matplotlib.rc('xtick', labelsize=14)
 matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
-root = "../../../master_latex/results/"
+root = "../../../master_latex/results/figures/"
 
 epsilon = 0.2
 
@@ -93,7 +93,7 @@ for i in range(len(T)):
 	#ax.plot([min(eta),max(eta)],[-1-epsilon-0.1,1+epsilon+0.1])
 	#ax.set_aspect(1)
 	#ax.set_xlim(min(eta), max(eta))
-	#fig = plt.figure(1, figsize=(14.8, 5.7), edgecolor="white")
+	fig = plt.figure(1, figsize=(16.8, 2.95), edgecolor="white")
 	plt.clf()
 	# Interpolate using three different methods and plot
 	ux = griddata( (x.flatten(),  y.flatten()), u_x[i,:,:].flatten()/U, (X, Y), method='nearest')
@@ -113,19 +113,19 @@ for i in range(len(T)):
 	plt.ylabel(r"Vertical position   $y$   $[a]$  ", fontsize=12)
 	plt.plot(x[0,:], y[0, :], "k", linewidth=3)
 	plt.plot(x[0,:], y[-1,:], "k", linewidth=3)
-	plt.fill_between(x[0,:], (-1.4)*np.ones(len(x[0,:])), y[0,:], color="k")
-	plt.fill_between(x[0,:], ( 1.4)*np.ones(len(x[0,:])), -y[0,:], color="k")
-	plt.fill_between(x[0,:]+2*np.pi/kappa, (-1.4)*np.ones(len(x[0,:])), y[0,:], color="k")
-	plt.fill_between(x[0,:]+2*np.pi/kappa, ( 1.4)*np.ones(len(x[0,:])), -y[0,:], color="k")
+	plt.fill_between(x[0,:], (-1.25)*np.ones(len(x[0,:])), y[0,:], color="k")
+	plt.fill_between(x[0,:], ( 1.25)*np.ones(len(x[0,:])), -y[0,:], color="k")
+	plt.fill_between(x[0,:]+2*np.pi/kappa, (-1.25)*np.ones(len(x[0,:])), y[0,:], color="k")
+	plt.fill_between(x[0,:]+2*np.pi/kappa, ( 1.25)*np.ones(len(x[0,:])), -y[0,:], color="k")
 	#plt.axis([min(eta), max(eta), -1-epsilon-0.05, 1+epsilon+0.05])
 	plt.axis([min(eta), max(eta)+2*np.pi/kappa, -1-epsilon-0.05, 1+epsilon+0.05])
-	#plt.axis("equal")
+	plt.axis("equal")
 	plt.draw()
 	#fig.tight_layout()
 	#plt.axis("scaled")
 	plt.pause(0.5)
 
-	filename = root + "streamplot_nr"+str(i)+".pdf"
+	filename = root + "streamplot_equal_nr"+str(i)+".pdf"
 	plt.savefig(filename, bbox_inches="tight")
 	os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
