@@ -1,6 +1,6 @@
 CXXFLAGS = -Wall -O3 -larmadillo -std=c++11
 
-program: MainClass.o enchmarking.o
+program: MainClass.o benchmarking.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 clean:

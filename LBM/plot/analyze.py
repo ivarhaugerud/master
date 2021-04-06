@@ -5,13 +5,13 @@ import os
 import matplotlib
 import pandas as pd 
 
-plt.style.use("bmh")
-sns.color_palette("hls", 1)
-
-matplotlib.rc('xtick', labelsize=14)
-matplotlib.rc('ytick', labelsize=14)
+plt.style.use(['science','no-latex', 'grid'])
+import matplotlib
+matplotlib.rc('xtick', labelsize=8)
+matplotlib.rc('ytick', labelsize=8)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
+root = "../../../master_latex/results/"
 
 Nx = 102
 Ny = 64
@@ -35,14 +35,14 @@ for i in range(datafiles):
 	data_front = np.loadtxt("../data/1307_reciproc_5_oscls_C_"+str(i)+"_back.txt")
 	C_front[:, :, i] = (np.reshape(data_front, (Nx, Ny)))
 
-C_back  /= np.sum(np.sum(C_back[:,:, 0]))
-C_front /= np.sum(np.sum(C_front[:,:, 0]))
+C_back[Dx, Dy, :20] = 0 
+C_front[Sx, Sy, :20] = 0 
+
+C_front /= (np.max(C_back[Dx,Dy, :]))
+C_back  /= (np.max(C_back[Dx,Dy, :]))
 
 x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
-
-C_back[Dx, Dy, :20] = 0 
-C_front[Sx, Sy, :20] = 0 
 
 correct_points = 8
 dx = 0.005
@@ -50,25 +50,26 @@ dx = 0.005
 plt.figure(1)
 #plt.title("Change of factor 1.05", fontsize=16)
 plt.plot(t, C_back[Dx, Dy, :], label=r"$C_A(\mathbf{x}_B, t)$")
-plt.plot(t, C_front[Sx, Sy, :], label="$C_B(\mathbf{x}_A, t)$")
-plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
 
 checks = (0.25+np.linspace(0, 3, 4))/4
 
-print(checks)
-
+plt.plot(t, C_front[Sx, Sy, :], color="C3", label="$C_B(\mathbf{x}_A, t)$")
 for i in range(len(checks)):
 	if i > 0:
 		if i == 1:
-			plt.fill_between([checks[i]-dx, checks[i]+dx], [-1, -1], [1, 1], color="green", alpha=0.3, label="Predicted crossing")
+			plt.fill_between([checks[i]-dx, checks[i]+dx], [-1, -1], [4, 4], color="green", alpha=0.3, label="Crossing")
 		else:
-			plt.fill_between([checks[i]-dx, checks[i]+dx], [-1, -1], [1, 1], color="green", alpha=0.3)
+			plt.fill_between([checks[i]-dx, checks[i]+dx], [-1, -1], [4, 4], color="green", alpha=0.3)
 
-plt.ylabel(r"Normalized concentration", fontsize=14)
-plt.axis([0, 1.02, -0.00002, 0.0004])
-plt.legend(loc="best", fontsize=12)
-plt.savefig("../powerpoint/figures/time_dep_crossing.pdf", bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/time_dep_crossing.pdf", "../powerpoint/figures/time_dep_crossing.pdf"))
+plt.axis([0.10, 1.02, -0.15, 1.05])
+plt.xlabel(r"Time [$T_{max}$]", fontsize=8)
+plt.ylabel(r"Normalized Concentration", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+plt.legend(loc="lower right", fontsize=7, ncol=3)
+filename = root + "predicted_crossing.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
 """

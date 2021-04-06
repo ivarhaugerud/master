@@ -20,6 +20,8 @@
 *.jar
 *.rar
 *.tar
+*.png
+*.gif
 *.zip
 
 # LaTeX #
@@ -34,6 +36,9 @@
 *.gif
 *.dat
 
+*.h5
+*.xdmf
+*.dat
 # Logs and databases #
 ######################
 *.log

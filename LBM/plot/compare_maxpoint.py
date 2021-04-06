@@ -48,7 +48,7 @@ C_max    = np.zeros((datafiles, len(C[0,0,0,:])))
 
 for f in range(len(C[0,0,0,:])):
 	for i in range(datafiles):
-		C[:,:,i,f] /= np.sum(np.sum(C[:,:,i,f]))
+		#C[:,:,i,f] /= np.sum(np.sum(C[:,:,i,f]))
 		C_max[i, f] = np.max(np.max(C[:,:,i,f]))
 
 plt.plot(t, C_max[:, 0], label="No cutoff")

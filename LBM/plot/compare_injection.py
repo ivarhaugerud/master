@@ -6,16 +6,14 @@ import matplotlib
 import pandas as pd 
 
 
-
-
-
-plt.style.use("bmh")
-sns.color_palette("hls", 1)
-
-matplotlib.rc('xtick', labelsize=14)
-matplotlib.rc('ytick', labelsize=14)
+plt.style.use(['science','no-latex', 'grid'])
+import matplotlib
+matplotlib.rc('xtick', labelsize=8)
+matplotlib.rc('ytick', labelsize=8)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
+root = "../../../master_latex/results/"
+
 
 Nx = 140
 Ny = 64
@@ -73,13 +71,18 @@ plt.plot(t, C[Dx, Dy, :, 3]*100, label="0.9 cutoff")
 plt.plot(t, C[Dx, Dy, :, 4]*100, label="singe maximum")
 plt.plot(t, C[Dx, Dy, :, 5]*100, label="max for each pos")
 
-plt.xlabel(r"Time [$T_{max}$]", fontsize=14)
-plt.ylabel(r"Concentration %", fontsize=14)
-plt.axis([0.6, 1.01, -0.02, 1.75])
-plt.legend(loc="best", fontsize=14)
-plt.savefig("../powerpoint/figures/injection_low_D.pdf", bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/injection_low_D.pdf", "../powerpoint/figures/injection_low_D.pdf"))
+plt.axis([0.6, 1.06, -0.05, 1.75])
+plt.xlabel(r"Time [$T_{max}$]", fontsize=8)
+plt.ylabel(r"Concentration $[\%]$", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+plt.legend(loc="best", fontsize=8, ncol=1)
+filename = root + "compare_injection.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
+
+"""
 
 for i in range(datafiles):
 	data = np.loadtxt("../data/peak_1103_C_"+str(i)+"_1_0.txt")
@@ -168,3 +171,4 @@ plt.plot([-1, 65], [100, 100], "r-")
 plt.savefig("../powerpoint/figures/velocity_inject.pdf", bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%("../powerpoint/figures/velocity_inject.pdf", "../powerpoint/figures/velocity_inject.pdf"))
 plt.show()
+"""

@@ -39,7 +39,7 @@ int main(int argc, char const *argv[])
     instance.open();
     instance.initialize(1);
     instance.test_mass_cons();
-    instance.run();
+    //instance.run();
     instance.test_mass_diffusion();
     return 0;
   }

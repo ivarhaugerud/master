@@ -7,10 +7,11 @@ import scipy.interpolate as sci
 from scipy.interpolate import griddata
 
 
-filenames = ["data_square/U_Re99.1296244009446_b1.4.h5", "data_square/U_Re0.0_b1.4.h5"]
+filenames = ["data_square/U_Re0.0_b0.2.h5", "data_square/U_Re0.0_b0.6.h5", "data_square/U_Re0.0_b1.4.h5"]#, "data_square/U_Re99.1296244009446_b1.4.h5", "data_square/U_Re0.0_b1.4.h5"]
 
 for k in range(len(filenames)):
 	filename = filenames[k]
+	print(filename)
 	f = h5py.File(filename, 'r')
 	vector = np.array(list(f["VisualisationVector"]["0"]))
 	geometry = np.array(list(f["Mesh"]["mesh"]["geometry"]))
@@ -27,6 +28,9 @@ for k in range(len(filenames)):
 	# Interpolate using three different methods and plot
 	ux = griddata((x_axis, y_axis), vector[:,0], (X, Y), method='cubic')
 	uy = griddata((x_axis, y_axis), vector[:,1], (X, Y), method='cubic')
+
+	ux = ux.roll(shift=int(Nx/2), axis=0)
+	uy = uy.roll(shift=int(Ny/2), axis=1)
 
 	b = 0.5*max(x)
 
