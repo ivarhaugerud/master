@@ -92,7 +92,7 @@ class MainClass
   void test_mass_cons();
   void test_mass_diffusion();
   void initialize_other(int x, int y, int i, double rho);
-  void initialize_C(int x, int y, int i, double rho);
+  void initialize_C(int x, int y, double rho);
   void boundary_disc(int x, int y, double R);
   void update_g();
   void update_g_reversed();

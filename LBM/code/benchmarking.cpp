@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
     int Nx = 256;  //atoi(argv[1]);
     int Ny = 64;   //atoi(argv[2]);
 
-    MainClass instance(Nx, Ny, 2, 0.50 + 6*pow(10,-5), 5*pow(10,-7), 0, 5*pow(10, -4), "benchmarking", 100);
+    MainClass instance(Nx, Ny, 2, 0.52, 5*pow(10,-7), 0, 5*pow(10, -7), "benchmarking", 100);
 
     
     instance.boundary_disc(134,  14, 5);
@@ -39,7 +39,7 @@ int main(int argc, char const *argv[])
     instance.open();
     instance.initialize(1);
     instance.test_mass_cons();
-    instance.run();
+    //instance.run();
     instance.test_mass_diffusion();
     return 0;
   }

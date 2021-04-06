@@ -64,9 +64,17 @@ void MainClass::initialize(double rho)
 void MainClass::initialize_other(int x, int y, int i, double rho)
 {f(x, y, i) = rho;}
 
-void MainClass::initialize_C(int x, int y, int i, double rho)
+void MainClass::initialize_C(int x, int y, double rho)
 {
-  g(x, y, i) = rho;
+    g(x, y, 0) = rho*4/9;
+    g(x, y, 1) = rho/9;
+    g(x, y, 2) = rho/9;
+    g(x, y, 3) = rho/9;
+    g(x, y, 4) = rho/9;
+    g(x, y, 5) = rho/36;
+    g(x, y, 6) = rho/36;
+    g(x, y, 7) = rho/36;
+    g(x, y, 8) = rho/36;
 }
 
 void MainClass::change_D(double D_factor)
@@ -166,15 +174,7 @@ void MainClass::heat_fluid(double wall_T)
   for (int s = 0; s < int(rest.size()); s++)
     {x = get<0>(rest[s]);
      y = get<1>(rest[s]);
-     initialize_C(x, y, 0, 4*wall_T/9);
-     initialize_C(x, y, 1,   wall_T/9);
-     initialize_C(x, y, 2,   wall_T/9);
-     initialize_C(x, y, 3,   wall_T/9);
-     initialize_C(x, y, 4,   wall_T/9);
-     initialize_C(x, y, 5,   wall_T/36);
-     initialize_C(x, y, 6,   wall_T/36);
-     initialize_C(x, y, 7,   wall_T/36);
-     initialize_C(x, y, 8,   wall_T/36);
+     initialize_C(x, y, wall_T);
      }
 }
 
@@ -612,7 +612,7 @@ mat MainClass::ADE(int T)
        y = get<1>(rest[k]);
 
       C(x, y)  = g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8); 
-      update_g_oscillate(t/float(T));
+      update_g();
       propegate(x, y);
     }
 
@@ -877,12 +877,13 @@ void MainClass::test_mass_cons()
 void MainClass::test_mass_diffusion()
   {
     double initial_mass = 0;
-    initialize_C(16, 32, 0, 100);
+    initialize_C(16, 32, 1);
     for (int x = 0; x < Nx; x++)
     {for (int y = 0; y < Ny; y++)
       {initial_mass +=  g(x, y, 0) + g(x, y, 1) + g(x, y, 2) + g(x, y, 3) + g(x, y, 4) + g(x, y, 5) + g(x, y, 6) + g(x, y, 7) + g(x, y, 8);}
     }
-    ADE(2000);
+
+    ADE(5000);
 
     double final_mass = 0;
     for (int x = 0; x < Nx; x++)
