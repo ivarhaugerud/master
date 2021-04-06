@@ -174,7 +174,7 @@ void MainClass::heat_fluid(double wall_T)
   for (int s = 0; s < int(rest.size()); s++)
     {x = get<0>(rest[s]);
      y = get<1>(rest[s]);
-     initialize_C(x, y, wall_T/9);
+     initialize_C(x, y, wall_T);
      }
 }
 
@@ -299,7 +299,7 @@ void MainClass::run()
   {
   	L2 = sqrt(sum_difference/sum);
     cout << t << " " << sqrt((L2-prev_L2)*(L2-prev_L2)/(L2*L2)) << " " << L2 << " " << sum_difference/(Nx*Ny) << endl;
-	  if (sqrt((L2-prev_L2)*(L2-prev_L2)/(L2*L2)) <  5*pow(10, -7))
+	  if (sqrt((L2-prev_L2)*(L2-prev_L2)/(L2*L2)) <  pow(10, -8))
 	      {equil = true;
 	       cout << (L2-prev_L2)/L2 << " number of steps to equilibration: " << counter << endl;}
     prev_L2 = L2;
