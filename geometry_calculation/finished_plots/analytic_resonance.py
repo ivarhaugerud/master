@@ -40,16 +40,16 @@ for i in range(len(omegas)):
 	res = np.sqrt(omegas[i]/(2*D))
 	contin_D = interp1d(kappas, D_k_o[:, i], kind="cubic")(contin_kappa)
 	if i == 0:
-		plt.plot(res, D0[i]+contin_D[np.argmin(abs(contin_kappa-res))], "ko", markersize=3)#, label="Analytic resonance wavelength")
+		plt.plot(res, contin_D[np.argmin(abs(contin_kappa-res))], "ko", markersize=3)#, label="Analytic resonance wavelength")
 	else:
-		plt.plot(res, D0[i]+contin_D[np.argmin(abs(contin_kappa-res))], "ko", markersize=3)
-	plt.plot(contin_kappa, D0[i]+contin_D, label=r"$%3.2f$" % omegas[i], color=colors[i])
+		plt.plot(res, contin_D[np.argmin(abs(contin_kappa-res))], "ko", markersize=3)
+	plt.plot(contin_kappa, contin_D, label=r"$%3.2f$" % omegas[i], color=colors[i])
 
 plt.xlabel(r" Wave number number $\kappa$", fontsize=8)
-plt.ylabel(r" Effective Diffusion coefficient $ D_\parallel + \mathcal{O}(\epsilon^4) $",  fontsize=8)
+plt.ylabel(r" Second order Effective Diffusion coefficient $ D_\parallel^{(2)}$",  fontsize=8)
 handles, labels = ax.get_legend_handles_labels()
-plt.legend(handles[::-1], labels[::-1], loc="best", fontsize=8, ncol=1, markerscale=0.1, title=r"$\omega a^2/D$", columnspacing=1.0, labelspacing=0.8)
-plt.axis([0.45, 1.8, 0.42, 1.3])
+plt.legend(handles[::-1], labels[::-1], loc="best", fontsize=8, ncol=1, markerscale=0.1, title=r"$\rho^2$", columnspacing=1.0, labelspacing=0.8)
+#plt.axis([0.45, 1.8, 0.42, 1.3])
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
 filename = root + "figures/analytic_resonance.pdf"

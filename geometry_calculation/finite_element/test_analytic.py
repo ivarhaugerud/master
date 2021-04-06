@@ -133,21 +133,21 @@ tol   = 1e-6
 k     = np.arange(-8, 8+0.01, 1)
 xi    = np.linspace(-1, 1, int(1e5))
 
-tau = 3.0
+D = 25
+Pe = 1/D
+tau = 6.0
 omega    = 2*np.pi/tau
-Ds       = np.arange(0.8, 1.6, 0.1)
-kappas   = np.arange(0.8, 1.6, 0.1)#np.array([0.2, 0.6, 1.0, 1.1, 1.2, 1.3, 1.4, 1.8, 2.2])
-nu = 1.2
-F0 = 12/nu
-
-D_parallels = np.zeros((len(kappas), len(Ds)))
+nus      = np.array([100])
+kappas = np.logspace(-3, -0.5, 6)
+F0 = 5000/nus[0]
 
 
-for K in range(len(Ds)):
+D_parallels = np.zeros((len(kappas), len(nus)))
+
+
+for K in range(len(nus)):
 	for O in range(len(kappas)):
-		#nu    = nus[K]
-		D = Ds[K]
-		Pe = 1/D
+		nu    = nus[K]
 		kappa = kappas[O]
 
 		#implicitly defined parameters
@@ -181,7 +181,7 @@ for K in range(len(Ds)):
 
 		#works for differential equation with constant terms, now just need coupeling to work as well
 		n = len(k) #number of vectors
-		N = 75
+		N = 250
 		N_pos = np.linspace(-1, 1, N)
 		Delta = N_pos[1]-N_pos[0]
 
@@ -307,7 +307,7 @@ for K in range(len(Ds)):
 
 
 		D_parallels[O, K] = scpi.trapz(np.real(total_D), t)/(2*np.pi/(omega))
-		print(Ds[K], kappas[O], D_parallels[O, K])
+		print(nus[K], kappas[O], D_parallels[O, K])
 		np.save("data/total_D_kappa"+str(kappa)[:4], D_eff)
 
 		plt.figure(1)
@@ -322,5 +322,5 @@ for K in range(len(Ds)):
 		plt.ylabel(r"Brenner field", fontsize=12)
 		plt.savefig("figures/Brenner_field_vs_t.pdf")
 		#plt.show()
-np.save("data/res_vs_D_kappa", D_parallels)
+np.save("data/benchmark_kappa", D_parallels)
 plt.show()

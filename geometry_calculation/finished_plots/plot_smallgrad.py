@@ -62,7 +62,7 @@ plt.yscale("log")
 plt.xscale("log")
 plt.show()
 """
-
+plt.figure(1)
 for j in range(len(kappa)):
 	plt.plot(epsilon, D[:,j]-1, "-", label="Numeric")
 	plt.plot(epsilon, D[0,0]-1 + epsilon*epsilon*D_ana[j], "o", markersize=3, label="Semi-analytic")
@@ -78,10 +78,10 @@ plt.tick_params(axis='both', which='minor', labelsize=8)
 filename = root + "figures/D_eff_ana_and_num.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
-plt.show()
+#plt.show()
 
 
-
+plt.figure(2)
 for j in range(len(kappa)):
 	plt.plot(epsilon, abs(D[:,j]-(D[0,0] + epsilon*epsilon*D_ana[j]))/D[:,j], "o", markersize=3, label="Semi-analytic")
 	#plt.plot(epsilon, abs(D[:,j]-DA), "o", markersize=3, label="Analytic")
@@ -89,7 +89,6 @@ for j in range(len(kappa)):
 epsilon = np.linspace(0.01, 0.35, 1000)
 gamma = np.real(gamma)
 plt.plot(epsilon, epsilon**4/(1-epsilon), label=r"$\epsilon^4$")
-plt.plot(epsilon, epsilon**2/(1-epsilon), label=r"$\epsilon^2$")
 #plt.plot(epsilon, epsilon*epsilon*(gamma*gamma+kappa*kappa), label=r"$\epsilon^2(\gamma^2+\kappa^2)$")
 plt.xlabel(r" Boundary amplitude $\epsilon$", fontsize=8)
 plt.ylabel(r" Relative difference $ D_\parallel $",  fontsize=8)
@@ -101,28 +100,29 @@ plt.tick_params(axis='both', which='minor', labelsize=8)
 filename = root + "figures/rel_diff_semi_analytic.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
-plt.show()
+#plt.show()
 
 
 
-
+plt.figure(3)
 epsilon = np.array([0.0, 0.0178, 0.0316, 0.056, 0.1, 0.177, 0.245, 0.31])
 for j in range(len(kappa)):
 	#plt.plot(epsilon, abs(D[:,j]-(D[0,0] + epsilon*epsilon*D_ana[j]))/D[:,j], "o", markersize=3, label="Semi-analytic")
-	plt.plot(epsilon, abs(D[:,j]-DA), "o", markersize=3, label="Analytic")
+	plt.plot(epsilon, abs(D[0,0]+epsilon*epsilon*D_ana[j]-DA), "o", markersize=3, label="Analytic")
 epsilon = np.linspace(0.01, 0.35, 1000)
 gamma = np.real(gamma)
 #plt.plot(epsilon, epsilon**4/(1-epsilon), label=r"$\epsilon^4$")
-plt.plot(epsilon, epsilon**2/(1-epsilon), label=r"$\epsilon^2$")
-plt.plot(epsilon, epsilon**4/(1-epsilon)+epsilon*epsilon*(gamma*gamma+kappa*kappa), label=r"$\epsilon^4+\epsilon^2(\gamma^2+\kappa^2)$")
+plt.plot(epsilon, epsilon*epsilon*(gamma*gamma+kappa*kappa), label=r"$\epsilon^2(\gamma^2+\kappa^2)$")
+plt.plot(epsilon, 5*epsilon*epsilon*(gamma*gamma+kappa*kappa), label=r"$5\epsilon^2(\gamma^2+\kappa^2)$")
+
 plt.xlabel(r" Boundary amplitude $\epsilon$", fontsize=8)
-plt.ylabel(r" Relative difference $ D_\parallel $",  fontsize=8)
+plt.ylabel(r" Difference $ D_\parallel $",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.yscale("log")
 plt.xscale("log")
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-plt.axis([0.01, 0.40, 1.8*1e-6, 0.38])
+plt.axis([0.015, 0.40, 5*1e-6, 0.03])
 filename = root + "figures/rel_diff_analytic.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
