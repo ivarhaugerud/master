@@ -41,8 +41,9 @@ D_eff *= 18*105/2
 
 fig = plt.figure(1)
 x_, y_ = np.meshgrid(R, G)
+Map = matplotlib.cm.get_cmap('Spectral_r')
 
-ax1 = plt.contourf(x_,y_, np.transpose((D_eff[:,:,0])), levels=np.linspace(0, 1.001, 11))
+ax1 = plt.contourf(x_,y_, np.transpose((D_eff[:,:,0])), levels=np.linspace(0, 1.001, 11), cmap=Map)
 cbar = fig.colorbar(ax1, format='%1.2f')
 cbar.ax.set_ylabel(r'Geometric factor $g$', fontsize=8)
 plt.xscale('log')
