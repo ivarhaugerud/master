@@ -7,6 +7,7 @@ import scipy.interpolate as sci
 from scipy.interpolate import griddata
 import matplotlib.ticker as tick
 import matplotlib
+Map = matplotlib.cm.get_cmap('Spectral_r')
 
 plt.style.use(['science','no-latex', 'grid'])
 import matplotlib
@@ -64,7 +65,7 @@ for k in range(len(filenames)):
 		#plt.streamplot(X, Y, ux, uy, density=0.6, color='k')
 		plt.streamplot(X, Y, ux, uy, color='k', start_points=stream_points,  density=5)
 		plt.streamplot(X, Y, ux, uy, color='k', start_points=stream_points2, density=5)
-		CS = plt.contourf(X, Y, speed, 10, cmap="Spectral")
+		CS = plt.contourf(X, Y, speed, 10, cmap="Spectral", map=Map)
 		cbar = plt.colorbar(CS)#, fraction=0.02725, pad=0.02)
 		cbar.ax.set_ylabel('Velocity $[U]$', fontsize=8)
 		cbar.ax.yaxis.set_major_formatter(tick.FormatStrFormatter('%.2f'))

@@ -125,7 +125,7 @@ for j in range(len(kappas)):
 			after_xi_eta_integral[i] = integrate.trapz(after_xi_integral[i,:], eta)/(2*np.pi/kappa)
 
 		u_squared_ana[e, j] = integrate.trapz(after_xi_eta_integral, T)/(2*pi/omega)
-
+"""
 for j in range(len(kappas)):
 	plt.plot(new_eps, u_squared_ana[:,j], "o", markersize=3, label=r"$\kappa=$"+str(kappas[j])[:5], color=sns.color_palette()[j])
 	plt.plot(epsilon, exp_u2[:, j], "-", color=sns.color_palette()[j])
@@ -140,7 +140,7 @@ filename = root + "figures/comparison_numeric_analytic.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
-
+"""
 for i in range(len(kappas)):
 	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])/exp_u2[:,i]), "o", markersize=3, label=r"$\kappa=$"+str(kappas[i])[:5], color=sns.color_palette()[i])
 	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])/exp_u2[:,i]), "-", linewidth=1, color=sns.color_palette()[i])
@@ -154,7 +154,7 @@ plt.legend(loc="best", fontsize=8, ncol=2)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
 
-filename = root+"figures/comparison_numeric_analytic_difference.pdf"
+filename = root+"figures/comparison_numeric_analytic_difference2.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()

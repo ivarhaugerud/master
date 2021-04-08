@@ -93,8 +93,9 @@ for i in range(len(T)):
 	#ax.plot([min(eta),max(eta)],[-1-epsilon-0.1,1+epsilon+0.1])
 	#ax.set_aspect(1)
 	#ax.set_xlim(min(eta), max(eta))
-	fig = plt.figure(1, figsize=(16.8, 2.95), edgecolor="white")
+	#fig = plt.figure(1, figsize=(16.8, 2.95), edgecolor="white")
 	plt.clf()
+	Map = matplotlib.cm.get_cmap('Spectral_r')
 	# Interpolate using three different methods and plot
 	ux = griddata( (x.flatten(),  y.flatten()), u_x[i,:,:].flatten()/U, (X, Y), method='nearest')
 	uy = griddata( (x.flatten(),  y.flatten()), u_y[i,:,:].flatten()/U, (X, Y), method='nearest')
@@ -103,9 +104,9 @@ for i in range(len(T)):
 	uy[np.where(np.abs(uy)<1e-5)] = 0
 
 	plt.streamplot(X, Y, ux, uy, color='k', start_points=stream_points, density=35)
-	CS = plt.contourf(X, Y, speed, levels=np.linspace(0, 1.0, 15))
+	CS = plt.contourf(X, Y, speed, levels=np.linspace(0, 1.0, 15), cmap=Map)
 	plt.streamplot(X+2*np.pi/kappa, Y, ux, uy, color='k', start_points=stream_points2, density=35)
-	CS = plt.contourf(X+2*np.pi/kappa, Y, speed, levels=np.linspace(0, 1.0, 15))
+	CS = plt.contourf(X+2*np.pi/kappa, Y, speed, levels=np.linspace(0, 1.0, 15), cmap=Map)
 	cbar = plt.colorbar(CS)
 	cbar.set_label(r"Velocity $[U_{max}]$", fontsize=12)
 	cbar.ax.yaxis.set_major_formatter(tick.FormatStrFormatter("%.1f"))
@@ -119,7 +120,7 @@ for i in range(len(T)):
 	plt.fill_between(x[0,:]+2*np.pi/kappa, ( 1.25)*np.ones(len(x[0,:])), -y[0,:], color="k")
 	#plt.axis([min(eta), max(eta), -1-epsilon-0.05, 1+epsilon+0.05])
 	plt.axis([min(eta), max(eta)+2*np.pi/kappa, -1-epsilon-0.05, 1+epsilon+0.05])
-	plt.axis("equal")
+	#plt.axis("equal")
 	plt.draw()
 	#fig.tight_layout()
 	#plt.axis("scaled")

@@ -66,7 +66,7 @@ plt.figure(1)
 for j in range(len(kappa)):
 	plt.plot(epsilon, D[:,j]-1, "-", label="Numeric")
 	plt.plot(epsilon, D[0,0]-1 + epsilon*epsilon*D_ana[j], "o", markersize=3, label="Semi-analytic")
-	plt.plot(epsilon, DA-1, "o", markersize=3, label="Analytic")
+	#plt.plot(epsilon, DA-1, "o", markersize=3, label="Analytic")
 plt.xscale("log")
 plt.yscale("log")
 
@@ -100,10 +100,9 @@ plt.tick_params(axis='both', which='minor', labelsize=8)
 filename = root + "figures/rel_diff_semi_analytic.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
-#plt.show()
+plt.show()
 
-
-
+"""
 plt.figure(3)
 epsilon = np.array([0.0, 0.0178, 0.0316, 0.056, 0.1, 0.177, 0.245, 0.31])
 for j in range(len(kappa)):
@@ -127,3 +126,4 @@ filename = root + "figures/rel_diff_analytic.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
+"""
