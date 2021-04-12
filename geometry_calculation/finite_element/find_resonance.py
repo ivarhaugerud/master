@@ -133,12 +133,12 @@ tol   = 1e-6
 k     = np.arange(-8, 8+0.01, 1)
 xi    = np.linspace(-1, 1, int(1e5))
 
-tau = 3.0
+tau = 6.0
 omega    = 2*np.pi/tau
-Ds       = np.arange(0.6, 2.7, 0.1)
-kappas   = np.arange(0.2, 1.75, 0.1)
-nu = 1.05
-F0 = 12/nu
+Ds       = np.array([25])#np.arange(0.6, 2.7, 0.1)
+kappas   = np.array([0.15])#np.arange(0.2, 1.75, 0.1)
+nu = 5
+F0 = 250/nu
 
 D_parallels = np.zeros((len(kappas), len(Ds)))
 
@@ -322,5 +322,5 @@ for K in range(len(Ds)):
 		plt.ylabel(r"Brenner field", fontsize=12)
 		plt.savefig("figures/Brenner_field_vs_t.pdf")
 		#plt.show()
-np.save("data/res_vs_D_kappa_2", D_parallels)
+np.save("data/D_para_kappa0.15_nu5.0_D25", D_parallels)
 plt.show()
