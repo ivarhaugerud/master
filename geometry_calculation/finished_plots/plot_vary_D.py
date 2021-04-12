@@ -50,6 +50,15 @@ for j in range(len(kappa)):
 plt.figure(1)
 for i in range(len(Lx)):
 	ind = len(Lx)-1-i
+	plt.plot(Dm, difference[ind, :], "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[ind], markersize=3)
+	plt.plot(Dm, difference[ind, :], color="C"+str(i), linewidth=1)
+plt.xscale("log")
+plt.yscale("log")
+plt.show()
+
+plt.figure(1)
+for i in range(len(Lx)):
+	ind = len(Lx)-1-i
 	plt.plot(U[ind,:]/Dm, D[ind, :], "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[ind], markersize=3)
 	plt.plot(U[ind,:]/Dm, D[ind, :], color="C"+str(i), linewidth=1)
 	#plt.plot(interpool_nu, interpool)

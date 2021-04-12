@@ -12,26 +12,11 @@ matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'	
 root = "../../../master_latex/results/"
 
-#set 0
 tau = np.array([2, 2.6, 3.69])
 epsilon = "0.5"
 dt = tau/500
 
-#set 1
-"""
-tau = np.array([2.25, 3.0, 4.5])
-epsilon = "0.3"
-dt = tau/750
-"""
-#set 2 
-"""
-tau = np.array([1.0, 7.38, 12.56])
-epsilon = "0.5"
-dt = tau/750
-"""
-
-#Lx = np.array([4.487, 4.654, 4.833, 5.026, 5.235, 5.463, 5.711, 5.983, 6.283, 6.613, 6.981, 7.391, 7.853, 8.377, 8.975])
-Lx = np.array([2.855, 3.49, 4.487, 5.235, 6.283, 10.47]) #, 7.853
+Lx = np.array([2.855, 3.49, 4.487, 5.235, 6.283, 6.613, 8.377, 10.47, 13.96]) #, 7.853
 tau = np.array([2.25, 2.6, 3.0, 3.6, 4.5])
 kappa = 2*np.pi/Lx 
 epsilon = "0.3"
@@ -43,6 +28,8 @@ Ts = np.ones(len(tau), dtype="int")*int(500)
 T = 750 
 
 plt.figure(1)
+kappa_cont = np.linspace(min(kappa), max(kappa), int(1e4))
+
 for i in range(len(kappa)):
 	for j in range(len(tau)):
 		data = np.loadtxt(base+"Lx" +  str(Lx[i]) +"_tau"+ str(round(tau[j], 3)) +"_eps"+epsilon+"_nu1.2_D1.0_fzero0.0_fone12.0_res150_dt" + str(round(dt[j], 6)) + "/tdata.dat")
@@ -56,21 +43,42 @@ for i in range(len(kappa)):
 		plt.title(str(kappa[i]) + ","+ str(tau[j]))
 		plt.xlabel(r" Time [periods]", fontsize=8)
 		plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel $",  fontsize=8)
-#plt.show()
+plt.show()
 
 gamma = np.sqrt(2*np.pi/(tau*1.2))
 rho   = np.sqrt(2*np.pi/(tau*1))
 
-plt.figure(2)
-for i in range(len(tau)):
-	plt.plot(kappa, difference[:, i], "o", markersize=3, label=r"$\rho=%3.2f$" % rho[i])
-plt.yscale("log")
+tau2 = np.array([7.0])
+Lx2 = np.array([8.377, 8.975, 9.666, 10.47])
+kappa2 = 2*np.pi/Lx2
+dt = tau/500
+
+D2 = np.zeros((len(kappa2), len(tau2)))
+difference2 = np.zeros(np.shape(D2))
+dt2 = tau2/750
+T = 750 
+rho2 = np.sqrt(2*np.pi/tau2[0])
+
+for i in range(len(Lx2)):
+	for j in range(len(tau2)):
+		data = np.loadtxt(base+"Lx" +  str(Lx2[i]) +"_tau"+ str(round(tau2[j], 3)) +"_eps"+epsilon+"_nu1.2_D1.0_fzero0.0_fone12.0_res150_dt" + str(round(dt2[j], 6)) + "/tdata.dat")
+		print(Lx2[i], tau2[j], np.shape(data), np.shape(D2))
+		D2[i, j] = sci.trapz(  data[:, 8][-T:],  data[:, 0][-T:] )/tau2[j]
+		difference2[i, j] = abs(D2[i, j] - sci.trapz(  np.trim_zeros(data[:, 8])[-2*T:-T],  np.trim_zeros(data[:, 0])[-2*T:-T] )/tau2[j])/D2[i,j]
+
+#plt.figure(2)
+#for i in range(len(tau)):
+#	plt.plot(kappa, difference[:, i], "o", markersize=3, label=r"$\rho=%3.2f$" % rho[i])
+#plt.yscale("log")
 #plt.show()
+
 
 plt.figure(3)
 for i in range(len(tau)):
 	plt.plot(kappa, D[:, i], "o", color="C"+str(i), markersize=3, label=r"$\rho=%3.2f$" % rho[i])
 	plt.plot(kappa, D[:, i], color="C"+str(i))
+plt.plot(kappa2, D2[:, 0], color="C"+str(len(tau)), markersize=3)
+plt.plot(kappa2, D2[:, 0], "o", markersize=3, color="C"+str(len(tau)), label=r"$\rho=%3.2f$" % rho2)
 
 #plt.axis([0.65, 1.45, 0.84, 0.98])
 plt.xlabel(r" Wave number $\kappa$", fontsize=8)
@@ -88,10 +96,15 @@ plt.figure(4)
 kappa_cont = np.linspace(min(kappa), max(kappa), int(1e4))
 for i in range(len(tau)):
 	grad = np.gradient(D[:, i], kappa)
-	interpoo = scp.interp1d(kappa, grad, "cubic")(kappa_cont)
+	interpoo = scp.interp1d(kappa, grad, "linear")(kappa_cont)
 	plt.plot(kappa, np.gradient(D[:, i], kappa), "o", color="C"+str(i), markersize=3, label=r"$\rho=%3.2f$" % rho[i])
 	plt.plot(kappa_cont, interpoo,      color="C"+str(i), markersize=3)
 
+grad = np.gradient(D2[:, 0], kappa2)
+kappa_cont2 = np.linspace(min(kappa2), max(kappa2), int(1e4))
+interpoo = scp.interp1d(kappa2, grad, "linear")(kappa_cont2)
+plt.plot(kappa2, np.gradient(D2[:, 0], kappa2), "o", color="C"+str(i), markersize=3, label=r"$\rho=%3.2f$" % rho[i])
+plt.plot(kappa_cont2, interpoo,      color="C"+str(i), markersize=3)
 
 plt.plot(kappa, np.zeros(len(kappa)), "k")
 plt.xlabel(r" Wave number $\kappa$", fontsize=8)
@@ -107,18 +120,22 @@ plt.show()
 
 
 
-kappa_res = np.zeros(len(tau))
+kappa_res = np.zeros(len(tau)+1)
 
 for i in range(len(tau)):
 	grad = np.gradient(D[:, i], kappa)
 	interpoo = scp.interp1d(kappa, grad, "cubic")(kappa_cont)
 	kappa_res[i] = kappa_cont[np.argmin(abs(interpoo))]
 
-#plt.plot(np.sqrt(2*np.pi/tau[i]), kappa_cont[np.argmin(abs(interpoo))], "o", color="C"+str(i), markersize=3, label=r"$\rho=%3.2f$" % rho[i])
-
+grad = np.gradient(D2[:, 0], kappa2)
+interpoo = scp.interp1d(kappa2, grad, "cubic")(kappa_cont2)
+kappa_res[-1] = kappa_cont2[np.argmin(abs(interpoo))]
+tau = np.array([2.25, 2.6, 3.0, 3.6, 4.5,  7.0])
+#tau_long = np.linspace(0.5, 15, int(1e5))
 plt.plot( np.sqrt(2*np.pi/tau), kappa_res, "o", markersize=3, label="Numeric")
-plt.plot( np.sqrt(2*np.pi/tau),  np.sqrt(2*np.pi/(2*tau)), label="Analytic" )
-plt.xlabel(r" Womersley number $\$", fontsize=8)
+#plt.plot( tau_long + 0*np.sqrt(2*np.pi/tau_long),  np.sqrt(2*np.pi/(2*tau_long)),    label="Analytic")
+plt.plot( np.sqrt(2*np.pi/tau),  np.sqrt(2*np.pi/(2*tau)),    label="Analytic")
+plt.xlabel(r" Womersley number $\sqrt{\frac{\omega a^2}{\nu}}$", fontsize=8)
 plt.ylabel(r" Resonance wave number $ \kappa_{res} $",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)

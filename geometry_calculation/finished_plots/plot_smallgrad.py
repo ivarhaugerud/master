@@ -29,17 +29,15 @@ omega = 2*np.pi/tau
 for i in range(len(epsilon)):
 	for j in range(len(kappa)):
 		res = int(170)
-		data = np.loadtxt(base+"Lx"+str(Lx[j])+"_tau6.0_eps"+str(epsilon[i])+"_nu100.0_D25.0_fzero0.0_fone5000.0_res"+str(res)+"_dt0.003/tdata.dat")
+		data = np.loadtxt(base+"Lx"+str(Lx[j])+"_tau6.0_eps"+str(epsilon[i])+"_nu5.0_D25.0_fzero0.0_fone250.0_res"+str(res)+"_dt0.003/tdata.dat")
 		D[i, j] = sci.trapz(  data[-T:, 8],  data[-T:, 0] )/tau
 		U[i, j] = sci.trapz(  data[-T:, 4],  data[-T:, 0] )/tau
 		difference[i, j] = abs(D[i,j] - sci.trapz(  data[-2*T:-T, 8],  data[-2*T:-T, 0] )/tau)/D[i,j]
-		#plt.plot(np.trim_zeros(data[:, 0])/tau, np.trim_zeros(data[:, 8]))
-		#plt.plot(np.trim_zeros(data[:, 0])[-T:]/tau, np.trim_zeros(data[:, 8])[-T:])
-		#plt.show()
+
 
 
 tau = 6.0
-nu  = 100
+nu  = 5
 Dm   = 25
 F0  = 5000/nu 
 omega = 2*np.pi/tau
@@ -54,7 +52,9 @@ from numpy import *
 D2  = 1/2*F0**2*Pe**2*(7/12*rho**8*conjugate(rho)**2 + rho**8/2 + rho**8*conjugate(rho)**3/(2*tanh(conjugate(rho))) + 7/4*rho**8*conjugate(rho)/tanh(conjugate(rho)) - 7/4*rho**8*conjugate(rho)**2/tanh(conjugate(rho))**2 - 1/2*rho**8*conjugate(rho)**3/tanh(conjugate(rho))**3 - 1/2*rho**7*conjugate(rho)**4/tanh(rho) + 1/2*rho**7*conjugate(rho)**4/tanh(rho)**3 - 11/4*rho**6*conjugate(rho)**4 - rho**6*conjugate(rho)**2 - rho**6*conjugate(rho)**5/tanh(conjugate(rho)) - 4*rho**6*conjugate(rho)**3/tanh(conjugate(rho)) + 4*rho**6*conjugate(rho)**4/tanh(conjugate(rho))**2 + rho**6*conjugate(rho)**5/tanh(conjugate(rho))**3 + 9/4*rho**6*conjugate(rho)**4/tanh(rho)**2 + rho**5*conjugate(rho)**6/tanh(rho) - 1/4*rho**5*conjugate(rho)**4/tanh(rho) - rho**5*conjugate(rho)**6/tanh(rho)**3 + 11/4*rho**4*conjugate(rho)**6 + 1/2*rho**4*conjugate(rho)**7/tanh(conjugate(rho)) + 1/4*rho**4*conjugate(rho)**5/tanh(conjugate(rho)) - 9/4*rho**4*conjugate(rho)**6/tanh(conjugate(rho))**2 - 1/2*rho**4*conjugate(rho)**7/tanh(conjugate(rho))**3 - 4*rho**4*conjugate(rho)**6/tanh(rho)**2 - 1/2*rho**3*conjugate(rho)**8/tanh(rho) + 4*rho**3*conjugate(rho)**6/tanh(rho) + 1/2*rho**3*conjugate(rho)**8/tanh(rho)**3 - 7/12*rho**2*conjugate(rho)**8 + rho**2*conjugate(rho)**6 + 7/4*rho**2*conjugate(rho)**8/tanh(rho)**2 - 7/4*rho*conjugate(rho)**8/tanh(rho) - 1/2*conjugate(rho)**8)/(rho**4*(rho**6 - 3*rho**4*conjugate(rho)**2 + 3*rho**2*conjugate(rho)**4 - conjugate(rho)**6)*conjugate(rho)**4)
 D2 += -1/(kappa*kappa) + 1/(kappa*tanh(kappa)) + 1 #approx 8/3 + O(kappa^2)
 DA = D[0,0] + epsilon*epsilon*D2
-D_ana = np.load("../finite_element/data/vary_kappa_small.npy")
+
+D_ana = np.load("../finite_element/data/D_para_kappa0.15_nu5.0_D25.npy")
+
 """
 for i in range(len(kappa)):
 	plt.plot(epsilon, difference[:,i])
@@ -62,6 +62,7 @@ plt.yscale("log")
 plt.xscale("log")
 plt.show()
 """
+
 plt.figure(1)
 for j in range(len(kappa)):
 	plt.plot(epsilon, D[:,j]-1, "-", label="Numeric")
@@ -102,7 +103,6 @@ plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
-"""
 plt.figure(3)
 epsilon = np.array([0.0, 0.0178, 0.0316, 0.056, 0.1, 0.177, 0.245, 0.31])
 for j in range(len(kappa)):
@@ -126,4 +126,3 @@ filename = root + "figures/rel_diff_analytic.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
-"""
