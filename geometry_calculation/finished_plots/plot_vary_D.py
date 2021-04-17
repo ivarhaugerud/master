@@ -23,10 +23,12 @@ base = "../data_test/vary_D/"
 D          = np.zeros((len(kappa), len(Dm)))
 difference = np.zeros(np.shape(D))
 U          = np.zeros(np.shape(D))
+D0         = np.zeros(np.shape(D))
 
 T = int(3/0.004)
 tau = 3.0
 omega = 2*np.pi/tau
+Sc = np.sqrt(D/1.2)
 
 for j in range(len(kappa)):
 	for i in range(len(Dm)):
@@ -76,23 +78,47 @@ os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
 
-plt.figure(2)
+
+"""
+nu = 1.2
+F0 = 12/nu
+for i in range(len(Dm)):
+	rho = np.sqrt(1j*omega/Dm[i])
+	rho_c = np.conjugate(rho)
+	Pe = 1/Dm[i]
+	gamma = np.sqrt(1j*omega/nu)
+	gamma_c = np.conjugate(gamma)
+	D0[:,i] = 1 + Pe*Pe*F0*F0*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma**4 - rho**4))*(1/(gamma*gamma)*(gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c)) - 1/(rho*rho)*(rho/np.tanh(rho) - rho_c/np.tanh(rho_c)))
+
+
+
+
+fig = plt.figure(2)
+ax1 = fig.add_subplot(111)
+#ax2 = ax1.twiny()
+
+#ax2.plot(Sc, np.ones(len(Sc)), alpha=0)
 for i in range(len(Lx)):
 	ind = len(Lx)-1-i
-	plt.plot(np.sqrt(omega/Dm), D[ind, :], "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[ind], markersize=3)
-	plt.plot(np.sqrt(omega/Dm), D[ind, :], color="C"+str(i), linewidth=1)
+	plt.plot(np.sqrt(omega/Dm), D[ind, :]-D0[ind,:], "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[ind], markersize=3)
+	plt.plot(np.sqrt(omega/Dm), D[ind, :]-D0[ind,:], color="C"+str(i), linewidth=1)
 
-plt.xlabel(r" Diffusive Womersley number $\sqrt{\frac{\omega a^2}{D}}$", fontsize=8)
+ax1.set_xlabel(r" Diffusive Womersley number $\sqrt{\frac{\omega a^2}{D}}$", fontsize=8)
+#ax2.set_xlabel(r" Schmidt number $\sqrt{\frac{D}{\nu}}$", fontsize=8)
+
 plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel$",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-plt.xscale("log")
+ax1.semilogx()#("log")
+#ax2.semilogx()#("log")
+
 filename = root + "figures/D_eff_vs_rho.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 
 plt.show()
+"""
 """
 plt.figure(2)
 for i in range(len(Lx)):
@@ -104,3 +130,34 @@ plt.yscale("log")
 plt.xscale("log")
 plt.show()
 """
+
+
+
+
+
+
+fig = plt.figure(2)
+ax1 = fig.add_subplot(111)
+#ax2 = ax1.twiny()
+
+#ax2.plot(Sc, np.ones(len(Sc)), alpha=0)
+for i in range(len(Lx)):
+	ind = len(Lx)-1-i
+	plt.plot(np.sqrt(omega/Dm), D[ind, :], "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[ind], markersize=3)
+	plt.plot(np.sqrt(omega/Dm), D[ind, :], color="C"+str(i), linewidth=1)
+
+ax1.set_xlabel(r" Diffusive Womersley number $\sqrt{\frac{\omega a^2}{D}}$", fontsize=8)
+#ax2.set_xlabel(r" Schmidt number $\sqrt{\frac{D}{\nu}}$", fontsize=8)
+
+plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel$",  fontsize=8)
+plt.legend(loc="best", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+ax1.semilogx()#("log")
+#ax2.semilogx()#("log")
+
+filename = root + "figures/D_eff_vs_rho.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+
+plt.show()

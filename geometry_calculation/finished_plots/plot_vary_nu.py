@@ -49,11 +49,11 @@ interpool_nu = np.logspace(np.log10(min(nu)), np.log10(max(nu)), int(1e4))
 plt.figure(1)
 for i in range(len(Lx)):
 	ind = len(Lx)-1-i
-	plt.plot((omega/nu), D[ind, :], "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[ind], markersize=3)
-	plt.plot((omega/nu), D[ind, :], color="C"+str(i), linewidth=1)
+	plt.plot(np.sqrt(omega/nu), D[ind, :], "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[ind], markersize=3)
+	plt.plot(np.sqrt(omega/nu), D[ind, :], color="C"+str(i), linewidth=1)
 	#plt.plot(interpool_nu, interpool)
 
-plt.xlabel(r" Womersley number $\frac{\omega a^2}{\nu}$", fontsize=8)
+plt.xlabel(r" Womersley number $\sqrt{\frac{\omega a^2}{\nu}}$", fontsize=8)
 plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel $",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
@@ -67,7 +67,7 @@ os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.figure(2)
 for i in range(len(Lx)):
 	ind = len(Lx)-1-i
-	plt.plot((omega/nu), difference[ind, :], "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[ind], markersize=3)
+	plt.plot(np.sqrt(omega/nu), difference[ind, :], "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[ind], markersize=3)
 	#plt.plot((omega/nu), D[ind, :], color="C"+str(i), linewidth=1)
 plt.yscale("log")
 #plt.show()
@@ -92,5 +92,25 @@ plt.xlabel(r"viscosity $\nu$")
 plt.xscale("log")
 plt.yscale("log")
 plt.legend(loc="best")
+
+
+
+
+plt.figure(5)
+for i in range(len(Lx)):
+	ind = len(Lx)-1-i
+	plt.plot(U[ind,:], D[ind, :], "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[ind], markersize=3)
+	plt.plot(U[ind,:], D[ind, :], color="C"+str(i), linewidth=1)
+	#plt.plot(interpool_nu, interpool)
+
+plt.xlabel(r" Womersley number $\frac{\omega a^2}{\nu}$", fontsize=8)
+plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel $",  fontsize=8)
+plt.legend(loc="best", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+plt.xscale("log")
+#filename = root + "figures/D_eff_vs_nu.pdf"
+#plt.savefig(filename, bbox_inches="tight")
+#os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 
 plt.show()

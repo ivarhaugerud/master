@@ -16,13 +16,15 @@ def velocity(xi, eta, t):
 
 #simulation parameters
 dt           = 0.01
-tau          = 3.0 
-periods      = 25
+tau          = 3.0
+omega        = 2*np.pi/tau
+kappa        = 1.0 
+periods      = 100
 timesteps    = int(tau/dt)
-datafiles    = 1000
-N            = int(1000)
+datafiles    = 5
+N            = int(2*1e3)
 RW_timesteps = 10
-D            = 1.0
+D            = np.sqrt(omega/(2*kappa*kappa))
 alpha        = np.sqrt(2*D*dt/RW_timesteps)
 var          = np.zeros(int(periods*timesteps))
 t            = np.linspace(0, tau-dt, timesteps)+tau/2
@@ -32,8 +34,6 @@ print("Diffusive transport:", alpha)
 print("Advective transport:", dt)
 
 epsilon = 0.3
-omega = 2*np.pi/tau
-kappa = np.sqrt(omega/(2*D))
 l = 2*np.pi/kappa
 nu = 1.2
 F0 = 12/nu 
@@ -48,7 +48,7 @@ Ax = sqrt(gamma**2 + 4*kappa**2)*(F0*gamma**2*sinh(2*kappa)*tanh(kappa_p) + 2*P_
 Ay = kappa*(F0*gamma**2*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*gamma**2*sinh(kappa)*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*kappa**2*cosh(kappa)*cosh(2*kappa)*tanh(kappa_p) - 2*P_1*kappa*kappa_p*sinh(kappa)*cosh(2*kappa))/(2*gamma**2*(2*kappa*sinh(sqrt(gamma**2 + 4*kappa**2))*cosh(2*kappa) - sqrt(gamma**2 + 4*kappa**2)*sinh(2*kappa)*cosh(sqrt(gamma**2 + 4*kappa**2)))*tanh(kappa_p))
 psi_2 = (P_1*sqrt(gamma**2 + 4*kappa**2)*(kappa*cosh(kappa)*tanh(kappa_p) - kappa_p*sinh(kappa))*cosh(sqrt(gamma**2 + 4*kappa**2)) + gamma**2*(F0 + 2*P_1*sinh(kappa))*sinh(sqrt(gamma**2 + 4*kappa**2))*tanh(kappa_p))/(4*(2*kappa*sinh(sqrt(gamma**2 + 4*kappa**2))*cosh(2*kappa) - sqrt(gamma**2 + 4*kappa**2)*sinh(2*kappa)*cosh(sqrt(gamma**2 + 4*kappa**2)))*tanh(kappa_p))
 
-test_y = np.linspace(-4*np.pi/kappa, 5*np.pi/kappa, 1000)
+test_y = np.linspace(-3*np.pi/kappa, 3*np.pi/kappa, 1000)
 test_x = np.linspace(-1-epsilon, 1+epsilon, 500)
 u = np.zeros((len(test_x), len(test_y)))
 
@@ -80,13 +80,15 @@ for k in range(1, int(periods*timesteps)):
         prev_pos = np.copy(pos)
     plt.clf()
     """
-    if k % 2 == 0:
+    if k % 10 == 0:
         plt.scatter(pos[k, 0, :], pos[k, 1, :], s=0.5)
         plt.plot(test_y, 1+epsilon*np.sin(kappa*test_y), "k")
         plt.plot(test_y,-1-epsilon*np.sin(kappa*test_y), "k")
+        plt.axis("equal")
         plt.pause(0.01)
-    var[k] = np.var(pos[0, :])
     """
+    var[k] = np.var(pos[0, :])
+    
     
     if k % pos_saves[saves_counter] == 0:
         print("timestep:", k, " out of ", int(periods*timesteps), " proportion: ", k/int(periods*timesteps))
@@ -109,6 +111,8 @@ print("Wavelength:", 2*np.pi/kappa)
 print("Diffusion length in that time: ", np.sqrt(D*tau))
 
 """
+plt.plot(var)
+plt.show()
 n = Nt
 FPI = np.argmax(abs(pos[-1, 0, :]))
 U -= np.min(U)
@@ -118,11 +122,14 @@ test_y = np.linspace(0, np.max(pos[:, 0, FPI]), 1000)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 s = 10 # Segment length
+
 for i in range(0,n-s,s):
     ax.plot(pos[i:i+s+1, 0, FPI],pos[i:i+s+1, 1, FPI],color=(U[i],0.0,U[i]))
 
 #plt.scatter(pos[:, 0, FPI], pos[:, 1, FPI],  c=U/np.max(U), cmap="hsv", s=1)
 plt.plot(test_y, 1+epsilon*np.sin(kappa*test_y), "k")
 plt.plot(test_y,-1-epsilon*np.sin(kappa*test_y), "k")
+plt.axis("equal")
+
 plt.savefig("figure.png")
 plt.show()

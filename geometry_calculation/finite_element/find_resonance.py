@@ -133,20 +133,24 @@ tol   = 1e-6
 k     = np.arange(-8, 8+0.01, 1)
 xi    = np.linspace(-1, 1, int(1e5))
 
-tau = 6.0
+tau = 3.0
 omega    = 2*np.pi/tau
-Ds       = np.array([25])#np.arange(0.6, 2.7, 0.1)
-kappas   = np.array([0.15])#np.arange(0.2, 1.75, 0.1)
-nu = 5
-F0 = 250/nu
+Ds       = np.array([1.0]) #np.logspace(-3, 0, 20) #np.arange(0.6, 2.7, 0.1)
+kappas   = np.array([0.85, 0.90, 0.95, 1.0, 1.05, 1.10, 1.15])#np.arange(0.2, 1.75, 0.1)
+nu = 1.2
+F0s = np.linspace(6, 60, 10)/nu
 
-D_parallels = np.zeros((len(kappas), len(Ds)))
+D_parallels = np.zeros((len(kappas), len(F0s)))
 
+ey = np.load("data/D_para_vary_kapap_F0_D1.0_nu1.0_tau3.0.npy")
+for i in range(len(F0s[3:7])):
+	plt.plot(kappas, ey[:, i])
+plt.show()
 
-for K in range(len(Ds)):
+for K in range(len(F0s)):
 	for O in range(len(kappas)):
-		#nu    = nus[K]
-		D = Ds[K]
+		F0 = F0s[K]
+		D = Ds[0]
 		Pe = 1/D
 		kappa = kappas[O]
 
@@ -307,7 +311,7 @@ for K in range(len(Ds)):
 
 
 		D_parallels[O, K] = scpi.trapz(np.real(total_D), t)/(2*np.pi/(omega))
-		print(Ds[K], kappas[O], D_parallels[O, K])
+		print(F0s[K], kappas[O], D_parallels[O, K])
 		np.save("data/total_D_kappa"+str(kappa)[:4], D_eff)
 
 		plt.figure(1)
@@ -322,5 +326,5 @@ for K in range(len(Ds)):
 		plt.ylabel(r"Brenner field", fontsize=12)
 		plt.savefig("figures/Brenner_field_vs_t.pdf")
 		#plt.show()
-np.save("data/D_para_kappa0.15_nu5.0_D25", D_parallels)
+np.save("data/D_para_vary_kapap_F0_D1.0_nu1.0_tau3.0", D_parallels)
 plt.show()

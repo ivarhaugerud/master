@@ -57,7 +57,6 @@ plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
-"""
 Schmidt = np.logspace(-4, 4, int(1e4))
 D = np.logspace(-3, 2, 6)
 Pe = 1/D
@@ -93,4 +92,47 @@ filename = root + "figures/D0_vs_Schmidt.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
-"""
+
+
+
+
+
+F0 = 3
+Pe = 1.0
+D   = np.logspace(-6, 1, 300)
+Pe = 1/D
+n   = np.logspace(-2.001, 2.001, 350)
+Gamma = np.sqrt(1j/n)
+rho   = np.sqrt(1j/D)
+Gamma_c = np.conjugate(Gamma)
+rho_c   = np.conjugate(rho)
+from numpy import *
+
+D_eff  = np.zeros((len(D), len(n), 2))
+D_eff2 = np.zeros((len(D), len(n), 2))
+
+G = np.sqrt(1/n)
+R = np.sqrt(1/D)
+
+for i in range(len(n)):
+    gamma = Gamma[i]
+    gamma_c = Gamma_c[i]
+    D_eff2[:, i, 0] = 1 + F0*F0*Pe*Pe*np.tanh(gamma)*np.tanh(gamma_c)/(4*gamma*gamma_c*(gamma**4 - rho**4))*(1/(gamma*gamma)*(gamma/np.tanh(gamma) - gamma_c/np.tanh(gamma_c)) - 1/(rho*rho)*(rho/np.tanh(rho) - rho_c/np.tanh(rho_c)))    
+
+fig = plt.figure(1)
+x_, y_ = np.meshgrid(R, G)
+Map = matplotlib.cm.get_cmap('Spectral_r')
+
+ax1 = plt.contourf(x_,y_, np.transpose((D_eff2[:,:,0])), cmap=Map)
+cbar = fig.colorbar(ax1, format='%1.2f')
+cbar.ax.set_ylabel(r'Effective diffusion coefficient $D_\parallel$', fontsize=8)
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel(r"Diffusive Womserley number $\sqrt{\frac{\omega a^2}{D}}$", fontsize=8)
+plt.ylabel(r"Womserley number $\sqrt{\frac{\omega a^2}{\nu}}$", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+filename = root + "figures/D_0_eff_full.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+plt.show()
