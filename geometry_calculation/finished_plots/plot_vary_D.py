@@ -36,6 +36,7 @@ for j in range(len(kappa)):
 			data = np.loadtxt(base+"Lx"+str(Lx[j]) + "_tau3.0_eps0.5_nu1.2_D"+str(Dm[i])[:4]+"_fzero0.0_fone12.0_res125_dt0.004/tdata.dat")
 			D[j, i] = sci.trapz(  data[-T:, 8],  data[-T:, 0] )/tau
 			U[j, i] = sci.trapz(  data[-T:, 4],  data[-T:, 0] )/tau
+			print(len(data[:, 8]))
 			difference[j, i] = abs(D[j,i] - sci.trapz(  data[-2*T:-T, 8],  data[-2*T:-T, 0] )/tau)/D[j, i]
 			#plt.plot(np.trim_zeros(data[:, 0])/tau, np.trim_zeros(data[:, 8]))
 			#plt.plot(np.trim_zeros(data[:, 0])[-T:]/tau, np.trim_zeros(data[:, 8])[-T:])
@@ -44,6 +45,7 @@ for j in range(len(kappa)):
 			data = np.loadtxt(base+"Lx"+str(Lx[j]) + "_tau3.0_eps0.5_nu1.2_D"+str(Dm[i])[:5]+"_fzero0.0_fone12.0_res125_dt0.004/tdata.dat")
 			D[j, i] = sci.trapz(  data[-T:, 8],  data[-T:, 0] )/tau
 			U[j, i] = sci.trapz(  data[-T:, 4],  data[-T:, 0] )/tau
+			print(len(data[:, 8]))
 			difference[j, i] = abs(D[j,i] - sci.trapz(  data[-2*T:-T, 8],  data[-2*T:-T, 0] )/tau)/D[j, i]
 			#plt.plot(np.trim_zeros(data[:, 0])/tau, np.trim_zeros(data[:, 8]))
 			#plt.plot(np.trim_zeros(data[:, 0])[-T:]/tau, np.trim_zeros(data[:, 8])[-T:])

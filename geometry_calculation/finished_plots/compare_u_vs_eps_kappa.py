@@ -63,7 +63,7 @@ pi = np.pi
 Nt = 300
 T = np.linspace(0, 2*np.pi/omega, Nt)
 N_eta = 350
-xi = np.linspace(-1, 1, 500)
+xi = np.linspace(-1, 1, 1500)
 
 u_x = np.zeros((len(T), len(xi), N_eta, 3))
 u_y = np.zeros((len(T), len(xi), N_eta, 3))
@@ -125,7 +125,6 @@ for j in range(len(kappas)):
 			after_xi_eta_integral[i] = integrate.trapz(after_xi_integral[i,:], eta)/(2*np.pi/kappa)
 
 		u_squared_ana[e, j] = integrate.trapz(after_xi_eta_integral, T)/(2*pi/omega)
-"""
 for j in range(len(kappas)):
 	plt.plot(new_eps, u_squared_ana[:,j], "o", markersize=3, label=r"$\kappa=$"+str(kappas[j])[:5], color=sns.color_palette()[j])
 	plt.plot(epsilon, exp_u2[:, j], "-", color=sns.color_palette()[j])
@@ -140,10 +139,10 @@ filename = root + "figures/comparison_numeric_analytic.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
-"""
+
 for i in range(len(kappas)):
-	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])/exp_u2[:,i]), "o", markersize=3, label=r"$\kappa=$"+str(kappas[i])[:5], color=sns.color_palette()[i])
-	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])/exp_u2[:,i]), "-", linewidth=1, color=sns.color_palette()[i])
+	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])), "o", markersize=3, label=r"$\kappa=$"+str(kappas[i])[:5], color=sns.color_palette()[i])
+	plt.plot(epsilon, abs((u_squared_ana[:,i]-exp_u2[:,i])), "-", linewidth=1, color=sns.color_palette()[i])
 
 epsilon = np.linspace(0.03, max(epsilon), int(1e3))
 plt.plot(epsilon, epsilon**4/(1-epsilon), "k")
