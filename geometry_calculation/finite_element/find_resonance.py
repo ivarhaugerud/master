@@ -136,16 +136,25 @@ xi    = np.linspace(-1, 1, int(1e5))
 tau = 3.0
 omega    = 2*np.pi/tau
 Ds       = np.array([1.0]) #np.logspace(-3, 0, 20) #np.arange(0.6, 2.7, 0.1)
-kappas   = np.array([0.85, 0.90, 0.95, 1.0, 1.05, 1.10, 1.15])#np.arange(0.2, 1.75, 0.1)
-nu = 1.2
+kappas   = np.arange(0.5, 1.501, 0.1) #np.array([0.85, 0.90, 0.95, 1.0, 1.05, 1.10, 1.15])#np.arange(0.2, 1.75, 0.1)
+nu = 5.0
 F0s = np.linspace(6, 60, 10)/nu
 
 D_parallels = np.zeros((len(kappas), len(F0s)))
+max_val = np.zeros(len(F0s))
 
-ey = np.load("data/D_para_vary_kapap_F0_D1.0_nu1.0_tau3.0.npy")
-for i in range(len(F0s[3:7])):
+ey = np.load("data/D_para_vary_kapap_F0_D1.0_nu1.0_tau3.0_try2.npy")
+for i in range(len(F0s)):
 	plt.plot(kappas, ey[:, i])
+	indxs = np.argmax(ey[:, i])
+	plt.plot(kappas[indxs], ey[indxs, i], "ko")
+	max_val[i] = (kappas[indxs])
 plt.show()
+
+plt.plot(F0s, max_val)
+plt.plot(F0s, max_val, "ko")
+plt.show()
+
 
 for K in range(len(F0s)):
 	for O in range(len(kappas)):
@@ -326,5 +335,5 @@ for K in range(len(F0s)):
 		plt.ylabel(r"Brenner field", fontsize=12)
 		plt.savefig("figures/Brenner_field_vs_t.pdf")
 		#plt.show()
-np.save("data/D_para_vary_kapap_F0_D1.0_nu1.0_tau3.0", D_parallels)
+np.save("data/D_para_vary_kapap_F0_D1.0_nu1.0_tau3.0_try2", D_parallels)
 plt.show()
