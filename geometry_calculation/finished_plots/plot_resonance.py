@@ -115,7 +115,7 @@ plt.tick_params(axis='both', which='minor', labelsize=8)
 #os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
-
+"""
 plt.figure(5)
 for i in range(len(tau)):
 	plt.plot(kappa, D0[:,i], "o", color="C"+str(i), markersize=3, label=r"$\rho=%3.2f$" % R[i])
@@ -125,7 +125,7 @@ plt.plot(kappa2, D2_0*np.ones(len(kappa2)), "o", markersize=3, color="C"+str(len
 
 #plt.axis([0.65, 1.45, 0.84, 0.98])
 plt.xlabel(r"Wave number $\kappa$", fontsize=8)
-plt.ylabel(r"Change in effective Diffusion Coefficient $ D_\parallel-D_\parallel^{(0)} $",  fontsize=8)
+plt.ylabel(r"Change in dispersion Coefficient $ D_\parallel-D_\parallel^{(0)} $",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
@@ -133,7 +133,7 @@ plt.tick_params(axis='both', which='minor', labelsize=8)
 #plt.savefig(filename, bbox_inches="tight")
 #os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
-
+"""
 plt.figure(5)
 for i in range(len(tau)):
 	plt.plot(kappa, D[:, i]-D0[:,i], "o", color="C"+str(i), markersize=3, label=r"$\rho=%3.2f$" % R[i])
@@ -143,13 +143,13 @@ plt.plot(kappa2, D2[:, 0]-D2_0, "o", markersize=3, color="C"+str(len(tau)), labe
 
 #plt.axis([0.65, 1.45, 0.84, 0.98])
 plt.xlabel(r"Wave number $\kappa$", fontsize=8)
-plt.ylabel(r"Change in effective Diffusion Coefficient $ D_\parallel-D_\parallel^{(0)} $",  fontsize=8)
+plt.ylabel(r"Change in Dispersion $ D_\parallel-D_\parallel^{(0)} $",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-#filename = root + "figures/semi_ana_resonance_change.pdf"
-#plt.savefig(filename, bbox_inches="tight")
-#os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+filename = root + "figures/semi_ana_resonance_change.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
 

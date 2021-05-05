@@ -30,7 +30,7 @@ def linear_regresion(x, y):
     #using linear regression from Squires, with uncertainty to find slope and constant term
 
 
-D_parallels = np.load("data/D_para_vary_kappa_D_omega_nu1000_F01000.npy")
+D_parallels = np.load("data/D_para_vary_kappa_D_omega_nu1000_F0500.npy")
 
 
 taus      = np.logspace(-2, 2, 10)
@@ -103,6 +103,7 @@ for i in range(len(taus)):
 plt.legend(loc="best", fontsize=8)
 plt.show()
 
+"""
 
 for i in range(len(Ds)):
 	#plt.plot(omegas/(Ds[i])**(1/3), kappa_res[:, i], label=r"$D=%3.2f$" % Ds[i])
@@ -113,13 +114,32 @@ for i in range(len(Ds)):
 plt.show()
 
 
+for i in range(len(Ds)):
+	plt.plot(omegas[np.where(kappa_res[:,i] != 0)], np.trim_zeros(kappa_res[:, i]), label=r"$D=%3.2f$" % Ds[i])
+	#plt.plot(omegas[np.where(kappa_res[:,i] != 0)], np.sqrt(omegas[np.where(kappa_res[:,i] != 0)]/(2*Ds[i])))
+	plt.legend(loc="best", fontsize=8)
+plt.xscale("log")
+plt.show()
+"""
+for i in range((2)):
+	i += 1
+	plt.plot(Ds[np.where(kappa_res[-i,:] != 0)], np.trim_zeros(kappa_res[-i, :]), label=r"$\omega=%3.2f$" % omegas[-i], color="C"+str(i))
+	#plt.plot(omegas[np.where(kappa_res[:,i] != 0)], np.sqrt(omegas[np.where(kappa_res[:,i] != 0)]/(2*Ds[i])))
+	m, c, delta_m, delta_c = linear_regresion(np.log(Ds[np.where(kappa_res[-i,:] != 0)]), np.log(np.trim_zeros(kappa_res[-i, :])))
+	plt.plot(Ds[np.where(kappa_res[-i,:] != 0)], np.exp(c+m*np.log(Ds[np.where(kappa_res[-i,:] != 0)])), color="C"+str(i))
+	print(m, c, delta_m, delta_c)
+plt.legend(loc="best", fontsize=8)
+plt.xscale("log")
+plt.yscale("log")
+plt.show()
+
 
 
 fig = plt.figure(1)
 x_, y_ = np.meshgrid(omegas, Ds)
 Map = matplotlib.cm.get_cmap('Spectral_r')
-#kappa_res[np.where(kappa_res == 0)] = -0.00001
-ax1 = plt.contourf(x_,y_, np.transpose(((kappa_res))) )# , levels=np.linspace(min(kappas), np.amax(kappa_res), 15), cmap=Map) pcolormesh
+kappa_res[np.where(kappa_res == 0)] = -1e6
+ax1 = plt.contourf(x_,y_, np.transpose(((kappa_res))) , levels=np.linspace(min(kappas), np.amax(kappa_res), 15), cmap=Map)# pcolormesh
 cbar = fig.colorbar(ax1, format='%1.2f')
 cbar.ax.set_ylabel(r'Resonance wave length $\lambda_{res}$', fontsize=8)
 plt.xscale('log')
