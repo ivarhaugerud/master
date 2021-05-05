@@ -22,6 +22,7 @@ kappa = 2*np.pi/Lx
 epsilon = "0.3"
 base = "../data_test/find_resonance_try5/"
 D = np.zeros((len(kappa), len(tau)))
+U = np.zeros(np.shape(D))
 D0 = np.zeros(np.shape(D))
 difference = np.zeros(np.shape(D))
 dt = tau/750
@@ -50,13 +51,19 @@ for i in range(len(kappa)):
 		print(kappa[i], tau[j], np.shape(data), np.shape(D))
 		D[i, j] = sci.trapz(  data[:, 8][-T:],  data[:, 0][-T:] )/tau[j]
 		difference[i, j] = abs(D[i, j] - sci.trapz(  np.trim_zeros(data[:, 8])[-2*T:-T],  np.trim_zeros(data[:, 0])[-2*T:-T] )/tau[j])/D[i,j]
-
-		#if D[i, j] > 1.0:
+		U[i, j] = sci.trapz(  data[:, 4][-T:],  data[:, 0][-T:] )/tau[j]
+		#if D[i, j] > 1.0:	
 		#plt.plot(np.trim_zeros(data[:, 0])/tau[j], np.trim_zeros(data[:, 8]))
 		plt.plot(np.trim_zeros(data[:, 0])[-T:]/tau[j], np.trim_zeros(data[:, 8])[-T:])
 		plt.title(str(kappa[i]) + ","+ str(tau[j]))
 		plt.xlabel(r" Time [periods]", fontsize=8)
 		plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel $",  fontsize=8)
+plt.show()
+
+plt.figure(2)
+for i in range(len(tau)):
+	plt.plot(kappa, U[:, i]/1.2, "o", markersize=3, label=r"$\tau=%3.2f$" % tau[i])
+#plt.yscale("log")
 plt.show()
 
 G = np.sqrt(2*np.pi/(tau*1.2))
@@ -88,11 +95,6 @@ for i in range(len(Lx2)):
 		D2[i, j] = sci.trapz(  data[:, 8][-T:],  data[:, 0][-T:] )/tau2[j]
 		difference2[i, j] = abs(D2[i, j] - sci.trapz(  np.trim_zeros(data[:, 8])[-2*T:-T],  np.trim_zeros(data[:, 0])[-2*T:-T] )/tau2[j])/D2[i,j]
 
-#plt.figure(2)
-#for i in range(len(tau)):
-#	plt.plot(kappa, difference[:, i], "o", markersize=3, label=r"$\rho=%3.2f$" % rho[i])
-#plt.yscale("log")
-#plt.show()
 
 
 plt.figure(3)
@@ -108,9 +110,9 @@ plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel $",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-filename = root + "figures/semi_ana_resonance.pdf"
-plt.savefig(filename, bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+#filename = root + "figures/semi_ana_resonance.pdf"
+#plt.savefig(filename, bbox_inches="tight")
+#os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
 
@@ -145,9 +147,9 @@ plt.ylabel(r"Change in effective Diffusion Coefficient $ D_\parallel-D_\parallel
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-filename = root + "figures/semi_ana_resonance_change.pdf"
-plt.savefig(filename, bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+#filename = root + "figures/semi_ana_resonance_change.pdf"
+#plt.savefig(filename, bbox_inches="tight")
+#os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
 
@@ -171,9 +173,9 @@ plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel $",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-filename = root + "figures/interpolated_resonance_deriv.pdf"
-plt.savefig(filename, bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+#filename = root + "figures/interpolated_resonance_deriv.pdf"
+#plt.savefig(filename, bbox_inches="tight")
+#os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
 
 
@@ -199,7 +201,7 @@ plt.ylabel(r" Resonance wave number $ \kappa_{res} $",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-filename = root + "figures/test_analytic_resonance.pdf"
-plt.savefig(filename, bbox_inches="tight")
-os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+#filename = root + "figures/test_analytic_resonance.pdf"
+#plt.savefig(filename, bbox_inches="tight")
+#os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()

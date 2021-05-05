@@ -52,12 +52,12 @@ idxs = [1, 2, 3, 4, 6]
 counter = 0
 for i in idxs:
     fig = plt.figure(1)
-    plt.plot(t[::plot_skip], data[str(i)][::plot_skip], "C"+str(counter), label=r"$\gamma=%3.2f$" % (G[i]))
+    plt.plot(t[::plot_skip], data[str(i)][::plot_skip], "C"+str(counter), label=r"Wo=$%3.2f$" % (G[i]))
     plt.plot(t[::plot_skip], np.ones(len(t[::plot_skip]))*analytic[i], "-", color="C"+str(counter))
     plt.fill_between(t[::plot_skip], np.ones(len(t[::plot_skip]))*analytic[i], data[str(i)][::plot_skip], alpha=0.5)
     counter += 1
 
-plt.legend(loc="best", fontsize=8, ncol=3)
+plt.legend(loc="best", fontsize=7, ncol=3)
 plt.xlabel(r"Time [periods $\tau$]", fontsize=8)
 plt.axis([10, 1015, 0.9, 2.25])
 plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
@@ -87,7 +87,7 @@ for i in range(len(visc)):
 
 plt.plot(1/(G*G), analytic, label="Analytic")
 plt.legend(loc="best", fontsize=8)
-plt.xlabel(r"Inverse squared Womersley number $1/\gamma^2$", fontsize=8)
+plt.xlabel(r"Inverse squared Womersley number Wo$^{-2}$", fontsize=8)
 plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
 plt.savefig("figures/comparison_analytic_and_numeric.png")
 plt.tick_params(axis='both', which='major', labelsize=8)

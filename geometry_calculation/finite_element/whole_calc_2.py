@@ -130,31 +130,17 @@ def coupled_finite_element_solver(N, n, x, alpha, couple_forward, couple_backwar
 	return u, sol
 
 tol   = 1e-6
-k     = np.arange(-10, 10+0.01, 1)
+k     = np.arange(-8, 8+0.01, 1)
 xi    = np.linspace(-1, 1, int(1e5))
-Lx = 4.48
-kappa = 2*np.pi/Lx
-nus = np.logspace(-2, 2, 10)[:9]
-#kappas   = np.arange(0.2, 2.201, 0.1) #np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2])
-
-#system parameters
-#nu  = 1.2
-#D   = 1.0
-#F0  = 12/nu
-#Pe = 1/D
 
 nu = 5
-kappa = 2*np.pi/41.89
-D = 4
-F0 = 250/nu 
+F0 = 5/nu
+D = 0.01
 Pe = 1/D
-tau = 6 #2*np.pi/3.0
-
-
+tau = 3
 
 omega = 2*np.pi/tau 
-Lx = np.array([17.95,  41.88])
-kappas = 2*np.pi/Lx
+kappas = np.arange(0.1, 5.5, 0.5)
 D_parallels = np.zeros(len(kappas))
 
 
@@ -192,7 +178,7 @@ for K in range(len(kappas)):
 
 	#works for differential equation with constant terms, now just need coupeling to work as well
 	n = len(k) #number of vectors
-	N = 150
+	N = 100
 	N_pos = np.linspace(-1, 1, N)
 	Delta = N_pos[1]-N_pos[0]
 
@@ -355,5 +341,5 @@ for K in range(len(kappas)):
 	plt.ylabel(r"Brenner field", fontsize=12)
 	plt.savefig("figures/Brenner_field_vs_t.pdf")
 	#plt.show()
-np.save("data/D_eff_vary_D_nu5_D4_tau6_F0250", D_parallels)
+np.save("data/D_eff_test_validity", D_parallels)
 plt.show()
