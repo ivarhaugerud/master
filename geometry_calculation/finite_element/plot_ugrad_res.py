@@ -119,7 +119,7 @@ fig = plt.figure(1)
 x_, y_ = np.meshgrid(omegas, Ds)
 Map = matplotlib.cm.get_cmap('Spectral_r')
 #kappa_res[np.where(kappa_res == 0)] = -0.00001
-ax1 = plt.pcolormesh(x_,y_, np.transpose(((kappa_res))) )# , levels=np.linspace(min(kappas), np.amax(kappa_res), 15), cmap=Map)
+ax1 = plt.contourf(x_,y_, np.transpose(((kappa_res))) )# , levels=np.linspace(min(kappas), np.amax(kappa_res), 15), cmap=Map) pcolormesh
 cbar = fig.colorbar(ax1, format='%1.2f')
 cbar.ax.set_ylabel(r'Resonance wave length $\lambda_{res}$', fontsize=8)
 plt.xscale('log')
