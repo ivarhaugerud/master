@@ -23,17 +23,14 @@ kappa_num   = np.array([0.2, 0.6, 1.0, 1.4, 1.8, 2.2, 2.5]) #0.2
 
 eps2 = np.arange(0.4, 0.501, 0.1)
 additional_RW = np.zeros((len(eps2), len(kappa_num), 2))
+
 for i in range(len(eps2)):
 	for j in range(len(kappa)):
 		data = np.load("../data_test/RW_eps_04_05/var_over_2Dm_D01_kappa%3.2f" %(kappa_num[j])+"_eps"+str(eps2[i])+"_periods400.npy")
 		t2 = np.linspace(0, 600*3, len(data))
 		cutoff = int(len(t2)/2)
-		print(data)
 		additional_RW[i, j, 0] = np.mean(data[cutoff:]/t2[cutoff:])
 		additional_RW[i, j, 1] = np.std( data[cutoff:]/t2[cutoff:])
-		#plt.plot(t2, data/t2)
-		#plt.plot(t2[cutoff:], data[cutoff:]/t2[cutoff:])
-	#plt.show()
 
 eps3 = np.array([0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50])
 T3 = int(3.0/0.004)
@@ -51,10 +48,12 @@ for i in range(len(eps3)):
 		#plt.plot(data[-T3:, 0], data[-T3:, 8])
 	#plt.show()
 
+plt.figure(4)
 for i in range(len(eps3)):
 	plt.plot(kappa3, difference[i,:])
 plt.yscale("log")
-plt.show()
+#plt.show()
+
 tau = 3
 dt  = 0.004
 nu  = 1.2
@@ -80,11 +79,31 @@ for i in range(len(epsilon)):
 		D_RW[i, j, 0] = np.mean(RW_sim[i, j, cutoff:]/t[cutoff:])
 		D_RW[i, j, 1] = np.std( RW_sim[i, j, cutoff:]/t[cutoff:])
 
+plt.figure(1)
 for i in range(len(epsilon)):
 	for j in range(len(kappa)):
 		RW_sim2[i, j, 0] = (np.mean(RW_sim_old[i, j, cutoff:]) + D_RW[i, j, 0])/2
 		RW_sim2[i, j, 1] = np.sqrt( np.std( RW_sim_old[i, j, cutoff:])**2 + D_RW[i, j, 1]**2 )/np.sqrt(2)
+		t2 = np.linspace(0, 1, len(RW_sim_old[i, j,:]))
+		if j == 3:
+			plt.plot(t2, RW_sim_old[i, j,:], label=r"$\epsilon=%2.1f$" % epsilon[i])
 
+for i in range(len(eps2)):
+	for j in range(len(kappa)):
+		data = np.load("../data_test/RW_eps_04_05/var_over_2Dm_D01_kappa%3.2f" %(kappa_num[j])+"_eps"+str(eps2[i])+"_periods400.npy")
+		t2 = np.linspace(0, 600*3, len(data))
+		if j == 3:
+			plt.plot(t2/(600*3), data/t2, label=r"$\epsilon=%2.1f$" % eps2[i])
+plt.legend(loc="best", ncol=3, fontsize=8)
+plt.xlabel(r"Time $[T_{max}]$", fontsize=8)
+plt.axis([-0.02, 1.02, 0.8, 2.5])
+plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+filename = root+"figures/RW_vs_time_oscflow.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+plt.show()
 
 plt.figure(1)
 for i in range(len(epsilon)):

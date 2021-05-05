@@ -136,7 +136,7 @@ xi    = np.linspace(-1, 1, int(1e4))
 taus      = np.logspace(-2, 2, 10)
 omegas    = 2*np.pi/taus
 nu        = 1000
-F0        = 1000/nu
+F0        = 500/nu
 Ds        = np.logspace(-2, 1, 10)
 kappas   = np.array([0.01, 0.05, 0.10, 0.20, 0.40, 0.60, 0.80, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.8, 3.6, 4.4, 5.0])
 D_parallels = np.zeros((len(kappas), len(omegas), len(Ds)))
@@ -328,5 +328,5 @@ for l in range(len(Ds)):
 			plt.savefig("figures/Brenner_field_vs_t.pdf")
 			"""
 			#plt.show()
-np.save("data/D_para_vary_kappa_D_omega_nu1000_F01000", D_parallels)
+np.save("data/D_para_vary_kappa_D_omega_nu1000_F0500", D_parallels)
 plt.show()
