@@ -91,7 +91,6 @@ rho2 = np.sqrt(2*np.pi/tau2[0])
 for i in range(len(Lx2)):
 	for j in range(len(tau2)):
 		data = np.loadtxt(base+"Lx" +  str(Lx2[i]) +"_tau"+ str(round(tau2[j], 3)) +"_eps"+epsilon+"_nu1.2_D1.0_fzero0.0_fone12.0_res150_dt" + str(round(dt2[j], 6)) + "/tdata.dat")
-		print(Lx2[i], tau2[j], np.shape(data), np.shape(D2))
 		D2[i, j] = sci.trapz(  data[:, 8][-T:],  data[:, 0][-T:] )/tau2[j]
 		difference2[i, j] = abs(D2[i, j] - sci.trapz(  np.trim_zeros(data[:, 8])[-2*T:-T],  np.trim_zeros(data[:, 0])[-2*T:-T] )/tau2[j])/D2[i,j]
 
@@ -106,7 +105,7 @@ plt.plot(kappa2, D2[:, 0], "o", markersize=3, color="C"+str(len(tau)), label=r"$
 
 #plt.axis([0.65, 1.45, 0.84, 0.98])
 plt.xlabel(r" Wave number $\kappa$", fontsize=8)
-plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel $",  fontsize=8)
+plt.ylabel(r" Effective Dispersion $ D_\parallel $ [$D_m$]",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
@@ -143,7 +142,7 @@ plt.plot(kappa2, D2[:, 0]-D2_0, "o", markersize=3, color="C"+str(len(tau)), labe
 
 #plt.axis([0.65, 1.45, 0.84, 0.98])
 plt.xlabel(r"Wave number $\kappa$", fontsize=8)
-plt.ylabel(r"Change in Dispersion $ D_\parallel-D_\parallel^{(0)} $",  fontsize=8)
+plt.ylabel(r"Change in Dispersion $ D_\parallel-D_\parallel^{(0)} $ [$D_m$]",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
@@ -169,7 +168,7 @@ plt.plot(kappa_cont2, interpoo,      color="C"+str(i), markersize=3)
 
 plt.plot(kappa, np.zeros(len(kappa)), "k")
 plt.xlabel(r" Wave number $\kappa$", fontsize=8)
-plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel $",  fontsize=8)
+plt.ylabel(r" Effective Dispersion $ D_\parallel $ [$D_m$]",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
@@ -195,7 +194,7 @@ tau = np.array([2.25, 2.6, 3.0, 3.6, 4.5,  7.0])
 #tau_long = np.linspace(0.5, 15, int(1e5))
 plt.plot( np.sqrt(2*np.pi/tau), kappa_res, "o", markersize=3, label="Numeric")
 #plt.plot( tau_long + 0*np.sqrt(2*np.pi/tau_long),  np.sqrt(2*np.pi/(2*tau_long)),    label="Analytic")
-plt.plot( np.sqrt(2*np.pi/tau),  np.sqrt(2*np.pi/(2*tau)),    label="Analytic")
+plt.plot( np.sqrt(2*np.pi/tau),  np.sqrt(2*np.pi/(2*tau)),    label=r"$\sqrt{\omega a^2/(2D_m)}$")
 plt.xlabel(r" Diffusive Womersley number $\sqrt{\omega a^2/D}$", fontsize=8)
 plt.ylabel(r" Resonance wave number $ \kappa_{res} $",  fontsize=8)
 plt.legend(loc="best", fontsize=8)

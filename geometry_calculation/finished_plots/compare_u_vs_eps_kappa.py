@@ -60,10 +60,10 @@ for i in range(len(epsilon)):
 ###
 
 pi = np.pi 
-Nt = 200
+Nt = 100
 T = np.linspace(0, 2*np.pi/omega, Nt)
-N_eta = 300
-xi = np.linspace(-1, 1, 1500)
+N_eta = 150
+xi = np.linspace(-1, 1, 750)
 
 u_x = np.zeros((len(T), len(xi), N_eta, 3))
 u_y = np.zeros((len(T), len(xi), N_eta, 3))
@@ -126,17 +126,16 @@ for j in range(len(kappas)):
 
 		u_squared_ana[e, j] = integrate.trapz(after_xi_eta_integral, T)/(2*pi/omega)
 		u_squared_ana[e, j] -= 0.25*integrate.trapz(F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(gamma*gamma)*np.conjugate(F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(gamma*gamma)), xi)
-for j in range(len(kappas)):
-	plt.plot(new_eps, u_squared_ana[:,j], "o", markersize=3, label=r"$\kappa=$"+str(kappas[j])[:5], color=sns.color_palette()[j])
-	plt.plot(epsilon, exp_u2[:, j]-exp_u2[0, j], "-", color=sns.color_palette()[j])
+		u_squared_ana[e, j] -= 0.5*0.25*integrate.trapz(uy*np.conjugate(uy) + ux*np.conjugate(ux), xi)*eps**4
 
 plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=8)
-plt.ylabel(r"Kinetic energy of fluid $\langle u^{2(2)} \rangle$", fontsize=8)
+plt.ylabel(r"Kinetic energy of fluid $\langle u^2 \rangle^{(2)}$", fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-plt.axis([-0.02, 0.52, -0.34, 0.02])
-filename = root + "figures/comparison_numeric_analytic3.pdf"
+#plt.axis([0.035, 0.52, -0.34, 0.02])
+plt.xscale("log")
+filename = root + "figures/comparison_numeric_analytic4.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
@@ -149,11 +148,12 @@ epsilon = np.linspace(0.06, max(epsilon), int(1e3))
 plt.plot(epsilon, epsilon**4/(1-epsilon), "k", label=r"$\epsilon^4$")
 plt.yscale("log")
 plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=8)
-plt.ylabel(r"Difference kinetic energy $\langle u^{2(2)} \rangle$", fontsize=8)
+plt.ylabel(r"Difference kinetic energy $\langle u^2 \rangle^{(2)}$", fontsize=8)
 plt.legend(loc="best", fontsize=8, ncol=2)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-filename = root+"figures/comparison_numeric_analytic_difference3.pdf"
+plt.xscale("log")
+filename = root+"figures/comparison_numeric_analytic_difference4.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()

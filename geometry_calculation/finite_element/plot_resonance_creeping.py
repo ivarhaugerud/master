@@ -41,29 +41,22 @@ Ds        = np.logspace(-2, 1, 10)
 kappas   = np.array([0.01, 0.05, 0.10, 0.20, 0.40, 0.60, 0.80, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.8, 3.6, 4.4, 5.0])
 eps = 0.1
 """
-D_parallels = np.load("data/D_para_vary_kappa_D_omega_nu1000_F01000_more.npy")
-taus      = np.logspace(0, 3, 15)
+D_parallels = np.load("data/D_para_vary_kappa_D_tau20_nu1000_F01000_more.npy")
+
+taus      = np.array([1, 10, 20, 30, 40])
 omegas    = 2*np.pi/taus
 nu        = 1000
 F0        = 1000/nu
-Ds        = np.logspace(-3, 0, 10)
-kappas   = np.array([0.01, 0.05, 0.10, 0.20, 0.40, 0.60, 0.80, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.8, 3.6, 4.4, 5.0])
-kapppa_cont = np.linspace(min(kappas), max(kappas), int(1e5))
+Ds        = np.logspace(-1.5, 0, 10)
+kappas   = np.arange(0.1, 1.801, 0.1)
+kapppa_cont = np.linspace(min(kappas), max(kappas), int(1e4))
 kappa_res = np.zeros((len(taus), len(Ds)))
-eps = 0.2
-
-
-
-
-
-
-
-
 
 
 U = np.zeros((len(taus), len(kappas)))
 Re = np.zeros(np.shape(U))
 xi = np.linspace(-1, 1, int(1e4))
+eps = 0.3
 
 for i in range(len(taus)):
 	omega = 2*np.pi/taus[i]
@@ -82,85 +75,67 @@ for i in range(len(taus)):
 
 
 		U[i, j] = 0.5*sci.trapz(np.real(ux0*np.conjugate(ux0)), xi)
-		U[i, j] += 0.5*eps*eps* ( sci.trapz(   2*np.real(ux0*(np.conjugate(ux1)/2 + np.conjugate(ux2)) ), xi) + sci.trapz(   np.real(uy1*np.conjugate(uy1)), xi))
+		U[i, j] += 0.5*eps*eps* ( sci.trapz(   2*np.real( ux1*(np.conjugate(ux1))/4 +ux0*(np.conjugate(ux1)/2 + np.conjugate(ux2)) ), xi) + sci.trapz(   np.real(uy1*np.conjugate(uy1)), xi))
 		U[i, j] = np.sqrt(U[i, j])
 		Re = U/nu
-		print(U[i, j])
 
-
-
-
-#for i in range(len(taus)):
-#	plt.plot(kappas, U[i, :])
-#plt.show()
-
-#for i in range(len(taus)):
-#	plt.plot(kappas, Re[i, :])
-#plt.show()
 
 for i in range(len(taus)):
 	for j in range(len(Ds)):
 		interpoo = scp.interp1d(kappas, D_parallels[:, i, j], "cubic")(kapppa_cont)
 		if len(scs.argrelmax(interpoo)[0]) == 1:
-			#kappa_res[i, j] = kappas[scs.argrelmax(D_parallels[:, i, j])]
 			kappa_res[i, j] = kapppa_cont[scs.argrelmax(interpoo)]
 
-		plt.plot(kappas, D_parallels[:, i, j], label=r"$D=%3.2f$" % Ds[j])
+		#plt.plot(kappas, D_parallels[:, i, j], label=r"$D=%3.2f$" % Ds[j])
+#plt.legend(loc="best", fontsize=8)
+#plt.show()
+
+
+for j in range(len(Ds)):
+	for i in range(len(taus)):
+		plt.plot(U[i, :], D_parallels[:, i, j], label=r"$D=%3.2f$" % Ds[j])
 plt.legend(loc="best", fontsize=8)
 plt.show()
 
-"""
-
-for i in range(len(Ds)):
-	#plt.plot(omegas/(Ds[i])**(1/3), kappa_res[:, i], label=r"$D=%3.2f$" % Ds[i])
-	plt.plot(omegas[np.where(kappa_res[:,i] != 0)], np.trim_zeros(kappa_res[:, i]), label=r"$D=%3.2f$" % Ds[i])
-	plt.plot(omegas[np.where(kappa_res[:,i] != 0)], np.sqrt(omegas[np.where(kappa_res[:,i] != 0)]/(2*Ds[i])))
-	plt.legend(loc="best", fontsize=8)
-	#plt.xscale("log")
-plt.show()
-
-
-for i in range(len(Ds)):
-	plt.plot(omegas[np.where(kappa_res[:,i] != 0)], np.trim_zeros(kappa_res[:, i]), label=r"$D=%3.2f$" % Ds[i])
-	#plt.plot(omegas[np.where(kappa_res[:,i] != 0)], np.sqrt(omegas[np.where(kappa_res[:,i] != 0)]/(2*Ds[i])))
-	plt.legend(loc="best", fontsize=8)
-plt.xscale("log")
-plt.show()
-"""
-for i in range((len(taus))):
+for i in range(len(taus)-1):
 	i += 1
-	plt.plot(Ds[np.where(kappa_res[-i,:] != 0)], kappa_res[np.where(kappa_res[-i,:] != 0)], label=r"$\omega=%3.2f$" % omegas[-i], color="C"+str(i))
-	#plt.plot(omegas[np.where(kappa_res[:,i] != 0)], np.sqrt(omegas[np.where(kappa_res[:,i] != 0)]/(2*Ds[i])))
-	#m, c, delta_m, delta_c = linear_regresion(np.log(Ds[np.where(kappa_res[-i,:] != 0)]), np.log(np.trim_zeros(kappa_res[-i, :])))
-	#plt.plot(Ds[np.where(kappa_res[-i,:] != 0)], np.exp(c+m*np.log(Ds[np.where(kappa_res[-i,:] != 0)])), color="C"+str(i))
-	#print(m, c, delta_m, delta_c)
+	idxs = (np.where(kappa_res[i, :] != 0)[0])
+	plt.plot(np.sqrt(omegas[i]/Ds[idxs]), kappa_res[i, idxs], label=r"$\omega=%3.2f$" % omegas[i], color="C"+str(i-1), markersize=3)
+	#plt.plot(np.sqrt(omegas[i]/Ds[idxs]), np.sqrt(omegas[i]/(2*Ds[idxs])), color="C"+str(i-1))
 plt.legend(loc="best", fontsize=8)
 plt.xscale("log")
 #plt.yscale("log")
+plt.xlabel("D")
+plt.ylabel("kappa res")
+plt.show()
+
+
+"""
+#kappa_res = taus, Ds
+#U         = taus, kappas
+U_res = np.zeros((len(taus), len(Ds)))
+
+for i in range(len(taus)):
+	interpoo = scp.interp1d(kappas, U[i, :], "cubic")(kapppa_cont)
+	for j in range(len(Ds)):
+		U_res[i, j] = interpoo[np.argmin(abs(kapppa_cont-kappa_res[i, j]))]
+		plt.plot(interpoo[np.argmin(abs(kapppa_cont-kappa_res[i, j]))], kappa_res[i, j],  "o", color="C"+str(i))
+
+plt.legend(loc="best", fontsize=8)
+plt.xlabel("U")
+plt.ylabel("kappa res")
 plt.show()
 
 
 
-fig = plt.figure(1)
-x_, y_ = np.meshgrid(omegas, Ds)
-Map = matplotlib.cm.get_cmap('Spectral_r')
-kappa_res[np.where(kappa_res == 0)] = -1e6
-ax1 = plt.contourf(x_,y_, np.transpose(((kappa_res))) , levels=np.linspace(min(kappas), np.amax(kappa_res), 15), cmap=Map)# pcolormesh
-cbar = fig.colorbar(ax1, format='%1.2f')
-cbar.ax.set_ylabel(r'Resonance wave length $\lambda_{res}$', fontsize=8)
-plt.xscale('log')
-plt.yscale('log')
-plt.xlabel(r"Frequency  $\omega$", fontsize=8)
-plt.ylabel(r"Diffusion coefficient $D$", fontsize=8)
-plt.tick_params(axis='both', which='major', labelsize=8)
-plt.tick_params(axis='both', which='minor', labelsize=8)
-#filename = root + "figures/D_0_eff.pdf"
-#plt.savefig(filename, bbox_inches="tight")
-#os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+for i in range(len(taus)):
+	#i += 1
+	idxs = (np.where(kappa_res[i, :] != 0)[0])
+	if len(idxs) != 0:
+		plt.plot(U_res[i, idxs], kappa_res[i, idxs], alpha=0.5, label=r"$\omega=%3.2f$" % omegas[i])
+
+plt.legend(loc="best")
 plt.show()
 
 
-
-
-
-
+"""
