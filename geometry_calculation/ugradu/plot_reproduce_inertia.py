@@ -31,7 +31,7 @@ for i in range(len(epsilon)):
 		D[i, j] = sci.trapz(  data[-T:, 8],  data[-T:, 0] )/tau
 		U[i, j] = sci.trapz(  data[-T:, 4],  data[-T:, 0] )/tau
 		print(data[-1, 0])
-		difference[i, j] = abs(D[j,i] - sci.trapz(  data[-2*T:-T, 8],  data[-2*T:-T, 0] )/tau)/D[j, i]
+		difference[i, j] = abs(D[i,j] - sci.trapz(  data[-2*T:-T, 8],  data[-2*T:-T, 0] )/tau)/D[i, j]
 		#plt.plot(data[:, 0]/tau,   data[:, 8])
 		#plt.plot(data[-T:, 0]/tau, data[-T:, 8])
 #plt.show()
