@@ -13,7 +13,7 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 root = "../../../master_latex/results/figures/ugradu/"
 
 epsilon = np.arange(0.1, 0.501, 0.1)
-Lx = np.array([2.86, 3.49, 4.488, 6.28, 10.47])#, 31.41])   #
+Lx = np.array([2.86, 3.49, 4.488, 6.28, 10.47, 31.41])#, 31.41])   #
 kappa = 2*np.pi/Lx
 
 base = "data/vary_geometry/"
@@ -80,7 +80,7 @@ plt.show()
 """
 plt.figure(1)
 for i in range(len(epsilon)):
-	plt.plot(kappa, D[i, :], "-", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[i], markersize=3)
+	plt.plot(kappa, D[i, :], "-", color="C"+str(i), markersize=3)
 
 D_re = np.copy(D)
 kappa_original = np.copy(kappa)
@@ -104,12 +104,13 @@ for i in range(len(kappa)):
 		U[i, j] = sci.trapz(  data[-T:, 4],  data[-T:, 0] )/tau
 
 for i in range(len(epsilon)):
-	plt.plot(kappa, D[:, i], "o", color="C"+str(i), markersize=3)
+	plt.plot(kappa, D[:, i], "o", color="C"+str(i), label=r"$\epsilon=%2.1f$" % epsilon[i], markersize=3)
 
 
-plt.xlabel(r" Peclet number $\frac{aU}{D}$", fontsize=8)
+plt.xlabel(r" Wave number $\kappa$", fontsize=8)
 plt.ylabel(r" Effective Dispersion $ D_\parallel $ [$D_m$]",  fontsize=8)
-plt.legend(loc="best", ncol=3, fontsize=8)
+plt.axis([0.156, 2.29, 0.826, 1.07])
+plt.legend(loc="best", ncol=2, fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
 filename = root + "compare_ugradu.pdf"
@@ -124,8 +125,7 @@ for i in range(len(epsilon)):
 	print(kappa_original, kappa_cont)
 	interpoo = scint.interp1d(kappa_original, D_re[i, :], kind="cubic")(kappa_cont)
 	print(kappa_original, kappa)
-	for j in range(len(kappa)-1):
-		j += 1
+	for j in range(len(kappa)):
 		if j == 1:
 			plt.plot(U[j,i]/1.2, 100*abs(D[j, i]-interpoo[np.argmin(abs(kappa_cont-kappa[j]))])/D[j, i], "o", color="C"+str(i), label=r"$\epsilon=%1.1f$" % epsilon[i], markersize=3)
 		else:

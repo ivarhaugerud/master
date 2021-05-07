@@ -140,17 +140,13 @@ plt.show()
 
 fig = plt.figure(2)
 ax1 = fig.add_subplot(111)
-#ax2 = ax1.twiny()
 
-#ax2.plot(Sc, np.ones(len(Sc)), alpha=0)
 for i in range(len(Lx)):
 	ind = len(Lx)-1-i
 	plt.plot(np.sqrt(omega/Dm), D[ind, :], "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[ind], markersize=3)
 	plt.plot(np.sqrt(omega/Dm), D[ind, :], color="C"+str(i), linewidth=1)
-
-ax1.set_xlabel(r" Diffusive Womersley number $\sqrt{\frac{\omega a^2}{D}}$", fontsize=8)
-#ax2.set_xlabel(r" Schmidt number $\sqrt{\frac{D}{\nu}}$", fontsize=8)
-
+	print(U[ind,:]/Dm)
+ax1.set_xlabel(r" Diffusive Womersley number $\sqrt{\omega a^2/D}$", fontsize=8)
 plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel$",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)

@@ -48,10 +48,10 @@ plt.show()
 
 plt.figure(1)
 for i in range(len(kappa)):
-	plt.plot(U[:, i]/2.25, D[:, i], "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[i], markersize=3)
-	plt.plot(U[:, i]/2.25, D[:, i], color="C"+str(i), linewidth=1)
+	plt.plot(U[:, i]/2.25, D[:, i]/(1+2/105*(U[:,i]/1)**2), "o", color="C"+str(i), label=r"$\kappa = %3.2f$" % kappa[i], markersize=3)
+	plt.plot(U[:, i]/2.25, D[:, i]/(1+2/105*(U[:,i]/1)**2), color="C"+str(i), linewidth=1)
 plt.xscale("log")
-plt.yscale("log")
+#plt.yscale("log")
 plt.xlabel(r" Reynolds number $\frac{aU}{\nu}$", fontsize=8)
 plt.ylabel(r" Effective Dispersion $ D_\parallel $ [$D_m$]",  fontsize=8)
 plt.legend(loc="best", ncol=3, fontsize=8)
@@ -83,10 +83,9 @@ os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 
 
 plt.figure(3)
-for i in range((4)):
-	i += 1
-	plt.plot(kappa, D[i, :], "o", color="C"+str(i-1), label=r"Pe= %3.2f" % np.mean(U[i, :]/1), markersize=3)
-	plt.plot(kappa, D[i, :], color="C"+str(i-1), linewidth=1)
+for i in range(len(F)):
+	plt.plot(kappa, D[i, :]/(1+2/105*(U[i,:]/1)**2), "o", color="C"+str(i), label=r"Pe= %3.2f" % np.mean(U[i, :]/1), markersize=3)
+	plt.plot(kappa, D[i, :]/(1+2/105*(U[i,:]/1)**2), color="C"+str(i), linewidth=1)
 #plt.xscale("log")
 #plt.yscale("log")
 plt.xlabel(r" Wave number $\kappa$", fontsize=8)
