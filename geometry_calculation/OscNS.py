@@ -83,6 +83,7 @@ Ny = args.res
 D = df.Constant(args.D)
 nu = df.Constant(args.nu)
 enable_inertia = not args.disable_inertia
+print("enable inertia: ", enable_inertia)
 tau = args.tau
 f0 = args.f0
 f1 = args.f1
@@ -155,7 +156,7 @@ f = df.Expression(("f_0 + f_1*cos(2*M_PI*t/tau)", "0."),
 
 u_CN = 0.5 * (u + u_1)
 u_CN_ = 0.5 * (u_ + u_1)
-u_AB_ = 1.5 * u_1 + 0.5 * u_2
+u_AB_ = 1.5 * u_1 - 0.5 * u_2
 
 F = (df.dot(u - u_1, v) / dt * df.dx +
      nu * df.inner(df.grad(u_CN), df.grad(v)) * df.dx - df.div(v) * p * df.dx -

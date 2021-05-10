@@ -12,7 +12,7 @@ matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'	
 root = "../../../master_latex/results/figures/ugradu/"
 
-Lx = np.array([3.49, 4.488, 6.28, 7.85, 10.47])# 15.7, 31.41 
+Lx = np.array([3.49, 4.488, 6.28, 7.85, 10.47, 15.7])# 
 F  = np.logspace(0, 3, 7)
 kappa = 2*np.pi/Lx
 
@@ -89,7 +89,8 @@ for i in range(len(F)):
 #plt.xscale("log")
 #plt.yscale("log")
 plt.xlabel(r" Wave number $\kappa$", fontsize=8)
-plt.ylabel(r" Effective Dispersion $ D_\parallel $ [$D_m$]",  fontsize=8)
+plt.ylabel(r" Relative effecitve dispersion $ D_\parallel/D_\parallel^{aris} $",  fontsize=8)
+plt.axis([0.35, 1.85, 0.82, 1.7])
 plt.legend(loc="best", ncol=2, fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)

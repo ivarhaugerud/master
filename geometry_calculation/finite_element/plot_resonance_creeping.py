@@ -132,16 +132,55 @@ for i in range(len(taus2)):
 	indx = np.where(kappa_res2[i, :] != 0)[0]
 	if len(indx) > 0:
 		print(Ds2[indx], kappa_res2[i, indx])
-		plt.plot(np.sqrt(omegas2[i]/Ds2[indx]), kappa_res2[i, indx], "x", color="C"+str(i), label=r"$\tau=%3.2f, F_0\nu=1$" % taus2[i])
+		plt.plot(np.sqrt(omegas2[i]/Ds2[indx]), kappa_res2[i, indx], "x", color="C"+str(i), markersize=3, label=r"$\tau=%3.2f, F_0/\nu=1$" % taus2[i])
 
 
 for i in range(len(taus)):
 	indx = np.where(kappa_res[i, :] != 0)[0]
 	if len(indx) > 0:
-		plt.plot(np.sqrt(omegas[i]/Ds[indx]), kappa_res[i, indx], "o", color="C"+str(i), label=r"$\tau=%3.2f, F_0\nu=0.5$" % taus[i])
+		plt.plot(np.sqrt(omegas[i]/Ds[indx]), kappa_res[i, indx], "o", color="C"+str(i), markersize=3, label=r"$\tau=%3.2f, F_0/\nu=0.5$" % taus[i])
+
 plt.xscale("log")
-plt.legend(loc="best")
+plt.xlabel(r"Diffusive Womersley number $\sqrt{\omega a^2/D_m}$", fontsize=8)
+plt.ylabel(r"Resonance Wave number $\kappa_{res}$", fontsize=8)
+plt.legend(loc="best", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+filename = root + "figures/resonance_wavelength.pdf"
+plt.savefig(filename, bbox_inches="tight")
+os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
+
+F0        = 1000/nu
+
+
+plt.figure(1)
+for i in range(len(taus2)):
+	indx = np.where(kappa_res2[i, :] != 0)[0]
+	if len(indx) > 0:
+		print(Ds2[indx], kappa_res2[i, indx])
+		plt.plot(Ds2[indx], kappa_res2[i, indx]*F02, "x", color="C"+str(i), markersize=3, label=r"$\tau=%3.2f, F_0/\nu=1$" % taus2[i])
+
+
+for i in range(len(taus)):
+	indx = np.where(kappa_res[i, :] != 0)[0]
+	if len(indx) > 0:
+		plt.plot(Ds2[indx], kappa_res[i, indx]*F0, "o", color="C"+str(i), markersize=3, label=r"$\tau=%3.2f, F_0/\nu=0.5$" % taus[i])
+
+plt.xscale("log")
+plt.xlabel(r"Diffusive Womersley number $\sqrt{\omega a^2/D_m}$", fontsize=8)
+plt.ylabel(r"Resonance Wave number $\kappa_{res}$", fontsize=8)
+plt.legend(loc="best", fontsize=8)
+plt.tick_params(axis='both', which='major', labelsize=8)
+plt.tick_params(axis='both', which='minor', labelsize=8)
+#filename = root + "figures/resonance_wavelength.pdf"
+#plt.savefig(filename, bbox_inches="tight")
+#os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
+plt.show()
+
+
+
+
 """
 for j in range(len(Ds)):
 	for i in range(len(taus)):

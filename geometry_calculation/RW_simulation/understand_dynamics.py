@@ -15,16 +15,16 @@ def velocity(xi, eta, t):
     return np.array([ux_full, uy_full])
 
 #simulation parameters
-dt           = 0.01
-tau          = 3.0
+dt           = 0.5
+tau          = 40.0
 omega        = 2*np.pi/tau
-kappa        = 1.0 
-periods      = 100
+kappa        = 2*np.pi/12.5
+periods      = 5
 timesteps    = int(tau/dt)
 datafiles    = 5
 N            = int(2*1e3)
 RW_timesteps = 10
-D            = np.sqrt(omega/(2*kappa*kappa))
+D            = 0.1
 alpha        = np.sqrt(2*D*dt/RW_timesteps)
 var          = np.zeros(int(periods*timesteps))
 t            = np.linspace(0, tau-dt, timesteps)+tau/2
@@ -35,8 +35,8 @@ print("Advective transport:", dt)
 
 epsilon = 0.3
 l = 2*np.pi/kappa
-nu = 1.2
-F0 = 12/nu 
+nu = 1000
+F0 = 2.5*1000/nu 
 from cmath import *
 gamma = np.sqrt(1j*omega/nu)
 kappa_prime = np.sqrt(gamma*gamma + kappa*kappa)
@@ -48,14 +48,14 @@ Ax = sqrt(gamma**2 + 4*kappa**2)*(F0*gamma**2*sinh(2*kappa)*tanh(kappa_p) + 2*P_
 Ay = kappa*(F0*gamma**2*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*gamma**2*sinh(kappa)*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*kappa**2*cosh(kappa)*cosh(2*kappa)*tanh(kappa_p) - 2*P_1*kappa*kappa_p*sinh(kappa)*cosh(2*kappa))/(2*gamma**2*(2*kappa*sinh(sqrt(gamma**2 + 4*kappa**2))*cosh(2*kappa) - sqrt(gamma**2 + 4*kappa**2)*sinh(2*kappa)*cosh(sqrt(gamma**2 + 4*kappa**2)))*tanh(kappa_p))
 psi_2 = (P_1*sqrt(gamma**2 + 4*kappa**2)*(kappa*cosh(kappa)*tanh(kappa_p) - kappa_p*sinh(kappa))*cosh(sqrt(gamma**2 + 4*kappa**2)) + gamma**2*(F0 + 2*P_1*sinh(kappa))*sinh(sqrt(gamma**2 + 4*kappa**2))*tanh(kappa_p))/(4*(2*kappa*sinh(sqrt(gamma**2 + 4*kappa**2))*cosh(2*kappa) - sqrt(gamma**2 + 4*kappa**2)*sinh(2*kappa)*cosh(sqrt(gamma**2 + 4*kappa**2)))*tanh(kappa_p))
 
-test_y = np.linspace(-3*np.pi/kappa, 3*np.pi/kappa, 1000)
+test_y = np.linspace(-7*np.pi/kappa, 7*np.pi/kappa, 1000)
 test_x = np.linspace(-1-epsilon, 1+epsilon, 500)
 u = np.zeros((len(test_x), len(test_y)))
 
 X, Y = np.meshgrid(test_y,test_x)
 xi = np.linspace(-1, 1, int(1e4))
 
-dirr = "data/understand_dynamics_analytic_D1.0_eps"+str(epsilon)+"_kappa"+str(kappa)[:5]
+dirr = "data/understand_dynamics_analytic_again_eps"+str(epsilon)+"_kappa"+str(kappa)[:5]
 os.system("mkdir " + dirr)
 
 Nt = int(periods*timesteps)
@@ -79,14 +79,13 @@ for k in range(1, int(periods*timesteps)):
         pos[k, :, np.where( pos[k, 1, :] <  -1-epsilon*np.sin(kappa*pos[k, 0,:]))] = pos[k-1, :, np.where( pos[k, 1, :] < -1-epsilon*np.sin(kappa*pos[k, 0,:]))] #checks if y-coordinate outside
         prev_pos = np.copy(pos)
     plt.clf()
-    """
-    if k % 10 == 0:
+    
+    if k % 2 == 0:
         plt.scatter(pos[k, 0, :], pos[k, 1, :], s=0.5)
         plt.plot(test_y, 1+epsilon*np.sin(kappa*test_y), "k")
         plt.plot(test_y,-1-epsilon*np.sin(kappa*test_y), "k")
-        plt.axis("equal")
+        #plt.axis("equal")
         plt.pause(0.01)
-    """
     var[k] = np.var(pos[0, :])
     
     
@@ -129,7 +128,7 @@ for i in range(0,n-s,s):
 #plt.scatter(pos[:, 0, FPI], pos[:, 1, FPI],  c=U/np.max(U), cmap="hsv", s=1)
 plt.plot(test_y, 1+epsilon*np.sin(kappa*test_y), "k")
 plt.plot(test_y,-1-epsilon*np.sin(kappa*test_y), "k")
-plt.axis("equal")
+#plt.axis("equal")
 
 plt.savefig("figure.png")
 plt.show()

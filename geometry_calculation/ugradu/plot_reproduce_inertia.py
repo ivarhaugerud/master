@@ -13,7 +13,7 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 root = "../../../master_latex/results/figures/ugradu/"
 
 epsilon = np.arange(0.1, 0.501, 0.1)
-Lx = np.array([2.86, 3.49, 4.488, 6.28, 10.47, 31.41])#, 31.41])   #
+Lx = np.array([2.86, 3.49, 4.488, 6.28, 10.47])#, 31.41])   #
 kappa = 2*np.pi/Lx
 
 base = "data/vary_geometry/"
@@ -29,7 +29,7 @@ for i in range(len(epsilon)):
 	for j in range(len(kappa)):
 		data = np.loadtxt(base+"Lx"+str(Lx[j]) + "_tau3.0_eps%1.1f" % (epsilon[i]) +"_nu1.2_D1.0_fzero0.0_fone12.0_res150_dt0.004/tdata.dat")
 		D[i, j] = sci.trapz(  data[-T:, 8],  data[-T:, 0] )/tau
-		U[i, j] = sci.trapz(  data[-T:, 4],  data[-T:, 0] )/tau
+		U[i, j] = np.sqrt(sci.trapz(  data[-T:, 4],  data[-T:, 0] )/tau)
 		print(data[-1, 0])
 		difference[i, j] = abs(D[i,j] - sci.trapz(  data[-2*T:-T, 8],  data[-2*T:-T, 0] )/tau)/D[i, j]
 		#plt.plot(data[:, 0]/tau,   data[:, 8])
@@ -101,11 +101,26 @@ for i in range(len(kappa)):
 	for j in range(len(epsilon)):
 		data = np.loadtxt(base+"Lx" +  str(Lx[i]) +"_tau3.0_eps"+str(epsilon[j])[:3]+"_nu1.2_D1.0_fzero0.0_fone12.0_res150_dt0.004/tdata.dat")
 		D[i, j] = sci.trapz(  data[:, 8][-T:],  data[:, 0][-T:] )/tau
-		U[i, j] = sci.trapz(  data[-T:, 4],  data[-T:, 0] )/tau
+		U[i, j] = np.sqrt(sci.trapz(  data[-T:, 4],  data[-T:, 0] )/tau)
 
 for i in range(len(epsilon)):
 	plt.plot(kappa, D[:, i], "o", color="C"+str(i), label=r"$\epsilon=%2.1f$" % epsilon[i], markersize=3)
 
+numeric = np.load("../data_test/tdata_04_03_D1_.npy")
+epsilon2 = np.array([0.0, 0.1, 0.2, 0.3])
+kappa2   = np.array([0.6, 1.0, 1.4, 1.8, 2.2]) #0.2
+D_num = np.zeros((len(epsilon2), len(kappa2)))
+D_nuA = np.zeros((len(epsilon2), len(kappa2)))
+U_num = np.zeros((len(epsilon2), len(kappa2)))
+
+for i in range(len(epsilon2)-1):
+	for j in range(len(kappa2)):
+		D_num[i+1, j]       = sci.trapz( np.trim_zeros(numeric[i, j+1, :, 8])[-T:],         np.trim_zeros(numeric[i, j+1, :, 0])[-T:])/(tau)
+		U_num[i+1, j]       = np.sqrt(sci.trapz( np.trim_zeros(numeric[i, j+1, :, 4])[-T:], np.trim_zeros(numeric[i, j+1, :, 0])[-T:])/(tau))
+
+
+for i in range(len(epsilon2)-1):
+	plt.plot(kappa2, D_num[i+1, :], "o", color="C"+str(i), markersize=3)
 
 plt.xlabel(r" Wave number $\kappa$", fontsize=8)
 plt.ylabel(r" Effective Dispersion $ D_\parallel $ [$D_m$]",  fontsize=8)
@@ -130,6 +145,18 @@ for i in range(len(epsilon)):
 			plt.plot(U[j,i]/1.2, 100*abs(D[j, i]-interpoo[np.argmin(abs(kappa_cont-kappa[j]))])/D[j, i], "o", color="C"+str(i), label=r"$\epsilon=%1.1f$" % epsilon[i], markersize=3)
 		else:
 			plt.plot(U[j,i]/1.2, 100*abs(D[j, i]-interpoo[np.argmin(abs(kappa_cont-kappa[j]))])/D[j, i], "o", color="C"+str(i), markersize=3)
+
+
+print(kappa2, kappa_original)
+kappa_original = [2.20001, 1.80033963, 1.39999673, 1.00050721, 0.599999]
+
+for i in range(len(epsilon2)-1):
+	kappa_cont = np.linspace(min(kappa2), max(kappa2), int(1e4))
+	interpoo = scint.interp1d(kappa_original, D_re[i, :], kind="cubic")(kappa_cont)
+	for j in range(len(kappa2)):
+		plt.plot(U_num[i+1,j]/1.2, 100*abs(D_num[i+1, j]-interpoo[np.argmin(abs(kappa_cont-kappa2[j]))])/D_num[i+1, j], "o", color="C"+str(i), markersize=3)
+
+
 plt.xlabel(r" Reynolds number $\frac{aU}{\nu}$", fontsize=8)
 plt.ylabel(r" Rel change in $D_\parallel$ with inertia [%]",  fontsize=8)
 plt.legend(loc="best", ncol=2, fontsize=8)

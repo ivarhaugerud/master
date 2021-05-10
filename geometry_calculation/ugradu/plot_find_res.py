@@ -12,7 +12,7 @@ matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'	
 root = "../../../master_latex/results/figures/ugradu/"
 
-Lx = np.flip(np.array([3.49, 4.488, 6.28, 8.5, 10.47, 15.0, 31.41]))# 15.7, 31.41 
+Lx = np.flip(np.array([3.49, 4.488, 6.28, 8.5, 10.47, 15.0]))# 15.7, 31.41 
 Dm  = np.array([0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1.0])
 kappa = 2*np.pi/Lx
 
