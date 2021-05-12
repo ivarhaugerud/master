@@ -58,9 +58,3 @@ print("\n B0_grad (0): ", B0_grad)
 
 
 print(simplify(expand(simplify(integrate(B0_grad*(re(B0_grad)-I*im(B0_grad)), (xi, -1, 1))/2))))
-
-
-F0**2*Pe**2*omega*(Sc**2*(13650*I*omega - 135135) + Sc*(5932*omega**2 + 117390*I*omega - 585585) + 9*omega*(2833*omega + 28210*I))/(2554051500*Sc**2)
-
-
-(25497*D*omega**2 + 13650*I*Sc**2*omega + 5932*Sc*omega**2)
