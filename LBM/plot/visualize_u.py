@@ -8,8 +8,8 @@ import matplotlib.ticker as tick
 
 plt.style.use(['science','no-latex'])
 import matplotlib
-matplotlib.rc('xtick', labelsize=8)
-matplotlib.rc('ytick', labelsize=8)
+matplotlib.rc('xtick', labelsize=12)
+matplotlib.rc('ytick', labelsize=12)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
@@ -60,13 +60,13 @@ plt.streamplot(x_axis, y_axis, np.transpose(u_x)/U, np.transpose(u_y)/U, start_p
 plt.streamplot(x_axis, y_axis, np.transpose(u_x)/U, np.transpose(u_y)/U, start_points=stream_points4, density=1, color='k', arrowsize=1.35)
 CS = plt.contourf(X, Y, np.transpose(length)/U, 10, cmap=Map)
 cbar = plt.colorbar(CS, fraction=0.02725, pad=0.01)
-cbar.ax.set_ylabel('Velocity $[U]$', fontsize=14)
+cbar.ax.set_ylabel('Velocity $[U]$', fontsize=12)
 cbar.ax.yaxis.set_major_formatter(tick.FormatStrFormatter('%.1f'))
 plt.axis("equal")
-plt.tick_params(axis='both', which='major', labelsize=14)
-plt.tick_params(axis='both', which='minor', labelsize=14)
-plt.ylabel(r"Vertical position", fontsize=14)
-plt.xlabel(r"Horizontal position", fontsize=14)
+plt.tick_params(axis='both', which='major', labelsize=12)
+plt.tick_params(axis='both', which='minor', labelsize=12)
+plt.ylabel(r"Vertical position", fontsize=12)
+plt.xlabel(r"Horizontal position", fontsize=12)
 filename = root + "visualize_u.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))

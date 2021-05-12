@@ -68,7 +68,7 @@ matplotlib.rc('xtick', labelsize=8)
 matplotlib.rc('ytick', labelsize=8)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
-root = "../../../master_latex/results/figures/"
+root = "../../../master_latex/results/figures/rough"
 
 
 
