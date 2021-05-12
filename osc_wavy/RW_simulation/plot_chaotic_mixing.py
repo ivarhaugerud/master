@@ -33,7 +33,7 @@ matplotlib.rc('ytick', labelsize=8)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-
+t = np.linspace(0, 1, N)
 
 for i in range(datafiles):
 	pos = np.load(dirr + "/pos_"+str(pos_saves[i])+".npy")
@@ -41,11 +41,11 @@ for i in range(datafiles):
 	plt.scatter(pos[0, :], pos[1, :], c=t, cmap="plasma", s=0.5)
 	plt.plot(eta, B_up, "k")
 	plt.plot(eta, B_down, "k")
-	plt.xlabel(r"Horinzontal position [$a$]", fontsize=8)
-	plt.ylabel(r"Vertical position [$a$]", fontsize=8)
-	plt.savefig(dirr + "/figures/frame%04d.png" % i)
-	#plt.pause(0.01)
-	print(i, datafiles)
+	#plt.xlabel(r"Horinzontal position [$a$]", fontsize=8)
+	#plt.ylabel(r"Vertical position [$a$]", fontsize=8)
+	#plt.savefig(dirr + "/figures/frame%04d.png" % i)
+	plt.pause(0.00001)
+	#print(i, datafiles)
 	
 """
 

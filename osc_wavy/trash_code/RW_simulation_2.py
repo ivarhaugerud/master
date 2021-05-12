@@ -24,7 +24,7 @@ periods_of_flow = 8/3
 
 dirr = []
 for i in range(len(eps)):
-    dirr.append("RW_simulation/flow_fields/non_zero_eps/Lx"+str(l)+"_tau3.0_eps"+str(eps[i])+"_nu3.6_D1.0_fzero0.0_fone12.0_res100_dt0.006/")
+    dirr.append("flow_fields/non_zero_eps/Lx"+str(l)+"_tau3.0_eps"+str(eps[i])+"_nu3.6_D1.0_fzero0.0_fone12.0_res100_dt0.006/")
     print(l, eps[i])
     a = np.loadtxt(dirr[i] + "tdata.dat")
 
