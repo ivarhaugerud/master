@@ -52,9 +52,9 @@ for i in range(len(kappa)):
 	plt.plot(U[:, i]/2.25, D[:, i]/(1+2/105*(U[:,i]/1)**2), color="C"+str(i), linewidth=1)
 plt.xscale("log")
 #plt.yscale("log")
-plt.xlabel(r" Reynolds number $\frac{aU}{\nu}$", fontsize=8)
+plt.xlabel(r" Reynolds number $aU/\nu$", fontsize=8)
 plt.ylabel(r" Effective Dispersion $ D_\parallel $ [$D_m$]",  fontsize=8)
-plt.legend(loc="best", ncol=3, fontsize=8)
+plt.legend(loc="best", ncol=2, fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
 filename = root + "D_eff_vs_Re.pdf"
@@ -83,14 +83,14 @@ os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 
 
 plt.figure(3)
-for i in range(len(F)):
+for i in range((5)):
 	plt.plot(kappa, D[i, :]/(1+2/105*(U[i,:]/1)**2), "o", color="C"+str(i), label=r"Pe= %3.2f" % np.mean(U[i, :]/1), markersize=3)
 	plt.plot(kappa, D[i, :]/(1+2/105*(U[i,:]/1)**2), color="C"+str(i), linewidth=1)
 #plt.xscale("log")
 #plt.yscale("log")
 plt.xlabel(r" Wave number $\kappa$", fontsize=8)
 plt.ylabel(r" Relative effecitve dispersion $ D_\parallel/D_\parallel^{aris} $",  fontsize=8)
-plt.axis([0.35, 1.85, 0.82, 1.7])
+plt.axis([0.35, 1.85, 0.82, 1.75])
 plt.legend(loc="best", ncol=2, fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)

@@ -89,7 +89,7 @@ for j in range(len(Lx)):
 		plt.plot(t/tau[i], B)
 		plt.plot(t[-T:]/tau[i], B[-T:])
 		difference[i,j] = abs(D[i,j]-sci.trapz(B[-2*T:-T], t[-2*T:-T])/(tau[i]))/D[i, j]
-		plt.show()
+plt.show()
 
 plt.plot(tau, difference, "o")
 plt.yscale("log")

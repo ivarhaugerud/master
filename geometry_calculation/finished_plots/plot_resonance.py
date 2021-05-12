@@ -98,10 +98,10 @@ for i in range(len(Lx2)):
 
 plt.figure(3)
 for i in range(len(tau)):
-	plt.plot(kappa, D[:, i], "o", color="C"+str(i), markersize=3, label=r"$\rho=%3.2f$" % R[i])
+	plt.plot(kappa, D[:, i], "o", color="C"+str(i), markersize=3, label=r"Wo$_D=%3.2f$" % R[i])
 	plt.plot(kappa, D[:, i], color="C"+str(i))
 plt.plot(kappa2, D2[:, 0], color="C"+str(len(tau)), markersize=3)
-plt.plot(kappa2, D2[:, 0], "o", markersize=3, color="C"+str(len(tau)), label=r"$\rho=%3.2f$" % rho2)
+plt.plot(kappa2, D2[:, 0], "o", markersize=3, color="C"+str(len(tau)), label=r"Wo$_D=%3.2f$" % rho2)
 
 #plt.axis([0.65, 1.45, 0.84, 0.98])
 plt.xlabel(r" Wave number $\kappa$", fontsize=8)
@@ -135,10 +135,10 @@ plt.show()
 """
 plt.figure(5)
 for i in range(len(tau)):
-	plt.plot(kappa, D[:, i]-D0[:,i], "o", color="C"+str(i), markersize=3, label=r"$\rho=%3.2f$" % R[i])
+	plt.plot(kappa, D[:, i]-D0[:,i], "o", color="C"+str(i), markersize=3, label=r"Wo$_D=%3.2f$" % R[i])
 	plt.plot(kappa, D[:, i]-D0[:,i], color="C"+str(i))
 plt.plot(kappa2, D2[:, 0]-D2_0, color="C"+str(len(tau)), markersize=3)
-plt.plot(kappa2, D2[:, 0]-D2_0, "o", markersize=3, color="C"+str(len(tau)), label=r"$\rho=%3.2f$" % rho2)
+plt.plot(kappa2, D2[:, 0]-D2_0, "o", markersize=3, color="C"+str(len(tau)), label=r"Wo$_D=%3.2f$" % rho2)
 
 #plt.axis([0.65, 1.45, 0.84, 0.98])
 plt.xlabel(r"Wave number $\kappa$", fontsize=8)
@@ -196,7 +196,7 @@ plt.plot( np.sqrt(2*np.pi/tau), kappa_res, "o", markersize=3, label="Numeric")
 #plt.plot( tau_long + 0*np.sqrt(2*np.pi/tau_long),  np.sqrt(2*np.pi/(2*tau_long)),    label="Analytic")
 plt.plot( np.sqrt(2*np.pi/tau),  np.sqrt(2*np.pi/(2*tau)),    label=r"$\sqrt{\omega a^2/(2D_m)}$")
 plt.xlabel(r" Diffusive Womersley number $\sqrt{\omega a^2/D}$", fontsize=8)
-plt.ylabel(r" Resonance wave number $ \kappa_{res} $",  fontsize=8)
+plt.ylabel(r" Resonance wave number $ \kappa_{res}$",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)

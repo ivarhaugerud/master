@@ -146,7 +146,7 @@ for i in range(len(Ds)):
 	for f in range(len(F0s)):
 		indx = np.where(kappa_res[:, i, f] != 0)[0]
 		if len(indx) > 0:
-			plt.plot(U[indx, f]*taus[indx], 2*np.pi/kappa_res[indx, i, f], marker[f], markersize=4, color="C"+str(i))
+			plt.plot(U[indx, f]*taus[indx], 2*np.pi/kappa_res[indx, i, f], marker[f], markersize=3, color="C"+str(i))
 			plt.plot(U[indx, f]*taus[indx], 2*np.pi/kappa_res[indx, i, f], color="C"+str(i), markersize=3)
 			print(np.mean(np.sqrt(Ds[i]*taus[indx])))
 			#plt.title(str(Ds[i]))

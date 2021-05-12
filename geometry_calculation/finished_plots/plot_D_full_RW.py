@@ -51,7 +51,7 @@ for i in range(len(eps3)):
 		#plt.plot(data[:, 0], data[:, 8])
 		#plt.plot(data[-T3:, 0], data[-T3:, 8])
 	#plt.show()
-"""
+
 plt.figure(4)
 for i in range(len(eps3)):
 	plt.plot(kappa3, U_bren_D01[i,:])
@@ -63,8 +63,7 @@ for i in range(len(eps3)):
 	plt.plot(kappa3, difference[i,:])
 plt.yscale("log")
 #plt.show()
-"""
-"""
+
 tau = 3
 dt  = 0.004
 nu  = 1.2
@@ -108,7 +107,7 @@ for i in range(len(eps2)):
 plt.legend(loc="best", ncol=3, fontsize=8)
 plt.xlabel(r"Time $[T_{max}]$", fontsize=8)
 plt.axis([-0.02, 1.02, 0.8, 2.5])
-plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
+plt.ylabel(r"Effective diffusion coefficient $D_\parallel$ [$D_m$]", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
 filename = root+"figures/RW_vs_time_oscflow.pdf"
@@ -131,14 +130,14 @@ plt.plot(kappa_num+np.linspace(-2, 2, len(kappa_num)), np.ones(len(kappa_num))*D
 plt.legend(loc="upper center", ncol=3, fontsize=8)
 plt.xlabel(r"Wave number $\kappa$", fontsize=8)
 plt.axis([0.05, 2.35, 1.15, 2.76])
-plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
+plt.ylabel(r"Effective diffusion coefficient $D_\parallel$ [$D_m$]", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
 filename = root+"figures/comparison_RW_brenner.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 
-"""
+plt.show()
 tau = 3
 dt  = 0.004
 nu  = 1.2
@@ -185,6 +184,7 @@ plt.legend(loc="best", fontsize=8)
 plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=8)
 plt.ylabel(r"Relative Effective Dispersion $D_\parallel/D_\parallel^{aris}$", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
+plt.axis([0.08, 0.518, 0.36, 0.42999])
 plt.tick_params(axis='both', which='minor', labelsize=8)
 filename = root+"figures/rel_D_eff_vs_eps_D01.pdf"
 plt.savefig(filename, bbox_inches="tight")

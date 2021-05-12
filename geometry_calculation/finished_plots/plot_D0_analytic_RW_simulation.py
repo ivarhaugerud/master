@@ -60,7 +60,7 @@ for i in idxs:
 plt.legend(loc="best", fontsize=7, ncol=3)
 plt.xlabel(r"Time [periods $\tau$]", fontsize=8)
 plt.axis([10, 1015, 0.9, 2.25])
-plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
+plt.ylabel(r"Effective diffusion coefficient $D_\parallel$ [$D_m$]", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.savefig("figures/comparison_analytic_and_numeric.png")
 name = root+"figures/D_eff_vs_t.pdf"
@@ -88,8 +88,8 @@ for i in range(len(visc)):
 plt.plot(1/(G*G), analytic, label="Analytic")
 plt.legend(loc="best", fontsize=8)
 plt.xlabel(r"Inverse squared Womersley number Wo$^{-2}$", fontsize=8)
-plt.ylabel(r"Effective diffusion coefficient $D_\parallel$", fontsize=8)
-plt.savefig("figures/comparison_analytic_and_numeric.png")
+plt.ylabel(r"Effective diffusion coefficient $D_\parallel$ [$D_m$]", fontsize=8)
+plt.axis([0.05, 2.55, 0.95, 2.599])
 plt.tick_params(axis='both', which='major', labelsize=8)
 name = root+"figures/D_eff_vs_visc.pdf"
 fig.savefig(name, bbox_inches="tight")

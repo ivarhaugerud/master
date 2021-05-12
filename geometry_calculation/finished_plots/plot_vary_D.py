@@ -68,7 +68,7 @@ for i in range(len(Lx)):
 	#plt.plot(interpool_nu, interpool)
 
 plt.xlabel(r" Peclet number $\frac{aU}{D}$", fontsize=8)
-plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel $",  fontsize=8)
+plt.ylabel(r" Effective Diffusion Coefficient $D_\parallel$ [$D_m$]",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
@@ -147,7 +147,7 @@ for i in range(len(Lx)):
 	plt.plot(np.sqrt(omega/Dm), D[ind, :], color="C"+str(i), linewidth=1)
 	print(U[ind,:]/Dm)
 ax1.set_xlabel(r" Diffusive Womersley number $\sqrt{\omega a^2/D}$", fontsize=8)
-plt.ylabel(r" Effective Diffusion Coefficient $ D_\parallel$",  fontsize=8)
+plt.ylabel(r" Effective Dispersion $ D_\parallel$ [$D_m$]",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)

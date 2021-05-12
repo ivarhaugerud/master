@@ -157,7 +157,7 @@ for i in range(len(epsilon2)-1):
 		plt.plot(U_num[i+1,j]/1.2, 100*abs(D_num[i+1, j]-interpoo[np.argmin(abs(kappa_cont-kappa2[j]))])/D_num[i+1, j], "o", color="C"+str(i), markersize=3)
 
 
-plt.xlabel(r" Reynolds number $\frac{aU}{\nu}$", fontsize=8)
+plt.xlabel(r" Reynolds number $aU/\nu$", fontsize=8)
 plt.ylabel(r" Rel change in $D_\parallel$ with inertia [%]",  fontsize=8)
 plt.legend(loc="best", ncol=2, fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
