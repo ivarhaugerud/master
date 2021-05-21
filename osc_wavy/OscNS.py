@@ -16,6 +16,7 @@ df.parameters["form_compiler"]["optimize"] = True
 df.parameters["form_compiler"]["cpp_optimize"] = True
 
 
+#Define periodic boundary conditions
 class PBC(df.SubDomain):
     def __init__(self, Lx):
         self.Lx = Lx
@@ -33,7 +34,7 @@ class PBC(df.SubDomain):
             y[0] = x[0]
             y[1] = x[1]
 
-
+#define boundary, here using cosine, but it is irrelevant if its cosine or sine.
 class Walls(df.SubDomain):
     def __init__(self, Lx, Ly, epsilon):
         self.Lx = Lx
@@ -50,6 +51,7 @@ class Walls(df.SubDomain):
             (1.0 + self.eps * np.cos(2 * np.pi * x[0] / self.Lx)) - self.tol)
 
 
+#return true if close or on boundary
 def inlet(x, on_bnd):
     return on_bnd and df.near(x[0], 0)
 

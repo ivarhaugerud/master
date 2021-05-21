@@ -144,7 +144,7 @@ plt.plot(epsilon, epsilon**4/(1-epsilon), "k", label=r"$\epsilon^4$")
 
 #plt.plot(epsilon, epsilon*epsilon*(gamma*gamma+kappa*kappa), label=r"$\epsilon^2(\gamma^2+\kappa^2)$")
 plt.xlabel(r" Boundary amplitude $\epsilon$", fontsize=8)
-plt.ylabel(r" Relative difference $D_\parallel$ [$D_m$]",  fontsize=8)
+plt.ylabel(r" Difference in $D_\parallel$ [$D_m$]",  fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.yscale("log")
 plt.xscale("log")

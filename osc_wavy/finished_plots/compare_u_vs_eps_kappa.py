@@ -60,10 +60,10 @@ for i in range(len(epsilon)):
 ###
 
 pi = np.pi 
-Nt = 100
+Nt = 300
 T = np.linspace(0, 2*np.pi/omega, Nt)
-N_eta = 150
-xi = np.linspace(-1, 1, 750)
+N_eta = 350
+xi = np.linspace(-1, 1, 1250)
 
 u_x = np.zeros((len(T), len(xi), N_eta, 3))
 u_y = np.zeros((len(T), len(xi), N_eta, 3))
@@ -80,12 +80,12 @@ for j in range(len(kappas)):
 	P_1 = (gamma*F0*np.tanh(gamma)/(kappa*np.cosh(kappa)))/(1-kappa_p*np.tanh(kappa)/(kappa*np.tanh(kappa_p)))
 
 	from cmath import *
-	Ax = sqrt(gamma**2 + 4*kappa**2)*(F0*gamma**2*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*gamma**2*sinh(kappa)*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*kappa**2*cosh(kappa)*cosh(2*kappa)*tanh(kappa_p) - 2*P_1*kappa*kappa_p*sinh(kappa)*cosh(2*kappa))/(4*gamma**2*(2*kappa*sinh(sqrt(gamma**2 + 4*kappa**2))*cosh(2*kappa) - sqrt(gamma**2 + 4*kappa**2)*sinh(2*kappa)*cosh(sqrt(gamma**2 + 4*kappa**2)))*tanh(kappa_p))
-	Ay = kappa*(F0*gamma**2*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*gamma**2*sinh(kappa)*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*kappa**2*cosh(kappa)*cosh(2*kappa)*tanh(kappa_p) - 2*P_1*kappa*kappa_p*sinh(kappa)*cosh(2*kappa))/(2*gamma**2*(2*kappa*sinh(sqrt(gamma**2 + 4*kappa**2))*cosh(2*kappa) - sqrt(gamma**2 + 4*kappa**2)*sinh(2*kappa)*cosh(sqrt(gamma**2 + 4*kappa**2)))*tanh(kappa_p))
-	psi_2 = (P_1*sqrt(gamma**2 + 4*kappa**2)*(kappa*cosh(kappa)*tanh(kappa_p) - kappa_p*sinh(kappa))*cosh(sqrt(gamma**2 + 4*kappa**2)) + gamma**2*(F0 + 2*P_1*sinh(kappa))*sinh(sqrt(gamma**2 + 4*kappa**2))*tanh(kappa_p))/(4*(2*kappa*sinh(sqrt(gamma**2 + 4*kappa**2))*cosh(2*kappa) - sqrt(gamma**2 + 4*kappa**2)*sinh(2*kappa)*cosh(sqrt(gamma**2 + 4*kappa**2)))*tanh(kappa_p))
+	#Ax = sqrt(gamma**2 + 4*kappa**2)*(F0*gamma**2*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*gamma**2*sinh(kappa)*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*kappa**2*cosh(kappa)*cosh(2*kappa)*tanh(kappa_p) - 2*P_1*kappa*kappa_p*sinh(kappa)*cosh(2*kappa))/(4*gamma**2*(2*kappa*sinh(sqrt(gamma**2 + 4*kappa**2))*cosh(2*kappa) - sqrt(gamma**2 + 4*kappa**2)*sinh(2*kappa)*cosh(sqrt(gamma**2 + 4*kappa**2)))*tanh(kappa_p))
+	#Ay = kappa*(F0*gamma**2*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*gamma**2*sinh(kappa)*sinh(2*kappa)*tanh(kappa_p) + 2*P_1*kappa**2*cosh(kappa)*cosh(2*kappa)*tanh(kappa_p) - 2*P_1*kappa*kappa_p*sinh(kappa)*cosh(2*kappa))/(2*gamma**2*(2*kappa*sinh(sqrt(gamma**2 + 4*kappa**2))*cosh(2*kappa) - sqrt(gamma**2 + 4*kappa**2)*sinh(2*kappa)*cosh(sqrt(gamma**2 + 4*kappa**2)))*tanh(kappa_p))
+	#psi_2 = (P_1*sqrt(gamma**2 + 4*kappa**2)*(kappa*cosh(kappa)*tanh(kappa_p) - kappa_p*sinh(kappa))*cosh(sqrt(gamma**2 + 4*kappa**2)) + gamma**2*(F0 + 2*P_1*sinh(kappa))*sinh(sqrt(gamma**2 + 4*kappa**2))*tanh(kappa_p))/(4*(2*kappa*sinh(sqrt(gamma**2 + 4*kappa**2))*cosh(2*kappa) - sqrt(gamma**2 + 4*kappa**2)*sinh(2*kappa)*cosh(sqrt(gamma**2 + 4*kappa**2)))*tanh(kappa_p))
 
-	uy = (-P_1*kappa**2*xi*np.cosh(kappa*xi)/(2*gamma**2) + P_1*kappa*kappa_p*xi*np.sinh(kappa)*np.cosh(kappa_p*xi)/(2*gamma**2*np.sinh(kappa_p)) - 2*kappa*psi_2*np.sinh(2*kappa*xi)/gamma**2) + Ay*np.sinh(kappa_pp*xi)
-	ux = F0*xi**2*np.cosh(gamma*xi)/(4*np.cosh(gamma)) - P_1*kappa**2*xi*np.sinh(kappa*xi)/(2*gamma**2) + P_1*kappa_p*kappa_p*np.sinh(kappa)*xi*np.sinh(kappa_p*xi)/(2*gamma**2*np.sinh(kappa_p)) - 2*kappa*psi_2*np.cosh(2*kappa*xi)/gamma**2 + Ax*np.cosh(kappa_pp*xi)
+	uy = 0#(-P_1*kappa**2*xi*np.cosh(kappa*xi)/(2*gamma**2) + P_1*kappa*kappa_p*xi*np.sinh(kappa)*np.cosh(kappa_p*xi)/(2*gamma**2*np.sinh(kappa_p)) - 2*kappa*psi_2*np.sinh(2*kappa*xi)/gamma**2) + Ay*np.sinh(kappa_pp*xi)
+	ux = 0#F0*xi**2*np.cosh(gamma*xi)/(4*np.cosh(gamma)) - P_1*kappa**2*xi*np.sinh(kappa*xi)/(2*gamma**2) + P_1*kappa_p*kappa_p*np.sinh(kappa)*xi*np.sinh(kappa_p*xi)/(2*gamma**2*np.sinh(kappa_p)) - 2*kappa*psi_2*np.cosh(2*kappa*xi)/gamma**2 + Ax*np.cosh(kappa_pp*xi)
 	ux_no_eta = P_1*kappa*kappa*np.sinh(kappa)*(xi*np.sinh(kappa*xi)/np.sinh(kappa) - np.cosh(gamma*xi)/np.cosh(gamma))/(2*gamma*gamma) + F0*np.cosh(gamma*xi)*(1-xi*xi)/(4*np.cosh(gamma)) + P_1*kappa_p*kappa_p*np.sinh(kappa)*(np.cosh(gamma*xi)/np.cosh(gamma)-xi*np.sinh(kappa_p*xi)/np.sinh(kappa_p))/(2*gamma*gamma)
 
 
@@ -99,8 +99,8 @@ for j in range(len(kappas)):
 			u_y[t,x,:, 1] = np.real((np.exp(1j*omega*T[t])*np.cos(kappa*eta)*kappa*P1*np.sinh(kappa)/(gamma*gamma))*( np.sinh(kappa_prime*xi[x])/np.sinh(kappa_prime) - np.sinh(kappa*xi[x])/np.sinh(kappa)))
 
 			#second order
-			u_x[t,x,:, 2]  = np.real(np.exp(1j*omega*T[t])*ux[x]*np.cos(2*kappa*eta)) + np.real(np.exp(1j*omega*T[t])*ux_no_eta[x])
-			u_y[t,x,:, 2]  = np.real(np.exp(1j*omega*T[t])*uy[x]*np.sin(2*kappa*eta))
+			u_x[t,x,:, 2]  = np.real(np.exp(1j*omega*T[t])*ux_no_eta[x])#np.real(np.exp(1j*omega*T[t])*ux[x]*np.cos(2*kappa*eta)) 
+			u_y[t,x,:, 2]  = 0#np.real(np.exp(1j*omega*T[t])*uy[x]*np.sin(2*kappa*eta))
 
 
 	u = np.zeros((len(T), len(xi), len(eta), 3))
@@ -125,17 +125,23 @@ for j in range(len(kappas)):
 			after_xi_eta_integral[i] = integrate.trapz(after_xi_integral[i,:], eta)/(2*np.pi/kappa)
 
 		u_squared_ana[e, j] = integrate.trapz(after_xi_eta_integral, T)/(2*pi/omega)
+		u_squared_ana[e, j] -= epsilon[e]**4*integrate.trapz(ux_no_eta*np.conjugate(ux_no_eta), xi)/2
 		u_squared_ana[e, j] -= 0.25*integrate.trapz(F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(gamma*gamma)*np.conjugate(F0*(1-np.cosh(gamma*xi)/np.cosh(gamma))/(gamma*gamma)), xi)
-		u_squared_ana[e, j] -= 0.5*0.25*integrate.trapz(uy*np.conjugate(uy) + ux*np.conjugate(ux), xi)*eps**4
+		#u_squared_ana[e, j] -= 0.5*0.25*integrate.trapz(uy*np.conjugate(uy) + ux*np.conjugate(ux), xi)*eps**4
 
+
+for i in range(len(kappas)):
+	plt.plot(epsilon, u_squared_ana[:, i], color="C"+str(i))
+	plt.plot(epsilon, exp_u2[:, i]-exp_u2[0,i], "o", color="C"+str(i), markersize=3)
 plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=8)
 plt.ylabel(r"Kinetic energy of fluid $\langle u^2 \rangle^{(2)}$", fontsize=8)
 plt.legend(loc="best", fontsize=8)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
-#plt.axis([0.035, 0.52, -0.34, 0.02])
-plt.xscale("log")
-filename = root + "figures/comparison_numeric_analytic4.pdf"
+plt.axis([-0.035, 0.52, -0.34, 0.02])
+#plt.xscale("log")
+#plt.yscale("log")
+filename = root + "figures/comparison_numeric_analytic5.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
@@ -145,7 +151,8 @@ for i in range(len(kappas)):
 	plt.plot(epsilon[1:], abs((u_squared_ana[1:,i]-exp_u2[1:,i]+exp_u2[0, i])), "-", linewidth=1, color=sns.color_palette()[i])
 
 epsilon = np.linspace(0.06, max(epsilon), int(1e3))
-plt.plot(epsilon, epsilon**4/(1-epsilon), "k", label=r"$\epsilon^4$")
+plt.plot(epsilon, epsilon**4, "k", label=r"$\epsilon^4$")
+
 plt.yscale("log")
 plt.xlabel(r"Boundary amplitude $\epsilon$", fontsize=8)
 plt.ylabel(r"Difference kinetic energy $\langle u^2 \rangle^{(2)}$", fontsize=8)
@@ -153,7 +160,7 @@ plt.legend(loc="best", fontsize=8, ncol=2)
 plt.tick_params(axis='both', which='major', labelsize=8)
 plt.tick_params(axis='both', which='minor', labelsize=8)
 plt.xscale("log")
-filename = root+"figures/comparison_numeric_analytic_difference4.pdf"
+filename = root+"figures/comparison_numeric_analytic_difference5.pdf"
 plt.savefig(filename, bbox_inches="tight")
 os.system('pdfcrop %s %s &> /dev/null &'%(filename, filename))
 plt.show()
