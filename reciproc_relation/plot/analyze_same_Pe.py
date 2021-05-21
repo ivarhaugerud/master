@@ -56,7 +56,7 @@ plt.show()
 
 
 plt.figure(2)
-plt.plot(t*2, C_back[Dx, Dy, :]/max(C_back[Dx,Dy,30:]), label=r"$C_{A}(\mathbf{x}_B, \alpha t)$")
+plt.plot(t*2, C_back[Dx, Dy, :]/max(C_back[Dx,Dy,30:]), label=r"$C_{A}(\mathbf{x}_B, t/\alpha )$")
 plt.plot(t,  C_front[Sx, Sy, :]/max(C_back[Dx,Dy,30:]),  "--", color="C3", label=r"$C_{B}(\mathbf{x}_A, t)$")
 plt.axis([0.10, 2.05, -0.025, 1.05])
 plt.xlabel(r"Time [$T_{max}$]", fontsize=8)

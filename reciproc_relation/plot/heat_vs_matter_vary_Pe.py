@@ -24,6 +24,10 @@ Sy2 = 26
 Sx3 = 135
 Sy3 = 39
 
+print(np.sqrt((Sx-Dx)**2 + (Sy-Dy)**2))
+print(np.sqrt((Sx2+140-Dx)**2 + (Sy2-Dy)**2))
+print(np.sqrt((Sx3-Dx)**2 + (Sy3-Dy)**2))
+
 x_axis = np.linspace(0, Nx-1, Nx)
 y_axis = np.linspace(0, Ny-1, Ny)
 
@@ -105,7 +109,7 @@ for i in range(len(factors)):
 
 		C_front3[i, j]  = np.reshape(np.loadtxt("../data/heat_vary_Pe_03_04_" + str(factors[i]) + "_C_" + str(j*skip) + "_heat.txt"), (Nx,Ny))[Sx3, Sy3]
 		C_back3[i,  j]  = np.reshape(np.loadtxt("../data/heat_vary_Pe_03_04_" + str(factors[i]) + "_C_"+  str(j*skip) + "_matter.txt"), (Nx,Ny))[Dx, Dy]
-
+	print(i/len(factors))
 #for i in range(len(f_factors)):
 #	for j in range(datafiles):
 #		C_front[i, j]  = np.reshape(np.loadtxt("../data/heat_vary_Pe_01_04_f" + str(f_factors_file[i]) + "_C_" + str(j*skip) + "_heat.txt"), (Nx,Ny))[Sx, Sy]
@@ -148,14 +152,15 @@ for i in range(len(all_factors)):
 	dif3[i] = scp.trapz(abs(C_front3[i,hw:]-C_back3[i,hw:]), t[hw:])/scp.trapz(abs(C_back3[i,hw:]), t[hw:])
 	dif2[i] = scp.trapz(abs(C_front2[i,hw:]-C_back2[i,hw:]), t[hw:])/scp.trapz(abs(C_back2[i,hw:]), t[hw:])
 	dif[i]  = scp.trapz(abs(C_front[i,hw:]-C_back[i,hw:]), t[hw:])/scp.trapz(abs(C_back[i,hw:]), t[hw:])
-#plt.show()
-
+	#plt.show()
+	print("hello")
+plt.show()
 
 plt.figure(2)
 #plt.yscale("log")
-plt.plot(Pe[:-1], dif[:-1],   "o", markersize=3, label="short")
-plt.plot(Pe[:-1], dif3[:-1],  "o", markersize=3, label="medium")
-plt.plot(Pe[1:-1], dif2[1:-1],  "o", markersize=3, label="long")
+plt.plot(Pe[:-1], dif[:-1],   "o", markersize=3, label="Short")
+plt.plot(Pe[:-1], dif3[:-1],  "o", markersize=3, label="Medium")
+plt.plot(Pe[1:-1], dif2[1:-1],  "o", markersize=3, label="Long")
 plt.xscale("log")
 plt.xlabel(r"Peclet number [Pe]", fontsize=8)
 plt.ylabel(r"Integrated consentration difference [Error]", fontsize=8)
