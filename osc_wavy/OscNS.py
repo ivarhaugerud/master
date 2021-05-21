@@ -230,8 +230,6 @@ problem_B = df.LinearVariationalProblem(a_chi, L_chi, B_, bcs=[])
 solver_B = df.LinearVariationalSolver(problem_B)
 solver_B.parameters["krylov_solver"]["absolute_tolerance"] = 1e-14
 
-t = 0
-
 one     = df.interpolate(df.Constant(1.), S)
 V_Omega = df.assemble(one * df.dx)       # calculate unit cell volume (should always be 2*lambda)
 r       = df.SpatialCoordinate(mesh)
@@ -244,16 +242,16 @@ ux_mean = 0.
 
 #nr of timesteps
 Ntau = int(tau / dt)
+#used to check for convergence of u and B
 normu_arr = np.zeros(Ntau)
-it = 0
+normB_arr = np.zeros(Ntau)
+
+it = 0 #time index
 
 #create data file
 if rank == 0:
     ofile = open("{}/tdata.dat".format(folder), "w")
 
-normu_max = 0.
-nt_conv = 0
-it_conv = -1
 
 #will save 8 different quantities
 eq_data = np.zeros((Ntau, 8))
@@ -262,11 +260,34 @@ eq_data = np.zeros((Ntau, 8))
 if rank == 0:
     timestampsfile = open(os.path.join(timestampsfolder, "timestamps.dat"), "w")
 
-#for each time-step
+
+
+###
+#will save 9 different quantities
+eq_data = np.zeros((Ntau, 9))
+
+#different quantities we will save to file
+if rank == 0:
+    keys = ("t", "fxt", "ux_mean", "uy_mean", "u2_mean",
+            "C2", "B2", "Bmean", "integral_2",
+            "normu", "resu", "resB")
+    ofile.write(("#" + "\t".join(["{}" for _ in keys]) + "\n").format(*keys))
+
+
+#Define quantities with currently arbitrary values
+t = 0
+normu_max = 0.
+normB_max = 0.
+nt_conv = 0
+it_conv = -1
+
+#loop over time
 while t < T:
+    #update time and index-time
     t += dt
     it += 1
 
+    #distribute
     w_2.assign(w_1)
     w_1.assign(w_)
     B_1.assign(B_)
@@ -275,12 +296,11 @@ while t < T:
     #solve velocity field and pressure
     solver.solve()
 
-    #calculate various averages
+    #calculate averages
     ux_mean_prev = ux_mean
     ux_mean = df.assemble(u_[0] * df.dx) / V_Omega
     uy_mean = df.assemble(u_[1] * df.dx) / V_Omega
     u2_mean = df.assemble(df.dot(u_, u_) * df.dx) / V_Omega
-    ux_CN_mean.ux = 0.5 * (ux_mean + ux_mean_prev)
 
     #solve Brenner field
     solver_B.solve()
@@ -290,46 +310,47 @@ while t < T:
     B2 = df.assemble((B_**2 - B_1**2) * df.dx) / V_Omega
     Bmean = df.assemble(B_ * df.dx) / V_Omega
 
-    #calculate effective diffusion coefficient
+    #calculate dispersion tensor
     integral_2 = (
         1 - 2 * df.assemble(B_.dx(0) * df.dx) / V_Omega +
         df.assemble(df.inner(df.grad(B_), df.grad(B_)) * df.dx) / V_Omega)
 
-
-    #check for convergence of velocity field
+    #calculate for convergence of velocity field
     ires = it % Ntau
     normu = df.norm(w_.vector())
     normu_max = max(normu_max, abs(normu))
-    res = abs(normu - normu_arr[ires]) / normu_max
+    resu = abs(normu - normu_arr[ires]) / normu_max
     normu_arr[ires] = normu
 
-    #calculate convergence of Brenner field
+    #calculate for convergence of Brenner field
     normB = df.norm(B_.vector())
     normB_max = max(normB_max, abs(normB))
     resB = abs(normB - normB_arr[ires]) / normB_max
     normB_arr[ires] = normB
 
-    #check if velocity is converged
-    if res < tol:
+
+    #check for convergence of velocity field
+    if resu < tol and resB < tol:
         nt_conv += 1
     else:
         nt_conv = 0
 
+    #in case of end of period
     if nt_conv == Ntau:
         it_conv = it
 
     f.t = t
     fxt = df.assemble(f[0] * df.dx(domain=mesh)) / V_Omega
 
-    #print and write the calculated values to file
+    #save quantities to file
     if rank == 0:
         items = (t, fxt, ux_mean, uy_mean, u2_mean, C2, B2, Bmean, integral_2,
-                 normu, res)
-        print("time =", t, "\t ux_mean =", ux_mean, "\t res =", res, "vs.",
+                 normu, resu, resB)
+        print("time =", t, "\t ux_mean =", ux_mean, "\t resu =", resu, "& resB =", resB, "vs.",
               tol)
         ofile.write(("\t".join(["{}" for _ in items]) + "\n").format(*items))
 
-    #write velocity field, pressure and Brenner field to file, if of interest
+    #write velocity, pressure and Brenner field to file
     U_, P_ = w_.split(deepcopy=True)
     U_.rename("u", "tmp")
     P_.rename("p", "tmp")
@@ -349,29 +370,39 @@ while t < T:
         eq_data[ires, 3] = u2_mean
         eq_data[ires, 4] = C2
         eq_data[ires, 5] = integral_2
-        if rank == 0:
-            timestampsfile.write("{} up_{}.h5\n".format(ires * dt, ires))
+        eq_data[ires, 6] = fxt
 
-#print averages and a-posteriori Reynolds etc.
+#when finished print averages and convergence of Brenner field
 if rank == 0:
     print("Time-and-space averaged:")
     print("  u_mean_avg =", np.mean(eq_data[:, 1]))
     u_rms = np.sqrt(np.mean(eq_data[:, 3]))
+    ux2_avg = np.mean(eq_data[:, 1]**2)
+    fx2_avg = np.mean(eq_data[:, 6]**2)
+    uxfx_avg = np.mean(eq_data[:, 1] * eq_data[:, 6])
+    cosphi = uxfx_avg / np.sqrt(ux2_avg * fx2_avg)
     print("  u_rms =", u_rms)
+    print("  phi   =", np.arccos(cosphi),
+          "(phase shift between force and velocity)")
     print("A posteriori estimates:")
     print(
         "  Re =", u_rms / args.nu, "(inertia was enabled)"
         if enable_inertia else "(but inertia was disabled)")
     print("  Pe =", u_rms / args.D)
     print("  Sc =", args.nu / args.D)
+    print("  Wo =", np.sqrt(2*np.pi/(tau*args.nu)))
     print("Finally:")
     print("  D_eff/D =", np.mean(eq_data[:, 5]))
 
     dC2dt = (np.roll(eq_data[:, 4], -1) - np.roll(eq_data[:, 4], 1)) / (2 * dt)
-    eq_data[:, 6] = dC2dt
-    eq_data[:, 7] = 0.5 * dC2dt + args.D * eq_data[:, 5]
+    eq_data[:, 7] = dC2dt
+    eq_data[:, 8] = 0.5 * dC2dt + args.D * eq_data[:, 5]
     np.savetxt(os.path.join(folder, "eqdata.dat"), eq_data)
-    timestampsfile.close()
+
+    with open(os.path.join(timestampsfolder, "timestamps.dat"),
+              "w") as timestampsfile:
+        for ires in range(Ntau):
+            timestampsfile.write("{} up_{}.h5\n".format(ires * dt, ires))
 
 if rank == 0:
     ofile.close()
