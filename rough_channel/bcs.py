@@ -1,6 +1,6 @@
 import dolfin as df
 
-
+#define periodic boundaries
 class PeriodicBC(df.SubDomain):
     def __init__(self, Lx, Ly):
         self.Lx = Lx
@@ -16,7 +16,7 @@ class PeriodicBC(df.SubDomain):
         y[0] = x[0] - self.Lx
         y[1] = x[1]
 
-
+#to check if on boundary node
 class Wall(df.SubDomain):
     def __init__(self, Lx, Ly):
         self.Lx = Lx
@@ -26,7 +26,7 @@ class Wall(df.SubDomain):
     def inside(self, x, on_boundary):
         return on_boundary
 
-
+#to check if one fluid node
 class NotWall(df.SubDomain):
     def __init__(self, Lx, Ly):
         self.Lx = Lx

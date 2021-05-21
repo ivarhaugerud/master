@@ -6,6 +6,9 @@ from dolfin import MPI
 import os
 import h5py
 
+###
+#       CODE FOR DEFINING THE ROUGH GEOMETRIES, THE PROPOSED FRACTAL GEOMETRY IS FURTHER DEFINED, BUT NOT INVESTIGATED IN THE THESIS
+###
 
 def mpi_comm():
     return MPI.comm_world
@@ -86,7 +89,7 @@ def dict2list(d):
         l[i] = di
     return l
 
-
+#square roughness with boundary b
 def square_rough_mesh(b, dx):
     if b == 0.0:
         pts_low = [(0.0, 0.0),
@@ -145,6 +148,7 @@ def square_rough_mesh(b, dx):
 
     return msh
 
+#geometry fractal generation 1
 def fractal_1_square_rough_mesh(b, dx):
     if b == 0.0:
         pts_low = [(0.0, 0.0),
@@ -211,6 +215,7 @@ def fractal_1_square_rough_mesh(b, dx):
 
     return msh
 
+#geometry fractal generation 2
 def fractal_2_square_rough_mesh(b, dx):
     if b == 0.0:
         pts_low = [(0.0, 0.0),
@@ -301,6 +306,7 @@ def fractal_2_square_rough_mesh(b, dx):
 
     return msh
 
+# triangle type geometry to test symmetry of dispersion tensor under flip of geometry
 def triangle_rough_mesh(b, dx, flip):
     #flip = bool, 1 or 0, true or false
     if b == 0.0:
@@ -370,7 +376,7 @@ def triangle_rough_mesh(b, dx, flip):
 
     return msh
 
-
+#if code is run seperately, make a mesh and displayed
 if __name__ == "__main__":
     dx = 0.0001
     b = 0.1

@@ -204,7 +204,7 @@ logPe_arr = np.linspace(args.logPe_min, args.logPe_max, args.logPe_N)
 if rank == 0:
     data = np.zeros((len(logPe_arr), 3))
 
-#solve the Problem for each Peclet number and save averaged value to file and print
+#solve the Problem for each Peclet number and print
 for iPe, logPe in enumerate(logPe_arr):
     Pe_loc = 10**logPe
     Pe.assign(Pe_loc)
@@ -222,5 +222,6 @@ for iPe, logPe in enumerate(logPe_arr):
         data[iPe, 1] = 1+integral
         data[iPe, 2] = integral/Pe_loc**2
 
+#save data
 if rank == 0:
     np.savetxt("{}/Re{}_b{}_res{}.dat".format(folder, str(Re)[:5], args.b, args.res), data)
