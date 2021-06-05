@@ -186,16 +186,9 @@ F_chi = (n[0]*psi*ds(1)
 #define left and right hand side
 a_chi, L_chi = df.lhs(F_chi), df.rhs(F_chi)
 
-#define solvers
-solver_chi = df.PETScKrylovSolver("gmres")
-nullvec    = df.Vector(chi_.vector())
-S.dofmap().set(nullvec, 1.0)
-nullvec   *= 1.0/nullvec.norm("l2")
-nullspace  = df.VectorSpaceBasis([nullvec])
-
 #define problem and solver
 problem_chi2 = df.LinearVariationalProblem(a_chi, L_chi, chi_, bcs=[])
-solver_chi2 = df.LinearVariationalSolver(problem_chi2)
+solver_chi2  = df.LinearVariationalSolver(problem_chi2)
 solver_chi2.parameters["krylov_solver"]["absolute_tolerance"] = 1e-15
 
 #array of Peclet numbers to investigate
